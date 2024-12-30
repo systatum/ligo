@@ -13,5 +13,15 @@ export default defineNuxtConfig({
     "~/assets/main.scss"
   ],
 
-  modules: ["@nuxtjs/tailwindcss"]
+  modules: ["@nuxtjs/tailwindcss"],
+
+  vite: {
+    server: {
+      // fix issue of docker not reflecting new (component) files
+      watch: {
+        usePolling: true,
+        interval: 200,
+      }
+    }
+  }
 })
