@@ -1,0 +1,36 @@
+FROM alpine:3.14
+RUN apk update
+RUN apk add --no-cache bash
+RUN apk add --no-cache mysql-client
+RUN apk add --no-cache build-base curl file git
+RUN apk add --no-cache gzip libc6-compat ncurses
+
+RUN apk update \
+	&& apk --no-cache add bash coreutils curl file g++ grep git libc6-compat make ruby ruby-bigdecimal ruby-etc ruby-fiddle ruby-irb ruby-json ruby-test-unit sudo \
+	&& adduser -D -s /bin/bash linuxbrew \
+	&& echo 'linuxbrew ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers \
+	&& ln -s /bin/touch /usr/bin/touch
+
+RUN apk add crystal shards
+
+RUN git clone -b v0.5.4 https://github.com/martenframework/marten && \
+  cd marten && \
+  shards install && \
+  crystal build src/marten_cli.cr -o bin/marten && \
+  mv bin/marten /usr/local/bin
+
+
+# RUN mkdir /brew && chown nobody:users /brew
+# USER nobody
+# RUN git clone https://github.com/Homebrew/linuxbrew.git /brew &&\
+# cp -r /brew/bin/ /brew/orig_bin/
+
+# RUN adduser -D -s /bin/bash linuxbrew
+# RUN echo 'linuxbrew ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers
+# RUN su -l linuxbrew
+
+# RUN /brew/bin/brew update
+
+# USER nobody
+
+CMD ["/bin/bash"]

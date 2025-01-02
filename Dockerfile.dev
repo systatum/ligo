@@ -1,27 +1,27 @@
-ARG RUBY_VERSION=3.3.1
-FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
+# THIS BUILD MARTEN SUCCESSFULLY
+FROM archlinux:base-devel-20241215.0.289170
+RUN sudo pacman -Syu --noconfirm
+RUN sudo pacman -S base-devel git crystal shards --noconfirm --needed
 
-# Rails app lives here
+ARG user=makepkg
+RUN useradd --system --create-home $user \
+  && echo "$user ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/$user
+USER $user
+WORKDIR /home/$user
+
+RUN git clone https://aur.archlinux.org/yay.git \
+  && cd yay \
+  && makepkg -sri --needed --noconfirm \
+  && cd \
+  # Clean up
+  && rm -rf .cache yay
+
+RUN yay -aS --noconfirm --answerdiff=None marten
+# git clone https://aur.archlinux.org/yay.git
+
 WORKDIR /app
-
-# Install base packages
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libvips postgresql-client && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
-
-# Set production environment
-ENV RAILS_ENV="development"
-
-# Install packages needed to build gems
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libpq-dev pkg-config && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
-
-# Install application gems
-COPY Gemfile Gemfile.lock ./
-RUN bundle install && \
-    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
-    bundle exec bootsnap precompile --gemfile
-
-# Copy application code
 COPY . .
+
+# CMD ["/bin/bash"]
+
+# docker build -f Dockerfile3.dev -t marten --platform linux/amd64 .

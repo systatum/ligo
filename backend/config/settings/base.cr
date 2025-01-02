@@ -1,0 +1,33 @@
+Marten.configure do |config|
+  # IMPORTANT: please ensure that the secret key value is kept secret!
+  config.secret_key = "__insecure_a63d0fb74b31bb30bb5eb80d15fb691df300155913e8d4eb4e651310b8803fca__"
+
+  # Installed applications
+  # https://martenframework.com/docs/development/reference/settings#installed_apps
+  config.installed_apps = [] of Marten::Apps::Config.class
+
+  # Application middlewares
+  # https://martenframework.com/docs/development/reference/settings#middleware
+  config.middleware = [
+    Marten::Middleware::Session,
+    Marten::Middleware::Flash,
+    Marten::Middleware::GZip,
+    Marten::Middleware::XFrameOptions,
+  ]
+
+  # Databases
+  # https://martenframework.com/docs/development/reference/settings#database-settings
+  config.database do |db| # ameba:disable Naming/BlockParameterName
+    db.backend = :sqlite
+    db.name = Path["custy.db"].expand
+  end
+
+  # Templates context producers
+  # https://martenframework.com/docs/development/reference/settings#context_producers
+  config.templates.context_producers = [
+    Marten::Template::ContextProducer::Request,
+    Marten::Template::ContextProducer::Flash,
+    Marten::Template::ContextProducer::Debug,
+    Marten::Template::ContextProducer::I18n,
+  ]
+end

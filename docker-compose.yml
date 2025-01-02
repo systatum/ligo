@@ -14,16 +14,17 @@ services:
     container_name: custy_backend
     build:
       dockerfile: Dockerfile.dev
-    command: bundle exec rails server -b 0.0.0.0
-    tty: true
-    stdin_open: true
+    command: marten serve
+    # tty: true
+    # stdin_open: true
     volumes:
-      - .:/app
-      - bundle_data:/usr/local/bundle:cached
+      - ./backend:/app
+      # - bundle_data:/usr/local/bundle:cached
     depends_on:
       - custy_db
     ports:
       - 3003:3000 # forward the port
+    platform: linux/amd64
 
   custy_frontend:
     container_name: custy_frontend
@@ -35,14 +36,6 @@ services:
       - 3001:3000
     command: "npm run dev"
 
-# networks:
-#   app_net:
-#     driver: bridge
-#     ipam:
-#       driver: default
-#       config:
-#         - subnet: 127.20.0.0/24
-
 volumes:
   pgdata:
-  bundle_data:
+  # bundle_data:
