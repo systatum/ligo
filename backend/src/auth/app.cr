@@ -1,5 +1,6 @@
 require "./emails/**"
 require "./handlers/**"
+require "./enums/**"
 require "./models/**"
 require "./routes"
 require "./schemas/**"
