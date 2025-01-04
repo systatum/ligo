@@ -1,0 +1,2 @@
+CREATE DATABASE IF NOT EXISTS custy_development;
+CREATE DATABASE IF NOT EXISTS custy_test;

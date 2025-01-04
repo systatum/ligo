@@ -18,7 +18,7 @@ Marten.configure do |config|
   # Databases
   # https://martenframework.com/docs/development/reference/settings#database-settings
   config.database do |db| # ameba:disable Naming/BlockParameterName
-    db.backend = :sqlite
+    db.backend = :mysql
     db.name = Path["custy.db"].expand
   end
 

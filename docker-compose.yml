@@ -3,12 +3,18 @@ version: "3"
 services:
   custy_db:
     container_name: custy_db
-    image: postgres:16-alpine
+    image: mariadb:11.4.4
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      MYSQL_ROOT_PASSWORD: custy_db_root_password
+      MYSQL_USER: custy_db_user
+      MYSQL_PASSWORD: custy_db_password
     volumes:
-      - pgdata:/var/lib/postgresql/data # to persist database
+        # to persist database, run docker volume rm custy_custy_db_data
+        # if you change the startup SQL code
+      - custy_db_data:/var/lib/mysql
+      - ./backend/dev_init.sql:/docker-entrypoint-initdb.d/setup.sql
+    ports:
+      - 3306:3306
 
   custy_backend:
     container_name: custy_backend
@@ -24,6 +30,7 @@ services:
       - custy_db
     ports:
       - 3003:3003 # forward the port
+      - 8080:8080 # for marten play
 
   custy_frontend:
     container_name: custy_frontend
@@ -36,5 +43,5 @@ services:
     command: "npm run dev"
 
 volumes:
-  pgdata:
+  custy_db_data:
   # bundle_data:

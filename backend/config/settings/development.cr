@@ -6,4 +6,13 @@ Marten.configure :development do |config|
   # Print sent emails to the standard output in development.
   # https://martenframework.com/docs/development/reference/settings#emailing-settings
   config.emailing.backend = Marten::Emailing::Backend::Development.new(print_emails: true)
+
+  # configure the database
+  config.database do |db|
+    db.backend = :mysql
+    db.host = "custy_db"
+    db.name = "custy_development"
+    db.user = "root"
+    db.password = "custy_db_root_password"
+  end
 end
