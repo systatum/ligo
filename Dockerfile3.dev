@@ -1,24 +1,9 @@
-FROM alpine:3.14
+FROM alpine:3.21
 RUN apk update
-RUN apk add --no-cache bash
-RUN apk add --no-cache mysql-client
-RUN apk add --no-cache build-base curl file git
-RUN apk add --no-cache gzip libc6-compat ncurses
 
-RUN apk update \
-	&& apk --no-cache add bash coreutils curl file g++ grep git libc6-compat make ruby ruby-bigdecimal ruby-etc ruby-fiddle ruby-irb ruby-json ruby-test-unit sudo \
-	&& adduser -D -s /bin/bash linuxbrew \
-	&& echo 'linuxbrew ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers \
-	&& ln -s /bin/touch /usr/bin/touch
-
-RUN bash -c 'git clone https://github.com/asdf-vm/asdf.git ~/.asdf'
-RUN bash -c 'echo ". $HOME/.asdf/asdf.sh" >> ~/.bashrc'
-RUN bash -c '$HOME/.asdf/bin/asdf plugin-add crystal https://github.com/asdf-community/asdf-crystal.git'
-RUN bash -c '$HOME/.asdf/bin/asdf install crystal 1.14.0'
-RUN bash -c '$HOME/.asdf/bin/asdf global crystal 1.14.0'
-
-RUN apk add --no-cache libevent-dev
-RUN export CRYSTAL_LIBRARY_PATH=''
+RUN apk add --no-cache bash build-base curl file git gzip \
+  libc6-compat ncurses libevent-dev coreutils \
+  curl g++ grep make libressl-dev llvm19-dev crystal shards
 
 # RUN apk add crystal shards
 

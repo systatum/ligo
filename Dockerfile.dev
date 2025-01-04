@@ -1,6 +1,6 @@
-FROM archlinux:base-devel-20241215.0.289170 as builder
-RUN sudo pacman -Syu --noconfirm
-RUN sudo pacman -S base-devel git crystal shards --noconfirm --needed
+FROM pkgforge/archlinux:v2024.12.25 as builder
+RUN pacman -Syu --noconfirm
+RUN pacman -S base-devel git crystal shards --noconfirm --needed
 
 ARG user=makepkg
 RUN useradd --system --create-home $user \
@@ -22,13 +22,14 @@ RUN yay -aS --noconfirm --answerdiff=None marten
 # to run it outside of docker compose:
 #   docker build -f Dockerfile.dev -t marten --platform linux/amd64 .
 #   docker run --platform linux/amd64 -it marten bash
-FROM --platform=linux/amd64 crystallang/crystal:1.14-alpine
-COPY --from=builder /usr/sbin/marten /usr/sbin/marten
-
+FROM alpine:3.21
 RUN apk update
+
 RUN apk add --no-cache bash build-base curl file git gzip \
-  libc6-compat ncurses libevent-dev coreutils \
-  curl g++ grep make
+  libc6-compat ncurses libevent-dev coreutils yaml-dev \
+  curl g++ grep make libressl-dev llvm19-dev crystal shards
+
+COPY --from=builder /usr/sbin/marten /usr/sbin/marten
 
 WORKDIR /app
 COPY . .

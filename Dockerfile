@@ -1,0 +1,34 @@
+FROM archlinux:base-devel-20241215.0.289170 as builder
+RUN sudo pacman -Syu --noconfirm
+RUN sudo pacman -S base-devel git crystal shards --noconfirm --needed
+
+ARG user=makepkg
+RUN useradd --system --create-home $user \
+  && echo "$user ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/$user
+USER $user
+WORKDIR /home/$user
+
+RUN git clone https://aur.archlinux.org/yay.git \
+  && cd yay \
+  && makepkg -sri --needed --noconfirm \
+  && cd \
+  # Clean up
+  && rm -rf .cache yay
+
+# install the marten command line tools
+RUN yay -aS --noconfirm --answerdiff=None marten
+
+# --- use alpine
+# to run it outside of docker compose:
+#   docker build -f Dockerfile.dev -t marten --platform linux/amd64 .
+#   docker run --platform linux/amd64 -it marten bash
+FROM --platform=linux/amd64 crystallang/crystal:1.14-alpine
+COPY --from=builder /usr/sbin/marten /usr/sbin/marten
+
+RUN apk update
+RUN apk add --no-cache bash build-base curl file git gzip \
+  libc6-compat ncurses libevent-dev coreutils \
+  curl g++ grep make
+
+WORKDIR /app
+COPY . .
