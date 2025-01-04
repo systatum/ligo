@@ -1,10 +1,14 @@
 Marten.configure do |config|
+  config.auth.user_model = Auth::User
+
   # IMPORTANT: please ensure that the secret key value is kept secret!
   config.secret_key = "__insecure_a63d0fb74b31bb30bb5eb80d15fb691df300155913e8d4eb4e651310b8803fca__"
 
   # Installed applications
   # https://martenframework.com/docs/development/reference/settings#installed_apps
-  config.installed_apps = [] of Marten::Apps::Config.class
+  config.installed_apps = [
+    Auth::App
+  ] of Marten::Apps::Config.class
 
   # Application middlewares
   # https://martenframework.com/docs/development/reference/settings#middleware
@@ -13,13 +17,13 @@ Marten.configure do |config|
     Marten::Middleware::Flash,
     Marten::Middleware::GZip,
     Marten::Middleware::XFrameOptions,
+    MartenAuth::Middleware
   ]
 
   # Databases
   # https://martenframework.com/docs/development/reference/settings#database-settings
   config.database do |db| # ameba:disable Naming/BlockParameterName
     db.backend = :mysql
-    db.name = Path["custy.db"].expand
   end
 
   # Templates context producers

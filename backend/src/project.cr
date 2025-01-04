@@ -1,5 +1,6 @@
 # Third party requirements.
 require "marten"
+require "marten_auth"
 require "sqlite3"
 require "envy"
 require "jbuilder"
@@ -18,3 +19,4 @@ require "./enums/**"
 require "./models/concerns/**"
 require "./models/**"
 require "./schemas/**"
+require "./auth/app"

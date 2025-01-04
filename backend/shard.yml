@@ -14,3 +14,6 @@ dependencies:
     github: crystal-lang/crystal-mysql
   nanoid:
     github: mamantoha/nanoid.cr
+  marten_auth:
+    github: martenframework/marten-auth
+
