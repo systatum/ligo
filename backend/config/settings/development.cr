@@ -9,7 +9,6 @@ Marten.configure :development do |config|
 
   # configure the database
   config.database do |db|
-    db.backend = :mysql
     db.host = "custy_db"
     db.name = "custy_development"
     db.user = "root"

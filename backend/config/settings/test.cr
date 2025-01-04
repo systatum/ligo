@@ -4,9 +4,10 @@ Marten.configure :test do |config|
   # production environments.
   # If test database names are not explicitly set, your specs suite won't be allowed to run at all.
   config.database do |db| # ameba:disable Naming/BlockParameterName
-    db.backend = :sqlite
-    db.name = ":memory:"
-    db.name = Path["custy.db"].expand
+    db.host = "custy_db"
+    db.name = "custy_test"
+    db.user = "root"
+    db.password = "custy_db_root_password"
   end
 
   config.allowed_hosts = ["127.0.0.1"]

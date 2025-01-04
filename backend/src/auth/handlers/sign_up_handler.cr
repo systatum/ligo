@@ -10,6 +10,7 @@ module Auth
 
     private def sign_up_user
       new_record = User.new(email: schema.email!)
+      new_record.first_name = "Adam"
       new_record.set_password(schema.password1!)
       new_record.save!
 
