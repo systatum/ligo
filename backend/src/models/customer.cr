@@ -6,6 +6,9 @@ class Customer < Marten::Model
   field :last_name, :string, max_size: 128, null: true, blank: true
   field :gender, :int, null: true, blank: true
   field :birthday, :date, null: true, blank: true
+  field :note, :text, null: true, blank: true
+  field :created_at, :date_time, null: false, auto_now_add: true
+  field :updated_at, :date_time, null: false, auto_now: true
 
   after_initialize :generate_slug
 
