@@ -6,3 +6,7 @@ dependencies:
     github: martenframework/marten
   sqlite3:
     github: crystal-lang/crystal-sqlite3
+  envy:
+    github: GrottoPress/envy
+  jbuilder:
+    github: shootingfly/jbuilder

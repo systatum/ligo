@@ -4,9 +4,17 @@ shards:
     git: https://github.com/crystal-lang/crystal-db.git
     version: 0.13.1
 
+  envy:
+    git: https://github.com/grottopress/envy.git
+    version: 1.0.4
+
   i18n:
     git: https://github.com/crystal-i18n/i18n.git
     version: 0.2.2
+
+  jbuilder:
+    git: https://github.com/shootingfly/jbuilder.git
+    version: 1.0.0
 
   marten:
     git: https://github.com/martenframework/marten.git
