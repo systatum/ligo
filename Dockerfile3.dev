@@ -11,13 +11,22 @@ RUN apk update \
 	&& echo 'linuxbrew ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers \
 	&& ln -s /bin/touch /usr/bin/touch
 
-RUN apk add crystal shards
+RUN bash -c 'git clone https://github.com/asdf-vm/asdf.git ~/.asdf'
+RUN bash -c 'echo ". $HOME/.asdf/asdf.sh" >> ~/.bashrc'
+RUN bash -c '$HOME/.asdf/bin/asdf plugin-add crystal https://github.com/asdf-community/asdf-crystal.git'
+RUN bash -c '$HOME/.asdf/bin/asdf install crystal 1.14.0'
+RUN bash -c '$HOME/.asdf/bin/asdf global crystal 1.14.0'
 
-RUN git clone -b v0.5.4 https://github.com/martenframework/marten && \
-  cd marten && \
-  shards install && \
-  crystal build src/marten_cli.cr -o bin/marten && \
-  mv bin/marten /usr/local/bin
+RUN apk add --no-cache libevent-dev
+RUN export CRYSTAL_LIBRARY_PATH=''
+
+# RUN apk add crystal shards
+
+# RUN git clone -b v0.5.4 https://github.com/martenframework/marten && \
+  # cd marten && \
+  # shards install && \
+  # crystal build src/marten_cli.cr -o bin/marten && \
+  # mv bin/marten /usr/local/bin
 
 
 # RUN mkdir /brew && chown nobody:users /brew
@@ -34,3 +43,5 @@ RUN git clone -b v0.5.4 https://github.com/martenframework/marten && \
 # USER nobody
 
 CMD ["/bin/bash"]
+
+# docker build -f Dockerfile2.dev -t marten-alpine --platform linux/amd64 .
