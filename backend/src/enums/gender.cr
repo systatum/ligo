@@ -1,4 +1,4 @@
-enum Gender
+module Gender
   UNKNOWN = 100
   AGENDER = 101
   INTERSEX = 102
