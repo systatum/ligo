@@ -12,4 +12,6 @@ class Customer < Marten::Model
   field :note, :text, null: true, blank: true
   field :created_at, :date_time, null: false, auto_now_add: true
   field :updated_at, :date_time, null: false, auto_now: true
+
+  db_unique_constraint :customer_unique_slug, field_names: [:slug]
 end
