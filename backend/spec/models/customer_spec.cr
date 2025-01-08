@@ -10,7 +10,7 @@ describe Customer do
 
   describe "#save" do
     it "can be created with just the first name" do
-      c = Customer.new
+      c = Customer.new(organization: create_organization)
       c.first_name = "Adam"
       c.save.should be_true
 
@@ -19,7 +19,7 @@ describe Customer do
   end
 
   it "tracks changes" do
-    c = Customer.new
+    c = Customer.new(organization: create_organization)
     c.first_name = "Adam"
     c.save.should be_true
     c.created_at.should_not eq nil
@@ -86,7 +86,7 @@ describe Customer do
   end
 
   it "can be soft deleted" do
-    c = Customer.new
+    c = Customer.new(organization: create_organization)
     c.first_name = "Adam"
     c.save!
 

@@ -4,3 +4,4 @@ require "spec"
 
 require "../src/project"
 require "marten/spec"
+require "./factories/**"
