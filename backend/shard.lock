@@ -8,6 +8,10 @@ shards:
     git: https://github.com/grottopress/envy.git
     version: 1.0.4
 
+  halite:
+    git: https://github.com/icyleaf/halite.git
+    version: 0.12.1
+
   i18n:
     git: https://github.com/crystal-i18n/i18n.git
     version: 0.2.2

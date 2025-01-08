@@ -16,4 +16,6 @@ dependencies:
     github: mamantoha/nanoid.cr
   marten_auth:
     github: martenframework/marten-auth
+  halite:
+    github: icyleaf/halite
 
