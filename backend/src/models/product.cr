@@ -11,4 +11,6 @@ class Product < Marten::Model
   field :note, :text, null: true, blank: true
   field :created_at, :date_time, null: false, auto_now_add: true
   field :updated_at, :date_time, null: false, auto_now: true
+
+  field :organization, :many_to_one, to: Organization, related: :products
 end
