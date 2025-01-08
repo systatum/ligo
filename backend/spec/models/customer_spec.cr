@@ -18,7 +18,7 @@ describe Customer do
     end
   end
 
-  it "track changes" do
+  it "tracks changes" do
     c = Customer.new
     c.first_name = "Adam"
     c.save.should be_true
@@ -83,5 +83,15 @@ describe Customer do
     log3.record_id.should eq c.id
     changes3 = log3.changes!
     changes3.size.should eq 0
+  end
+
+  it "can be soft deleted" do
+    c = Customer.new
+    c.first_name = "Adam"
+    c.save!
+
+    c.soft_delete
+    c2 = Customer.get(id: c.id)
+    c2.should be nil # because it's soft-deleted
   end
 end

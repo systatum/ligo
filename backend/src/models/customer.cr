@@ -1,6 +1,7 @@
 class Customer < Marten::Model
   include SlugGenerator
   include ChangeTracker
+  include SoftDeleter
 
   field :id, :big_int, primary_key: true, auto: true
   field :slug, :string, max_size: 6, null: false, index: true, unique: true

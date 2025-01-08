@@ -1,5 +1,6 @@
 class ProductVariant < Marten::Model
   include ChangeTracker
+  include SoftDeleter
 
   field :id, :big_int, primary_key: true, auto: true
   field :product, :many_to_one, to: Product, related: :variants, on_delete: :cascade

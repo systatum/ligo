@@ -3,6 +3,7 @@
 # those can be categorized as variants, complete with their own pricing rules
 class Product < Marten::Model
   include ChangeTracker
+  include SoftDeleter
 
   field :id, :big_int, primary_key: true, auto: true
   field :name, :string, max_size: 255, null: false, blank: false
