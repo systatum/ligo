@@ -11,6 +11,11 @@ module SoftDeleter
 
   def soft_delete
     self.deleted_at = Time.utc
+    save
+  end
+
+  def soft_delete!
+    self.deleted_at = Time.utc
     save!
   end
 end

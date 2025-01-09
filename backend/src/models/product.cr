@@ -2,6 +2,7 @@
 # ie for "Self-ligating Brace" we may have color green, red, blue, etc,
 # those can be categorized as variants, complete with their own pricing rules
 class Product < Marten::Model
+  include IdConcealer
   include ChangeTracker
   include SoftDeleter
 

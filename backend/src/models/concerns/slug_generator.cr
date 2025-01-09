@@ -1,4 +1,7 @@
 module SlugGenerator
+  # what characters can be used to genereate the Slug
+  CHARACTER_SET = "23456789ABCDEFHJKLMNPQRTUVWXY"
+
   macro included
     after_initialize :generate_slug
   end
@@ -16,7 +19,7 @@ module SlugGenerator
 
     self.slug = Nanoid.generate(
       size: slug_size,
-      alphabet: "23456789ABCDEFHJKLMNPQRTUVWXY",
+      alphabet: CHARACTER_SET,
       secure: true
     )
   end

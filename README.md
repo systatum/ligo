@@ -20,6 +20,10 @@ docker compose run custy_backend crystal spec [--fail-fast]
 Next release (for hospital):
 - Add DailyStock model, which allows for setting the maximum items availability per day. The rationale is for example, in a clinic, we can only serve up to 5 people per day. So we can set the daily items to 5 purchases per day, and set to 0 on saturday and sunday. Perhaps, this can be attached to Pricing
 
+## Upon deployment
+
+- Set `CUSTY_SALT_FOR_HASHED_ID`
+
 ## Reference
 
 - [Testing](https://crystal-lang.org/reference/1.14/guides/testing.html)

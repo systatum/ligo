@@ -1,4 +1,5 @@
 class Organization < Marten::Model
+  include IdConcealer
   include ChangeTracker
   include SoftDeleter
 

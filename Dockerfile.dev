@@ -27,7 +27,7 @@ RUN apk update
 
 RUN apk add --no-cache bash build-base curl file git gzip \
   libc6-compat ncurses libevent-dev coreutils yaml-dev \
-  curl g++ grep make libressl-dev llvm19-dev \
+  curl g++ grep make libressl-dev libxml2 libxml2-dev llvm19-dev \
   sqlite-dev mysql-client crystal shards
 
 COPY --from=builder /usr/sbin/marten /usr/sbin/marten
