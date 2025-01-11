@@ -4,6 +4,10 @@ Marten.routes.draw do
   path "/auth", Auth::ROUTES, name: "auth"
   path "/api/app_info", AppInfoHandler, name: "app_info"
 
+  path "/api/organizations", OrganizationCreateHandler, name: "api_organization_create"
+  path "/api/organizations/<pk:int>", OrganizationStateHandler, name: "api_organization_update"
+  path "/api/organizations/<pk:int>", OrganizationStateHandler, name: "api_organization_delete"
+
   if Marten.env.development?
     path "#{Marten.settings.assets.url}<path:path>", Marten::Handlers::Defaults::Development::ServeAsset, name: "asset"
     path "#{Marten.settings.media_files.url}<path:path>", Marten::Handlers::Defaults::Development::ServeMediaFile, name: "media_file"

@@ -15,6 +15,7 @@ require "../config/initializers/**"
 require "../config/routes"
 
 # Project requirements.
+require "./handlers/request_handler"
 require "./handlers/**"
 require "./enums/**"
 require "./models/concerns/**"

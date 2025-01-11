@@ -22,3 +22,6 @@ dependencies:
     github: splattael/hashids.cr
     version: 0.3.0
 
+development_dependencies:
+  # test group
+
