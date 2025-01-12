@@ -15,7 +15,7 @@ class ModelSerializer
   end
 
   protected def fields
-    NamedTuple.new()
+    NamedTuple.new
   end
 
   private def timing_fields

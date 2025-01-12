@@ -3,7 +3,7 @@ class OrganizationSerializer < ModelSerializer
     record = @record.as(Organization)
 
     {
-      id: record.id,
+      id:   record.hashed_id,
       name: record.name,
     }
   end
