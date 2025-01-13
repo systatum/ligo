@@ -1,5 +1,9 @@
 version: 2.0
 shards:
+  bindata:
+    git: https://github.com/spider-gazelle/bindata.git
+    version: 2.1.0
+
   db:
     git: https://github.com/crystal-lang/crystal-db.git
     version: 0.13.1
@@ -24,6 +28,10 @@ shards:
     git: https://github.com/shootingfly/jbuilder.git
     version: 1.0.0
 
+  jwt:
+    git: https://github.com/crystal-community/jwt.git
+    version: 1.6.1
+
   marten:
     git: https://github.com/martenframework/marten.git
     version: 0.5.4
@@ -43,6 +51,10 @@ shards:
   nanoid:
     git: https://github.com/mamantoha/nanoid.cr.git
     version: 0.7.1
+
+  openssl_ext:
+    git: https://github.com/spider-gazelle/openssl_ext.git
+    version: 2.4.4
 
   sqlite3:
     git: https://github.com/crystal-lang/crystal-sqlite3.git
