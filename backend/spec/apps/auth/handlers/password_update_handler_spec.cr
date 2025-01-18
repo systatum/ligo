@@ -1,79 +1,83 @@
 require "./spec_helper"
 
 describe Auth::PasswordUpdateHandler do
-  describe "#get" do
-    it "redirects to the sign in page if the user is not authenticated" do
-      url = Marten.routes.reverse("auth:password_update")
+  context "when the old password is correct" do
+    it "changes the token password last updated at field" do
+      old_password = "Password01"
+      new_password = "new #{old_password}"
 
-      response = Marten::Spec.client.get(url)
+      # send a password change update request
+      user = create_user(password: old_password)
+      old_jwt_token = user.jwt_token
 
-      response.status.should eq 302
-      response.headers["Location"].should eq Marten.routes.reverse("auth:sign_in")
-    end
-
-    it "shows the update password page of the authenticated user" do
-      user = create_user(email: "test@example.com", password: "insecure")
-
-      url = Marten.routes.reverse("auth:password_update")
-
-      Marten::Spec.client.sign_in(user)
-      response = Marten::Spec.client.get(url)
-
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("auth:api_update_password"),
+        data: {
+          current_password:     old_password,
+          new_password:         new_password,
+          new_password_confirm: new_password,
+        }.to_json,
+        headers: {
+          authorization: "Bearer #{old_jwt_token}",
+        },
+        content_type: "application/json",
+      )
       response.status.should eq 200
-      response.content.includes?("Update password").should be_true
+
+      # make sure that the response contains the new JWT Token
+      json_response = JSON.parse(response.content)
+      json_response["jwt_token"].should_not be_nil
+
+      # make sure that the password updated at field has changed
+      received_jwt_token = json_response["jwt_token"].as_s
+      decoded_received_jwt_token = Auth::User.decode_jwt_token(received_jwt_token)
+      decoded_old_jwt_token = Auth::User.decode_jwt_token(old_jwt_token)
+      decoded_received_jwt_token["puat"].as_f.should be > decoded_old_jwt_token["puat"].as_f
     end
   end
 
-  describe "#post" do
-    it "redirects to the sign in page if the user is not authenticated" do
-      create_user(email: "test@example.com", password: "insecure")
+  context "when the old password is wrong" do
+    it "does not proceed with updating the password" do
+      user = create_user(password: "Password01")
 
-      url = Marten.routes.reverse("auth:password_update")
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("auth:api_update_password"),
+        data: {
+          current_password:     "123",
+          new_password:         "456",
+          new_password_confirm: "456",
+        }.to_json,
+        headers: {
+          authorization: "Bearer #{user.jwt_token}",
+        },
+        content_type: "application/json"
+      )
 
-      response = Marten::Spec.client.post(url, data: {
-        "old_password":         "insecure",
-        "new_password":         "newinsecure",
-        "new_confirm_password": "newinsecure",
-      })
-
-      response.status.should eq 302
-      response.headers["Location"].should eq Marten.routes.reverse("auth:sign_in")
+      response.status.should eq 400
+      response.content.should eq({error: {messages: ["Current password: Invalid"]}}.to_json)
     end
+  end
 
-    it "redirects to the profile page after successfully updating the current users password" do
-      user = create_user(email: "test@example.com", password: "insecure")
+  context "when the password does not match the re-entry confirmation" do
+    it "does not proceed with updating the password" do
+      current_password = "Password01"
+      user = create_user(password: current_password)
 
-      url = Marten.routes.reverse("auth:password_update")
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("auth:api_update_password"),
+        data: {
+          current_password:     current_password,
+          new_password:         "123",
+          new_password_confirm: "456",
+        }.to_json,
+        headers: {
+          authorization: "Bearer #{user.jwt_token}",
+        },
+        content_type: "application/json"
+      )
 
-      Marten::Spec.client.sign_in(user)
-
-      response = Marten::Spec.client.post(url, data: {
-        "old_password":         "insecure",
-        "new_password":         "newinsecure",
-        "new_confirm_password": "newinsecure",
-      })
-
-      response.status.should eq 302
-      response.headers["Location"].should eq Marten.routes.reverse("auth:profile")
-
-      user.reload.check_password("newinsecure").should be_true
-    end
-
-    it "renders the form if the form data is invalid" do
-      user = create_user(email: "test@example.com", password: "insecure")
-
-      url = Marten.routes.reverse("auth:password_update")
-
-      Marten::Spec.client.sign_in(user)
-
-      response = Marten::Spec.client.post(url, data: {
-        "old_password":         "",
-        "new_password":         "",
-        "new_confirm_password": "",
-      })
-
-      response.status.should eq 422
-      response.content.includes?("Update password").should be_true
+      response.status.should eq 400
+      response.content.should eq({error: {messages: ["New password: Does not match to each other"]}}.to_json)
     end
   end
 end

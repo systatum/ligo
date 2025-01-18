@@ -1,21 +1,27 @@
 module Auth
-  class SignUpHandler < Marten::Handlers::Schema
-    include RequireAnonymousUser
+  class SignUpHandler < RequestHandler
+    @schema : SignUpSchema?
 
-    schema SignUpSchema
-    template_name "auth/sign_up.html"
-    success_route_name "auth:profile"
+    http_method_names :post
 
-    after_successful_schema_validation :sign_up_user
+    def post
+      if schema.valid?
+        user = User.new(email: schema.email!)
+        user.first_name = schema.first_name
+        user.last_name = schema.last_name
+        user.role = Role::FULL_TIME_STAFF
+        user.set_password(schema.password!)
+        user.password_updated_at = Time.utc
+        user.save!
 
-    private def sign_up_user
-      new_record = User.new(email: schema.email!)
-      new_record.first_name = "Adam"
-      new_record.set_password(schema.password1!)
-      new_record.save!
+        json UserSerializer.serialize(user), status: 200
+      else
+        render_invalid_payload schema
+      end
+    end
 
-      user = MartenAuth.authenticate(schema.email!, schema.password1!)
-      MartenAuth.sign_in(request, user.not_nil!) # ameba:disable Lint/NotNil
+    private def schema
+      @schema ||= SignUpSchema.new(request.data)
     end
   end
 end

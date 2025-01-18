@@ -1,75 +1,70 @@
 require "./spec_helper"
 
 describe Auth::SignInHandler do
-  describe "#get" do
-    it "redirects to the profile page if the user is already authenticated" do
-      user = create_user(email: "test@example.com", password: "insecure")
+  context "when the email address can't be found" do
+    it "complains of invalid credentials" do
+      email = "me-not-found@custy.com"
+      Auth::User.filter(email__iexact: email).count.should eq 0
 
-      url = Marten.routes.reverse("auth:sign_in")
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("auth:api_sign_in"),
+        data: {
+          email:    email,
+          password: "Password01",
+        }.to_json,
+        content_type: "application/json"
+      )
 
-      Marten::Spec.client.sign_in(user)
-      response = Marten::Spec.client.get(url)
-
-      response.status.should eq 302
-      response.headers["Location"].should eq Marten.routes.reverse("auth:profile")
-    end
-
-    it "renders the form as expected for anonymous users" do
-      url = Marten.routes.reverse("auth:sign_in")
-      response = Marten::Spec.client.get(url)
-
-      response.status.should eq 200
-      response.content.includes?("Sign in").should be_true
+      response.status.should eq 404
+      response.content.should eq({error: {messages: ["Invalid credentials"]}}.to_json)
     end
   end
 
-  describe "#post" do
-    it "renders the form if the form data is invalid" do
-      url = Marten.routes.reverse("auth:sign_in")
-      response = Marten::Spec.client.post(url, data: {"email": "", "password": ""})
+  context "when the password is wrong" do
+    it "complains of invalid credentials" do
+      password = "Password01"
+      user = create_user(password: password)
+      user.email.should_not be nil
+      Auth::User.filter(email__iexact: user.email).count.should eq 1
 
-      response.status.should eq 422
-      response.content.includes?("Sign in").should be_true
-      Marten::Spec.client.get(Marten.routes.reverse("auth:profile")).status.should eq 302
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("auth:api_sign_in"),
+        data: {
+          email:    user.email,
+          password: "wrong-#{password}",
+        }.to_json,
+        content_type: "application/json"
+      )
+
+      response.status.should eq 404
+      response.content.should eq({error: {messages: ["Invalid credentials"]}}.to_json)
     end
+  end
 
-    it "renders the form if the specified credentials are invalid" do
-      user = create_user(email: "test@example.com", password: "insecure")
+  context "when the password matches" do
+    it "logs the user in" do
+      password = "Password01"
+      user = create_user(password: password)
+      user.email.should_not be nil
+      Auth::User.filter(email__iexact: user.email).count.should eq 1
 
-      url = Marten.routes.reverse("auth:sign_in")
-      response = Marten::Spec.client.post(url, data: {"email": user.email, "password": "bad"})
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("auth:api_sign_in"),
+        data: {
+          email:    user.email,
+          password: password,
+        }.to_json,
+        content_type: "application/json"
+      )
 
-      response.status.should eq 422
-      response.content.includes?("Sign in").should be_true
-      response.content.includes?(
-        "Please enter a correct email address and password. Note that both fields may be case-sensitive."
-      ).should be_true
-      Marten::Spec.client.get(Marten.routes.reverse("auth:profile")).status.should eq 302
-    end
-
-    it "renders the form if the specified email does not match an existing user" do
-      user = create_user(email: "test@example.com", password: "insecure")
-
-      url = Marten.routes.reverse("auth:sign_in")
-      response = Marten::Spec.client.post(url, data: {"email": user.email, "password": "bad"})
-
-      response.status.should eq 422
-      response.content.includes?("Sign in").should be_true
-      response.content.includes?(
-        "Please enter a correct email address and password. Note that both fields may be case-sensitive."
-      ).should be_true
-      Marten::Spec.client.get(Marten.routes.reverse("auth:profile")).status.should eq 302
-    end
-
-    it "authenticates the user as expected if the credentials are valid" do
-      user = create_user(email: "test@example.com", password: "insecure")
-
-      url = Marten.routes.reverse("auth:sign_in")
-      response = Marten::Spec.client.post(url, data: {"email": user.email, "password": "insecure"})
-
-      response.status.should eq 302
-      response.headers["Location"].should eq Marten.routes.reverse("auth:profile")
-      Marten::Spec.client.get(Marten.routes.reverse("auth:profile")).status.should eq 200
+      json_response = JSON.parse(response.content)
+      response.status.should eq 200
+      json_response["id"].as_s.should eq user.hashed_id
+      json_response["email"].as_s.should eq user.email
+      Auth::User.find_by_jwt_token(json_response["jwt_token"].as_s).should eq user
+      json_response["created_at"].as_s.should match date_time_format
+      json_response["updated_at"].as_s.should match date_time_format
+      json_response["deleted_at"].should eq nil
     end
   end
 end

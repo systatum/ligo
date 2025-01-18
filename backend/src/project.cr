@@ -7,6 +7,7 @@ require "jbuilder"
 require "mysql"
 require "nanoid"
 require "hashids"
+require "jwt"
 
 # Configuration requirements.
 require "../config/settings/base"
@@ -15,6 +16,7 @@ require "../config/initializers/**"
 require "../config/routes"
 
 # Project requirements.
+require "./handlers/concerns/**"
 require "./handlers/request_handler"
 require "./handlers/**"
 require "./enums/**"

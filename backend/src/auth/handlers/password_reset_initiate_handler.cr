@@ -1,22 +1,28 @@
 require "./concerns/*"
 
 module Auth
-  class PasswordResetInitiateHandler < Marten::Handlers::Schema
-    include RequireAnonymousUser
+  class PasswordResetInitiateHandler < RequestHandler
+    @schema : PasswordResetInitiateSchema?
 
-    schema PasswordResetInitiateSchema
-    template_name "auth/password_reset_initiate.html"
-    success_route_name "auth:sign_in"
+    http_method_names :post
 
-    after_successful_schema_validation :process_password_reset_request
+    def post
+      if schema.valid?
+        if user = User.get_by_natural_key(schema.email!)
+          PasswordResetEmail.new(user, request).deliver
+        end
 
-    private def process_password_reset_request
-      flash[:notice] = "We've sent you a recovery e-mail! " +
-                       "You will receive instructions by e-mail to reset your password."
-
-      if user = User.get_by_natural_key(self.schema.email!)
-        PasswordResetEmail.new(user, request).deliver
+        # so that attacker doesn't know if email exists or not
+        render_no_content
+      else
+        render_invalid_payload
       end
+    rescue e
+      handle_error(e)
+    end
+
+    private def schema
+      @schema ||= PasswordResetInitiateSchema.new(request.data)
     end
   end
 end

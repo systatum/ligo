@@ -1,27 +1,31 @@
 require "./concerns/*"
 
 module Auth
-  class PasswordUpdateHandler < Marten::Handlers::Schema
-    include RequireSignedInUser
+  class PasswordUpdateHandler < RequestHandler
+    @schema : PasswordUpdateSchema?
 
-    schema PasswordUpdateSchema
-    template_name "auth/password_update.html"
-    success_route_name "auth:profile"
+    http_method_names :post
 
-    before_schema_validation :prepare_schema
-    after_successful_schema_validation :process_password_update
+    def post
+      if schema.valid?
+        user = schema.user.not_nil!
+        user.set_password(schema.new_password!)
+        user.save!
 
-    private def prepare_schema
-      schema.user = request.user!
+        json UserTokenSerializer.serialize(user)
+      else
+        render_invalid_payload(schema)
+      end
+    rescue e
+      handle_error(e)
     end
 
-    private def process_password_update
-      flash[:notice] = "You've successfully updated your password!"
-
-      request.user!.set_password(self.schema.new_password!)
-      request.user!.save!
-
-      MartenAuth.update_session_auth_hash(request, request.user!)
+    private def schema : PasswordUpdateSchema
+      @schema ||= begin
+        schema = PasswordUpdateSchema.new(request.data)
+        schema.user = current_user
+        schema
+      end
     end
   end
 end

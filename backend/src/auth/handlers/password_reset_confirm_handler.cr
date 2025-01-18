@@ -2,8 +2,6 @@ require "./concerns/*"
 
 module Auth
   class PasswordResetConfirmHandler < Marten::Handlers::Schema
-    include RequireAnonymousUser
-
     @user : User?
 
     schema PasswordResetConfirmSchema

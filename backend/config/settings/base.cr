@@ -11,7 +11,7 @@ Marten.configure do |config|
   # Installed applications
   # https://martenframework.com/docs/development/reference/settings#installed_apps
   config.installed_apps = [
-    Auth::App
+    Auth::App,
   ] of Marten::Apps::Config.class
 
   # Application middlewares
@@ -21,7 +21,7 @@ Marten.configure do |config|
     Marten::Middleware::Flash,
     Marten::Middleware::GZip,
     Marten::Middleware::XFrameOptions,
-    MartenAuth::Middleware
+    MartenAuth::Middleware,
   ]
 
   # Databases

@@ -11,9 +11,9 @@ module ChangeTracker
 
     def to_tupple
       {
-        type: type,
+        type:          type,
         current_value: current_value,
-        old_value: old_value
+        old_value:     old_value,
       }
     end
   end
@@ -74,6 +74,8 @@ module ChangeTracker
   SKIPPED_FIELDS = %w(
     created_at
     updated_at
+    password
+    password_updated_at
   )
 
   private def take_fields_snapshot(into kv)

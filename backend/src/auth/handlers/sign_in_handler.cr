@@ -1,15 +1,24 @@
 module Auth
-  class SignInHandler < Marten::Handlers::Schema
-    include RequireAnonymousUser
+  class SignInHandler < RequestHandler
+    @schema : SignInSchema?
 
-    schema SignInSchema
-    template_name "auth/sign_in.html"
-    success_route_name "auth:profile"
+    http_method_names :post
 
-    after_successful_schema_validation :sign_in_user
+    def post
+      if schema.valid?
+        user = MartenAuth.authenticate(schema.email!, schema.password!)
+        if user
+          json UserTokenSerializer.serialize(user), status: 200
+        else
+          render_error 404, ["Invalid credentials"]
+        end
+      else
+        render_invalid_payload
+      end
+    end
 
-    private def sign_in_user
-      MartenAuth.sign_in(request, schema.user.not_nil!) # ameba:disable Lint/NotNil
+    private def schema
+      @schema ||= SignInSchema.new(request.data)
     end
   end
 end

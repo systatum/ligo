@@ -10,6 +10,25 @@ docker compose run custy_backend marten play -p 8080 -b 0.0.0.0
 docker compose run custy_backend crystal spec [--fail-fast]
 ```
 
+## Endpoints
+
+### Auth::User
+
+- `api_sign_in`
+  - returns 200: on successful signing in
+  - returns 404: on user not found
+  - returns 400: on invalid payload
+- `api_sign_up`
+  - returns 200: on successful signing up
+  - returns 400:
+    - invalid payload:
+      - incomplete fields
+      - user already exists
+- `api_request_password_reset`
+  - returns 200:
+    - when there's account associated to a given email address, and email is sent successfully to said address
+    - when there's no account associated to a given email address, avoid helping attacker knows if there is/there is no account associated
+
 ## Todo
 
 - Add (top-level) Note model --> user can write note, etc sharing ideas
@@ -19,6 +38,10 @@ docker compose run custy_backend crystal spec [--fail-fast]
 
 Next release (for hospital):
 - Add DailyStock model, which allows for setting the maximum items availability per day. The rationale is for example, in a clinic, we can only serve up to 5 people per day. So we can set the daily items to 5 purchases per day, and set to 0 on saturday and sunday. Perhaps, this can be attached to Pricing
+
+## Convention
+
+- The class veriable `@@` should be at the very top, followed by `includes` and any other macro.
 
 ## Upon deployment
 
