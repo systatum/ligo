@@ -1,9 +1,9 @@
 require "./spec_helper"
 
-describe Auth::PasswordResetConfirmSchema do
+describe Auth::PasswordResetSchema do
   describe "#valid?" do
     it "returns true if the two password values are the same" do
-      schema = Auth::PasswordResetConfirmSchema.new(
+      schema = Auth::PasswordResetSchema.new(
         Marten::HTTP::Params::Data{"password1" => ["insecure"], "password2" => ["insecure"]}
       )
       schema.valid?.should be_true
@@ -11,7 +11,7 @@ describe Auth::PasswordResetConfirmSchema do
     end
 
     it "returns false if the two password values are not provided" do
-      schema = Auth::PasswordResetConfirmSchema.new(
+      schema = Auth::PasswordResetSchema.new(
         Marten::HTTP::Params::Data{"password1" => [""], "password2" => [""]}
       )
 
@@ -25,7 +25,7 @@ describe Auth::PasswordResetConfirmSchema do
     end
 
     it "returns false if the two password values are not the same" do
-      schema = Auth::PasswordResetConfirmSchema.new(
+      schema = Auth::PasswordResetSchema.new(
         Marten::HTTP::Params::Data{"password1" => ["insecure"], "password2" => ["other"]}
       )
 

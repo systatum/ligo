@@ -1,12 +1,14 @@
 require "./concerns/*"
 
 module Auth
-  class PasswordResetConfirmHandler < Marten::Handlers::Schema
+  # handle the actual resetting of the password, given a valid token
+  # and the the password is considered fit as a replacement
+  class PasswordResetHandler < Marten::Handlers::Schema
     @user : User?
 
-    schema PasswordResetConfirmSchema
-    template_name "auth/password_reset_confirm.html"
-    success_route_name "auth:sign_in"
+    schema PasswordResetSchema
+    template_name "auth/password_reset.html"
+    success_route_name "root"
 
     before_dispatch :process_password_reset_token
     after_successful_schema_validation :change_password
@@ -41,12 +43,12 @@ module Auth
           # In order to prevent risks around leaking the password reset token in the HTTP Referer header, we store the
           # actual token in the session and we redirect to a URL that does not contain it.
           session[TOKEN_SESSION_KEY] = token
-          return redirect reverse("auth:password_reset_confirm", uid: params["uid"].to_s, token: SET_PASSWORD_TOKEN)
+          return redirect reverse("auth:password_reset", uid: params["uid"].to_s, token: SET_PASSWORD_TOKEN)
         end
       end
 
       flash[:notice] = "This password reset link is no longer valid."
-      redirect reverse("auth:sign_in")
+      redirect reverse("root")
     end
   end
 end

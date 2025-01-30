@@ -10,6 +10,12 @@ docker compose run custy_backend marten play -p 8080 -b 0.0.0.0
 docker compose run custy_backend crystal spec [--fail-fast]
 ```
 
+Before committing, run:
+
+```bash
+crystal tool format
+```
+
 ## Endpoints
 
 ### Auth::User

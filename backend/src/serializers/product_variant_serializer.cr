@@ -3,9 +3,9 @@ class ProductVariantSerializer < ModelSerializer
     record = @record.as(ProductVariant)
 
     {
-      id: record.hashed_id,
-      product_id: record.product_id,
-      name: record.name,
+      id:          record.hashed_id,
+      product_id:  record.product_id,
+      name:        record.name,
       description: record.description,
     }
   end

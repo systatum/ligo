@@ -3,14 +3,14 @@ class CustomerSerializer < ModelSerializer
     record = @record.as(Customer)
 
     {
-      id: record.id,
-      slug: record.slug,
-      first_name: record.first_name,
+      id:          record.id,
+      slug:        record.slug,
+      first_name:  record.first_name,
       middle_name: record.middle_name,
-      last_name: record.last_name,
-      gender: record.gender,
-      birthday: record.birthday,
-      note: record.note,
+      last_name:   record.last_name,
+      gender:      record.gender,
+      birthday:    record.birthday,
+      note:        record.note,
     }
   end
 end

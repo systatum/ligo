@@ -1,5 +1,5 @@
 module Auth
-  class PasswordResetConfirmSchema < Marten::Schema
+  class PasswordResetSchema < Marten::Schema
     field :password1, :string, max_size: 128, strip: false
     field :password2, :string, max_size: 128, strip: false
 
