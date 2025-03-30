@@ -17,8 +17,11 @@ module IdConcealer
     @@hashids.encode([id])
   end
 
-  def self.decode(encoded_id : String)
-    @@hashids.decode(encoded_id)[0]
+  def self.decode(encoded_id : String) : Int32 | Int64 | Nil
+    decoded_id = @@hashids.decode(encoded_id)
+    return nil if decoded_id.empty?
+
+    decoded_id[0]
   end
 
   # return ID but hashed; the hashed ID is not persisted
@@ -30,11 +33,11 @@ module IdConcealer
 
   macro included
     # find record by the hashed ID
-    def self.get_by_hashed_id(hashed_id)
+    def self.get_by_hashed_id(hashed_id : String)
       get(id: IdConcealer.decode(hashed_id))
     end
 
-    def self.get_by_hashed_id!(hashed_id)
+    def self.get_by_hashed_id!(hashed_id : String)
       get!(id: IdConcealer.decode(hashed_id))
     end
 

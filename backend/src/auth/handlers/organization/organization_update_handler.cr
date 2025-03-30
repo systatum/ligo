@@ -1,5 +1,5 @@
-class OrganizationStateHandler < RequestHandler
-  http_method_names :patch, :post, :delete
+class OrganizationUpdateHandler < RequestHandler
+  http_method_names :patch, :post
 
   @organization : Auth::Organization?
   @schema : Auth::OrganizationSchema?
@@ -19,15 +19,8 @@ class OrganizationStateHandler < RequestHandler
     handle_error(e)
   end
 
-  def delete
-    organization.soft_delete!
-    json OrganizationSerializer.serialize(organization), status: 200
-  rescue e
-    handle_error(e)
-  end
-
   private def organization
-    @organization ||= Auth::Organization.get!(id: params["pk"])
+    @organization ||= Auth::Organization.get_by_hashed_id!(params["hashed_id"].to_s)
   end
 
   private def schema

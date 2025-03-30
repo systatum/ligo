@@ -5,9 +5,12 @@ module Auth
     path "/api/user/update_password", PasswordUpdateHandler, name: "api_update_password"
     path "/api/user/request_password_reset", PasswordResetInitiateHandler, name: "api_request_password_reset"
 
-    path "/api/organizations", OrganizationCreateHandler, name: "api_organization_create"
-    path "/api/organizations/<pk:int>", OrganizationStateHandler, name: "api_organization_update"
-    path "/api/organizations/<pk:int>", OrganizationStateHandler, name: "api_organization_delete"
+    organization_routes = Marten::Routing::Map.draw do
+      path "", OrganizationCreateHandler, name: "api_organization_create"
+      path "/<hashed_id:str>", OrganizationUpdateHandler, name: "api_organization_update"
+      path "/<hashed_id:str>/delete", OrganizationDeleteHandler, name: "api_organization_delete"
+    end
+    path "/api/organizations", organization_routes
 
     # this one is handled in the browser, not API
     path "/reset-password/confirm/<uid:str>/<token:str>", PasswordResetHandler, name: "password_reset"
