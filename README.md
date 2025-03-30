@@ -7,8 +7,15 @@ docker compose run custy_backend marten migrate
 docker compose run custy_backend marten migrate main <migration-date-to-unapply>
 docker compose run custy_backend MARTEN_ENV=test marten migrate
 docker compose run custy_backend marten play -p 8080 -b 0.0.0.0
+
+# running spec
 docker compose run custy_backend crystal spec [--fail-fast]
+docker compose run custy_backend crystal spec spec/handlers/product_state_handler_spec.cr
 ```
+
+In Marten, migrations are created automatically through `genmigrations` after you change/add/remove columns reflected within model files.
+
+## Development
 
 Before committing, run:
 
