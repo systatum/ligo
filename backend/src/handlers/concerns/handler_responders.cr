@@ -6,7 +6,14 @@ module HandlerResponders
   protected def handle_error(e)
     if ENV["MARTEN_ENV"] == "test"
       puts e.message
-      puts e.backtrace.join("\n")
+      e.backtrace.each do |line|
+        # skip noise lines
+        next if line.includes?("marten/src/")
+        next if line.includes?("crystal/core/")
+
+        puts "#{line}\n"
+      end
+
       puts "\n"
     end
 
