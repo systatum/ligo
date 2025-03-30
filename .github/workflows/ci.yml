@@ -46,7 +46,7 @@ jobs:
 
       - name: Build app binary
         run: |
-          mkdir bin
+          mkdir -p bin
           # crystal build src/server.cr -o bin/server --release
           crystal build manage.cr -o bin/manage
 
