@@ -1,8 +1,8 @@
 class OrganizationStateHandler < RequestHandler
   http_method_names :patch, :post, :delete
 
-  @organization : Organization?
-  @schema : OrganizationSchema?
+  @organization : Auth::Organization?
+  @schema : Auth::OrganizationSchema?
 
   def post
     patch
@@ -27,10 +27,10 @@ class OrganizationStateHandler < RequestHandler
   end
 
   private def organization
-    @organization ||= Organization.get!(id: params["pk"])
+    @organization ||= Auth::Organization.get!(id: params["pk"])
   end
 
   private def schema
-    @schema ||= OrganizationSchema.new(request.data)
+    @schema ||= Auth::OrganizationSchema.new(request.data)
   end
 end

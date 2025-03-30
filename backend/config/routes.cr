@@ -5,10 +5,6 @@ Marten.routes.draw do
   path "/auth", Auth::ROUTES, name: "auth"
   path "/api/app_info", AppInfoHandler, name: "app_info"
 
-  path "/api/organizations", OrganizationCreateHandler, name: "api_organization_create"
-  path "/api/organizations/<pk:int>", OrganizationStateHandler, name: "api_organization_update"
-  path "/api/organizations/<pk:int>", OrganizationStateHandler, name: "api_organization_delete"
-
   path "/api/products", ProductCreateHandler, name: "api_product_create"
   path "/api/products/<pk:int>", ProductStateHandler, name: "api_product_show"
   path "/api/products/<pk:int>", ProductStateHandler, name: "api_product_update"

@@ -1,5 +1,3 @@
-require "./concerns/*"
-
 module Auth
   # handle the actual resetting of the password, given a valid token
   # and the the password is considered fit as a replacement

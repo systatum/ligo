@@ -1,5 +1,3 @@
-require "./concerns/*"
-
 module Auth
   class PasswordResetInitiateHandler < RequestHandler
     @schema : PasswordResetInitiateSchema?

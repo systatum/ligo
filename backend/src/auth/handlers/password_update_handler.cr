@@ -1,5 +1,3 @@
-require "./concerns/*"
-
 module Auth
   class PasswordUpdateHandler < RequestHandler
     @schema : PasswordUpdateSchema?

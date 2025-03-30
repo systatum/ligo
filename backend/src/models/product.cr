@@ -13,5 +13,5 @@ class Product < Marten::Model
   field :created_at, :date_time, null: false, auto_now_add: true
   field :updated_at, :date_time, null: false, auto_now: true
 
-  field :organization, :many_to_one, to: Organization, related: :products
+  field :organization, :many_to_one, to: Auth::Organization, related: :products
 end

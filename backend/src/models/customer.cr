@@ -14,7 +14,7 @@ class Customer < Marten::Model
   field :created_at, :date_time, null: false, auto_now_add: true
   field :updated_at, :date_time, null: false, auto_now: true
 
-  field :organization, :many_to_one, to: Organization, related: :customers
+  field :organization, :many_to_one, to: Auth::Organization, related: :customers
 
   db_unique_constraint :customer_unique_slug, field_names: [:slug]
 end

@@ -1,5 +1,6 @@
 require "./emails/**"
 require "./serializers/**"
+require "./handlers/concerns/**"
 require "./handlers/**"
 require "./enums/**"
 require "./models/concerns/**"

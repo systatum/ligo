@@ -23,7 +23,15 @@ Before committing, run:
 crystal tool format
 ```
 
+Our app is consist of multiple mini-apps, such as "auth" which handles authentication and user-related handling. In each app, there's `app.cr` which handles loading files in order. And yes, each app would have their own `routes.cr` where all routes are defined, like in Rails.
+
 ## Endpoints
+
+Unlike in Rails where actions are put into the same controller, in Marten each action has its own handler, and they may not necessarily be in the same classes. Our conventions:
+
+- We have `create_handler` that handles record creation
+- We have `rud_handler` that handles basic reading, updating, and deleting the record
+- We have other handlers that handle more specific actions
 
 ### Auth::User
 

@@ -18,7 +18,7 @@ describe OrganizationSerializer do
 
     context "when the record has been serialized" do
       it "shows complete fields" do
-        o = Organization.new(name: "MyOrg")
+        o = Auth::Organization.new(name: "MyOrg")
         o.save!
 
         json = JSON.parse OrganizationSerializer.serialize(o)
@@ -32,7 +32,7 @@ describe OrganizationSerializer do
 
     context "when the record has been soft-deleted" do
       it "shows complete fields" do
-        o = Organization.new(name: "MyOrg")
+        o = Auth::Organization.new(name: "MyOrg")
         o.save!
         o.soft_delete!
 

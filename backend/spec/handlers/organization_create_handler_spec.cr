@@ -5,13 +5,13 @@ describe OrganizationCreateHandler do
     context "when minimum required fields are given" do
       it "creates a new organization" do
         response = Marten::Spec.client.post(
-          Marten.routes.reverse("api_organization_create"),
+          Marten.routes.reverse("auth:api_organization_create"),
           data: {
             name: "Created Org",
           }.to_json,
           content_type: "application/json"
         )
-        org = Organization.last!
+        org = Auth::Organization.last!
         org.name.should eq "Created Org"
 
         response.status.should eq 200
