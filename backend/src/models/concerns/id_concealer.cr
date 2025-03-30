@@ -37,5 +37,9 @@ module IdConcealer
     def self.get_by_hashed_id!(hashed_id)
       get!(id: IdConcealer.decode(hashed_id))
     end
+
+    def self.filter_by_hashed_id(hashed_id : String)
+      filter(id: IdConcealer.decode(hashed_id))
+    end
   end
 end

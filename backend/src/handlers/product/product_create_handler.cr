@@ -6,7 +6,7 @@ class ProductCreateHandler < RequestHandler
   def post
     if schema.valid?
       product = Product.new(schema.validated_data)
-      product.organization = Auth::Organization.get!(id: product.organization_id)
+      product.organization = current_user.organization
       product.save!
       json ProductSerializer.serialize(product), status: 200
     else

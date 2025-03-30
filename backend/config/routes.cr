@@ -6,9 +6,9 @@ Marten.routes.draw do
   path "/api/app_info", AppInfoHandler, name: "app_info"
 
   path "/api/products", ProductCreateHandler, name: "api_product_create"
-  path "/api/products/<pk:int>", ProductStateHandler, name: "api_product_show"
-  path "/api/products/<pk:int>", ProductStateHandler, name: "api_product_update"
-  path "/api/products/<pk:int>", ProductStateHandler, name: "api_product_delete"
+  path "/api/products/<id:str>", ProductStateHandler, name: "api_product_show"
+  path "/api/products/<id:str>", ProductStateHandler, name: "api_product_update"
+  path "/api/products/<id:str>", ProductStateHandler, name: "api_product_delete"
 
   if Marten.env.development?
     path "#{Marten.settings.assets.url}<path:path>", Marten::Handlers::Defaults::Development::ServeAsset, name: "asset"

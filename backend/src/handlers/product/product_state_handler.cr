@@ -13,6 +13,10 @@ class ProductStateHandler < RequestHandler
   end
 
   def patch
+    unless Role.at_least_bizdev?(current_user)
+      raise Auth::AuthorizationError.new("You are not authorized to update a product")
+    end
+
     if schema.valid?
       product.update!(schema.validated_data)
       json ProductSerializer.serialize(product), status: 200
@@ -31,7 +35,9 @@ class ProductStateHandler < RequestHandler
   end
 
   private def product
-    @product ||= Product.get!(id: params["pk"])
+    @product ||= Product
+      .filter_by_hashed_id(params["id"].to_s)
+      .get!(organization_id: current_user.organization_id)
   end
 
   private def schema

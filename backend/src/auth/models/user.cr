@@ -15,5 +15,9 @@ module Auth
       super(password)
       self.password_updated_at = Time.utc
     end
+
+    def admin?
+      Role.admin?(self)
+    end
   end
 end
