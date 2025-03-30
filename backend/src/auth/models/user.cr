@@ -5,6 +5,7 @@ module Auth
     include SoftDeleter
     include JwtPayloader
 
+    field :organization, :many_to_one, to: Auth::Organization, related: :users
     field :first_name, :string, max_size: 255, null: false, blank: false
     field :last_name, :string, max_size: 255, null: true, blank: true
     field :role, :int, null: false, blank: false, index: true, default: Role::GUEST

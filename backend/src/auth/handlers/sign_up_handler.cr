@@ -7,6 +7,7 @@ module Auth
     def post
       if schema.valid?
         user = User.new(email: schema.email!)
+        user.organization = schema.organization
         user.first_name = schema.first_name
         user.last_name = schema.last_name
         user.role = Role::FULL_TIME_STAFF
