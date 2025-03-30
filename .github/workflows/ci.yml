@@ -46,9 +46,10 @@ jobs:
 
       - name: Build app binary
         run: |
-          mkdir -p bin
+          ls
+          mkdir -p mybin
           # crystal build src/server.cr -o bin/server --release
-          crystal build manage.cr -o bin/manage
+          crystal build manage.cr -o mybin/manage
 
       - name: Lint
         run: crystal tool format --check
@@ -65,7 +66,7 @@ jobs:
           mysql -uroot -proot -e 'CREATE DATABASE ${{ env.LIGO_DB_NAME }};'
 
       - name: Run migration
-        run: bin/manage migrate
+        run: mybin/manage migrate
 
       - name: Run Spec
         run: crystal spec
