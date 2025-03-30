@@ -6,50 +6,66 @@ on:
     branches: [ main ]
 
 jobs:
-  scan_ruby:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ubuntu-20.04
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ github.workspace }}/backend
+
+    strategy:
+      matrix:
+        crystal: [ 1.14.0 ]
+
+    env:
+      MARTEN_ENV: test
+      LIGO_DB_HOST: 127.0.0.1
+      LIGO_DB_PORT: 3306
+      LIGO_DB_USERNAME: root
+      LIGO_DB_PASSWORD: root
+      LIGO_DB_NAME: test_db
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Download source
+        uses: actions/checkout@v2
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
         with:
-          ruby-version: .ruby-version
-          bundler-cache: true
+          crystal: ${{ matrix.crystal }}
 
-      - name: Scan for common Rails security vulnerabilities using static analysis
-        run: bin/brakeman --no-pager
-
-  scan_js:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Cache shards
+        uses: actions/cache@v4
         with:
-          ruby-version: .ruby-version
-          bundler-cache: true
+          path: "**/lib"
+          key: ${{ runner.os }}-shards-${{ hashFiles('**/shard.lock') }}
 
-      - name: Scan for security vulnerabilities in JavaScript dependencies
-        run: bin/importmap audit
+      - name: Install shards
+        run: shards check || shards install
 
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Build app binary
+        run: |
+          mkdir bin
+          # crystal build src/server.cr -o bin/server --release
+          crystal build manage.cr -o bin/manage
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Lint
+        run: crystal tool format --check
+
+      - name: Setup MySQL
+        uses: shogo82148/actions-setup-mysql@v1
         with:
-          ruby-version: .ruby-version
-          bundler-cache: true
+          distribution: "mariadb"
+          mysql-version: "10.6"
+          root-password: ${{ env.LIGO_DB_PASSWORD}}
 
-      - name: Lint code for consistent style
-        run: bin/rubocop -f github
+      - name: Creating database
+        run: |
+          mysql -uroot -proot -e 'CREATE DATABASE ${{ env.LIGO_DB_NAME }};'
 
+      - name: Run migration
+        run: bin/manage migrate
+
+      - name: Run Spec
+        run: crystal spec
