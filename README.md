@@ -1,6 +1,11 @@
-# Backend
+# Ligo
+
+What is Ligo? Ligo is our "Everything Backend." It is a latin word, a related word of which is ligandus, or in chemistry: ligand, or in toys: lego.
+
+Quick start:
 
 ```bash
+docker compose up
 docker compose run custy_backend shards install
 docker compose run custy_backend marten genmigrations
 docker compose run custy_backend marten migrate
@@ -15,6 +20,12 @@ docker compose run custy_backend crystal spec spec/handlers/product_state_handle
 
 In Marten, migrations are created automatically through `genmigrations` after you change/add/remove columns reflected within model files.
 
+You can get into the container by doing:
+
+```bash
+docker compose run custy_backend bash
+```
+
 ## Development
 
 Before committing, run:
@@ -27,11 +38,7 @@ Our app is consist of multiple mini-apps, such as "auth" which handles authentic
 
 ## Endpoints
 
-Unlike in Rails where actions are put into the same controller, in Marten each action has its own handler, and they may not necessarily be in the same classes. Our conventions:
-
-- We have `create_handler` that handles record creation
-- We have `rud_handler` that handles basic reading, updating, and deleting the record
-- We have other handlers that handle more specific actions
+Unlike in Rails where actions are put into the same controller, in Marten each action has its own handler.
 
 ### Auth::User
 
