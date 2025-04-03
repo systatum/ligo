@@ -13,9 +13,7 @@ class ProductStateHandler < RequestHandler
   end
 
   def patch
-    unless Role.at_least_bizdev?(current_user)
-      raise Auth::AuthorizationError.new("You are not authorized to update a product")
-    end
+    Auth::Role.must_at_least_bizdev!(current_user)
 
     if schema.valid?
       product.update!(schema.validated_data)

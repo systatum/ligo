@@ -2,10 +2,6 @@ module SlugGenerator
   # what characters can be used to genereate the Slug
   CHARACTER_SET = "23456789ABCDEFHJKLMNPQRTUVWXY"
 
-  macro included
-    after_initialize :generate_slug
-  end
-
   private def generate_slug
     return unless new_record?
 
@@ -22,5 +18,14 @@ module SlugGenerator
       alphabet: CHARACTER_SET,
       secure: true
     )
+  end
+
+  macro included
+    after_initialize :generate_slug
+
+    # find record by the hashed ID
+    def self.filter_by_slug(slug : String)
+      filter(slug: slug)
+    end
   end
 end

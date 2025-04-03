@@ -8,8 +8,8 @@ module HandlerResponders
       puts e.message
       e.backtrace.each do |line|
         # skip noise lines
-        next if line.includes?("marten/src/")
-        next if line.includes?("crystal/core/")
+        next if line.includes?("lib/marten") || line.includes?("marten/src/") ||
+                line.includes?("crystal/core/") || line.includes?("??")
 
         puts "#{line}\n"
       end
@@ -20,6 +20,8 @@ module HandlerResponders
     # todo: send the error to sentry
 
     case e
+    when Marten::HTTP::Errors::PermissionDenied
+      render_error 403, ["Not authorized"]
     when Marten::HTTP::Errors::NotFound | Marten::DB::Errors::RecordNotFound
       render_error 404, ["Not found"]
     else

@@ -1,4 +1,4 @@
 module Auth
-  class AuthorizationError < Exception
+  class AuthorizationError < Marten::HTTP::Errors::PermissionDenied
   end
 end

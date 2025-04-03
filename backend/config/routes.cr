@@ -3,6 +3,8 @@
 Marten.routes.draw do
   path "/", HomeHandler, name: "root"
   path "/auth", Auth::ROUTES, name: "auth"
+  path "/workaty", Workaty::ROUTES, name: "workaty"
+
   path "/api/app_info", AppInfoHandler, name: "app_info"
 
   path "/api/products", ProductCreateHandler, name: "api_product_create"

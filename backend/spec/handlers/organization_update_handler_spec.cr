@@ -12,7 +12,7 @@ describe OrganizationUpdateHandler do
           content_type: "application/json",
         )
 
-        response.status.should be >= 400
+        response.status.should eq 404
         response.content.should eq({error: {messages: ["Not found"]}}.to_json)
       end
     end

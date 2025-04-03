@@ -1,4 +1,4 @@
-module Role
+module Auth::Role
   # in the order of commonality, before being further specialized:
 
   CUSTOMER         =    0 # simply a customer, shouldn't have admin access
@@ -21,10 +21,22 @@ module Role
   # in the future, we will be able to set the role in such a fine-grained fashion
 
   def self.admin?(user)
-    user.role! > Role::SECURITY_STAFF
+    user.role! > Auth::Role::SECURITY_STAFF
+  end
+
+  def self.hr_staff?(user)
+    user.role! == Auth::Role::HR_STAFF
   end
 
   def self.at_least_bizdev?(user)
-    user.role! >= Role::BIZDEV_STAFF
+    user.role! >= Auth::Role::BIZDEV_STAFF
+  end
+
+  def self.at_least_chief_staff?(user)
+    user.role! >= Auth::Role::CHIEF_STAFF
+  end
+
+  def self.must_at_least_bizdev!(user)
+    raise Auth::AuthorizationError.new unless at_least_bizdev?(user)
   end
 end

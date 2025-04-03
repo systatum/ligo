@@ -12,6 +12,8 @@ class ProductCreateHandler < RequestHandler
     else
       render_invalid_payload
     end
+  rescue e
+    handle_error(e)
   end
 
   private def schema
