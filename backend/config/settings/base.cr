@@ -12,6 +12,7 @@ Marten.configure do |config|
   # https://martenframework.com/docs/development/reference/settings#installed_apps
   config.installed_apps = [
     Auth::App,
+    Workaty::App,
   ] of Marten::Apps::Config.class
 
   # Application middlewares

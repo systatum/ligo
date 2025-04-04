@@ -10,7 +10,7 @@ module Auth
         user.organization = schema.organization
         user.first_name = schema.first_name
         user.last_name = schema.last_name
-        user.role = Role::FULL_TIME_STAFF
+        user.role = Auth::Role::FULL_TIME_STAFF
         user.set_password(schema.password!)
         user.password_updated_at = Time.utc
         user.save!
@@ -19,6 +19,8 @@ module Auth
       else
         render_invalid_payload schema
       end
+    rescue e
+      handle_error(e)
     end
 
     private def schema

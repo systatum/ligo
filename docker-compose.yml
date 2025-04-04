@@ -32,16 +32,6 @@ services:
       - 3003:3003 # forward the port
       - 8080:8080 # for marten play
 
-  custy_frontend:
-    container_name: custy_frontend
-    build:
-      dockerfile: ./frontend/Dockerfile.dev
-    volumes:
-      - ./frontend:/app
-    ports:
-      - 3001:3000
-    command: "npm run dev"
-
 volumes:
   custy_db_data:
   # bundle_data:

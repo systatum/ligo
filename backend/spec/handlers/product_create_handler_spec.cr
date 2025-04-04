@@ -11,6 +11,9 @@ describe ProductCreateHandler do
           headers: {authorization: "Bearer #{user.jwt_token}"},
           content_type: "application/json"
         )
+
+        response.status.should eq 200
+
         prod = Product.last!
         prod.organization.should eq user.organization
         prod.name.should eq "Created Prod"
@@ -18,7 +21,6 @@ describe ProductCreateHandler do
         prod.created_at.should_not be_nil
         prod.updated_at.should_not be_nil
 
-        response.status.should eq 200
         response.content.should eq ProductSerializer.serialize(prod)
       end
     end

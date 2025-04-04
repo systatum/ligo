@@ -69,7 +69,24 @@ Next release (for hospital):
 
 ## Convention
 
+- Routing convention:
+
+  | path                                | handler       | description                     |
+  |-------------------------------------|---------------|---------------------------------|
+  | `""`                                | CreateHandler | Route to create a new record    |
+  | `"/<resource_id:some_type>"`        | ShowHandler   | Route to retrieve/show a record |
+  | `"/<resource_id:some_type>/update"` | UpdateHandler | Update a record                 |
+  | `"/<resource_id:some_type>/delete"` | DeleteHandler | Delete a record                 |\
+
+  If the resource is a `Candidate` then it would be `<candidate_hashed_id:str>` or `<candidate_slug:str>`, for example.
+
+- Scope model with proper app, ie `Workaty::Candidate`.
 - The class veriable `@@` should be at the very top, followed by `includes` and any other macro.
+- Use either `SlugGenerator` or `IdConcealer` always, never use raw ID. Choose either, adhering to your objective, sound, and based guestimation.
+- Any `macro included` on any module should be the last block (look ad `IdConcealer` for a role model).
+- Each handler needs a helper class.
+- Auhtorization functions are put into helper closely related to handlers.
+- We believe in a quality software: let's write spec! Write spec whenever possible.
 
 ## Upon deployment
 

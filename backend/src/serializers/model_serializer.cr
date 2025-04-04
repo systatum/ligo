@@ -6,12 +6,24 @@ class ModelSerializer
     serializer.serialize_to_json
   end
 
+  # not printing as a JSON string, but as a map
+  def self.soft_serialize(record)
+    serializer = new(record)
+    serializer.soft_serialize
+  end
+
+  # -------------------
+
   def initialize(record)
     @record = record
   end
 
+  def soft_serialize
+    fields.merge(timing_fields)
+  end
+
   def serialize_to_json : String
-    return fields.merge(timing_fields).to_json
+    soft_serialize.to_json
   end
 
   protected def fields

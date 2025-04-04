@@ -20,11 +20,11 @@ describe ProductStateHandler do
   describe "#patch" do
     context "when the product cannot be found" do
       it "renders 404" do
+        user = create_user
         response = Marten::Spec.client.patch(
           Marten.routes.reverse("api_product_update", id: "123"),
-          data: {
-            "short_description": "Wohoo",
-          }.to_json,
+          data: {"short_description": "Wohoo"}.to_json,
+          headers: {authorization: "Bearer #{user.jwt_token}"},
           content_type: "application/json",
         )
 
