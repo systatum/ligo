@@ -17,6 +17,8 @@ class Workaty::Candidate < Marten::Model
   field :first_name, :string, max_size: 128, null: false, blank: false
   field :last_name, :string, max_size: 128, null: false, blank: true
   field :fitness, :enum, values: Fitness, null: false, default: Fitness::UNKNOWN
+  field :email, :string, max_size: 128, null: true, blank: true
+  field :phone, :big_int, null: true, blank: true
   field :note, :text, null: true, blank: true
   field :created_at, :date_time, null: false, auto_now_add: true
   field :updated_at, :date_time, null: false, auto_now: true

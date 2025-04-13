@@ -8,6 +8,8 @@ module Workaty
         first_name: record.first_name,
         last_name:  record.last_name,
         fitness:    record.fitness,
+        email:      record.email,
+        phone:      record.phone,
         degrees:    degrees,
       }
     end

@@ -64,6 +64,8 @@ describe Workaty::CandidateUpdateHandler do
               last_name:  "Evets",
               fitness:    "good_fit",
               note:       "This candidate is awesome",
+              email:      "steve.evets@example.com",
+              phone:      8155551234,
             }.to_json,
             headers: {authorization: "Bearer #{user.jwt_token}"},
             content_type: "application/json",
@@ -76,6 +78,8 @@ describe Workaty::CandidateUpdateHandler do
           cand.last_name.should eq "Evets"
           cand.fitness.should eq Workaty::Candidate::Fitness::GOOD_FIT
           cand.note.should eq "This candidate is awesome"
+          cand.email.should eq "steve.evets@example.com"
+          cand.phone.should eq 8155551234
           cand.updated_at.should_not eq cand.created_at
           cand.deleted_at.should be_nil
 
