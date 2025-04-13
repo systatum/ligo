@@ -5,6 +5,7 @@ class AppSettings
 
   field ligo_app_cors_whitelist : String, default: ""
   field ligo_app_cors_ok_headers : String, default: ""
+  field ligo_app_salt_for_id_concealer : String, default: ""
 
   @@instance : AppSettings?
 

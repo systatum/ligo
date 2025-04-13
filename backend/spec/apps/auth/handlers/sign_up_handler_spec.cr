@@ -8,7 +8,7 @@ describe Auth::SignUpHandler do
           Marten.routes.reverse("auth:api_sign_up"),
           data: {
             organization_name: "Awesome Company",
-            email:             "custy@custy.com",
+            email:             "custy@systatum.com",
             password:          "Password01",
             first_name:        "Adam",
             last_name:         "Hakarsa",
@@ -17,7 +17,7 @@ describe Auth::SignUpHandler do
         )
 
         user = Auth::User.last!
-        user.email.should eq "custy@custy.com"
+        user.email.should eq "custy@systatum.com"
         user.first_name.should eq "Adam"
         user.last_name.should eq "Hakarsa"
         MartenAuth.authenticate(user.email!, "Password01").should eq user
@@ -35,7 +35,7 @@ describe Auth::SignUpHandler do
           Marten.routes.reverse("auth:api_sign_up"),
           data: {
             organization_id: existing_organization.hashed_id,
-            email:           "custy@custy.com",
+            email:           "custy@systatum.com",
             password:        "Password01",
             first_name:      "Adam",
             last_name:       "Hakarsa",
@@ -45,7 +45,7 @@ describe Auth::SignUpHandler do
 
         user = Auth::User.last!
         user.organization.should eq existing_organization
-        user.email.should eq "custy@custy.com"
+        user.email.should eq "custy@systatum.com"
         user.first_name.should eq "Adam"
         user.last_name.should eq "Hakarsa"
         MartenAuth.authenticate(user.email!, "Password01").should eq user
@@ -58,7 +58,7 @@ describe Auth::SignUpHandler do
 
   context "when the email has been used for registration" do
     it "does not allow for registration" do
-      email = "custy@custy.com"
+      email = "custy@systatum.com"
       user = create_user(email: email)
       user.should_not be_nil
 

@@ -1,9 +1,11 @@
 default: &default
-
   ligo:
     app: &ligo_app
       cors_whitelist: "*"
       cors_ok_headers: "Content-Type, Authorization, Access-Control-Allow-Origin"
+
+      salt_for:
+        id_concealer: "salted_id_for_custy_app"
 
 production:
   <<: *default

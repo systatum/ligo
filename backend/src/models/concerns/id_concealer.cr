@@ -8,7 +8,7 @@
 # has been made to check such claim.
 module IdConcealer
   @@hashids : Hashids = Hashids.new(
-    salt: ENV.has_key?("CUSTY_SALT_FOR_HASHED_ID") ? ENV["CUSTY_SALT_FOR_HASHED_ID"] : "salted_id_for_custy_app",
+    salt: AppSettings.instance.ligo_app_salt_for_id_concealer,
     min_hash_size: 12,
     alphabet: SlugGenerator::CHARACTER_SET,
   )

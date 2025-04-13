@@ -9,9 +9,9 @@ Marten.configure :development do |config|
 
   # configure the database
   config.database do |db|
-    db.host = "custy_db"
-    db.name = "custy_development"
+    db.host = "ligo_db"
+    db.name = "ligo_development"
     db.user = "root"
-    db.password = "custy_db_root_password"
+    db.password = "ligo_db_root_password"
   end
 end

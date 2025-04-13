@@ -1,23 +1,23 @@
 version: "3"
 
 services:
-  custy_db:
-    container_name: custy_db
+  ligo_db:
+    container_name: ligo_db
     image: mariadb:11.4.4
     environment:
-      MYSQL_ROOT_PASSWORD: custy_db_root_password
-      MYSQL_USER: custy_db_user
-      MYSQL_PASSWORD: custy_db_password
+      MYSQL_ROOT_PASSWORD: ligo_db_root_password
+      MYSQL_USER: ligo_db_user
+      MYSQL_PASSWORD: ligo_db_password
     volumes:
-        # to persist database, run docker volume rm custy_custy_db_data
+        # to persist database, run docker volume rm ligo_db_data
         # if you change the startup SQL code
-      - custy_db_data:/var/lib/mysql
+      - ligo_db_data:/var/lib/mysql
       - ./backend/dev_init.sql:/docker-entrypoint-initdb.d/setup.sql
     ports:
       - 3306:3306
 
-  custy_backend:
-    container_name: custy_backend
+  ligo_backend:
+    container_name: ligo_backend
     build:
       dockerfile: Dockerfile.dev
     command: marten serve -p 3003
@@ -27,11 +27,11 @@ services:
       - ./backend:/app
       # - bundle_data:/usr/local/bundle:cached
     depends_on:
-      - custy_db
+      - ligo_db
     ports:
       - 3003:3003 # forward the port
       - 8080:8080 # for marten play
 
 volumes:
-  custy_db_data:
+  ligo_db_data:
   # bundle_data:

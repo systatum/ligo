@@ -3,7 +3,7 @@ require "./spec_helper"
 describe Auth::SignInHandler do
   context "when the email address can't be found" do
     it "complains of invalid credentials" do
-      email = "me-not-found@custy.com"
+      email = "me-not-found@systatum.com"
       Auth::User.filter(email__iexact: email).count.should eq 0
 
       response = Marten::Spec.client.post(
