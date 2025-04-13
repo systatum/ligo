@@ -1,6 +1,7 @@
 class Workaty::CandidateDeleteHandler < RequestHandler
   include Workaty::CandidateHelper
 
+  protect_from_forgery false
   http_method_names :delete
 
   def delete

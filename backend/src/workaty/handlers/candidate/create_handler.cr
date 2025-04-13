@@ -1,6 +1,7 @@
 class Workaty::CandidateCreateHandler < RequestHandler
   include Workaty::CandidateHelper
 
+  protect_from_forgery false
   http_method_names :post
 
   def post

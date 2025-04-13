@@ -9,7 +9,8 @@ module HandlerResponders
       e.backtrace.each do |line|
         # skip noise lines
         next if line.includes?("lib/marten") || line.includes?("marten/src/") ||
-                line.includes?("crystal/core/") || line.includes?("??")
+                line.includes?("crystal/src") || line.includes?("crystal/core/") ||
+                line.includes?("??")
 
         puts "#{line}\n"
       end

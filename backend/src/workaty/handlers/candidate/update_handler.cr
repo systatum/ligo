@@ -1,6 +1,7 @@
 class Workaty::CandidateUpdateHandler < RequestHandler
   include Workaty::CandidateHelper
 
+  protect_from_forgery false
   http_method_names :patch, :post
 
   def post

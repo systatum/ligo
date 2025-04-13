@@ -1,13 +1,20 @@
 # Third party requirements.
+require "envy"
 require "marten"
 require "marten_auth"
+require "csv"
 require "sqlite3"
 require "envy"
 require "jbuilder"
 require "mysql"
 require "nanoid"
+require "typed_env_config"
 require "hashids"
+require "email"
 require "jwt"
+
+# Require all middlewares
+require "./middlewares/**"
 
 # Configuration requirements.
 require "../config/settings/base"

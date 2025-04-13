@@ -1,6 +1,7 @@
 class Workaty::DegreeDeleteHandler < RequestHandler
   include Workaty::DegreeHelper
 
+  protect_from_forgery false
   http_method_names :delete
 
   def delete

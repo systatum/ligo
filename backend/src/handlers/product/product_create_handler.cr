@@ -1,7 +1,8 @@
 class ProductCreateHandler < RequestHandler
-  @schema : ProductSchema?
-
+  protect_from_forgery false
   http_method_names :post
+
+  @schema : ProductSchema?
 
   def post
     if schema.valid?

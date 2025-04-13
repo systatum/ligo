@@ -1,8 +1,9 @@
 module Auth
   class PasswordUpdateHandler < RequestHandler
-    @schema : PasswordUpdateSchema?
-
+    protect_from_forgery false
     http_method_names :post
+
+    @schema : PasswordUpdateSchema?
 
     def post
       if schema.valid?

@@ -1,4 +1,5 @@
 class ProductStateHandler < RequestHandler
+  protect_from_forgery false
   http_method_names :get, :patch, :post, :delete
 
   @product : Product?

@@ -1,4 +1,5 @@
 class HomeHandler < RequestHandler
+  protect_from_forgery false
   http_method_names :get
 
   def get

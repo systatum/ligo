@@ -1,4 +1,5 @@
 class OrganizationUpdateHandler < RequestHandler
+  protect_from_forgery false
   http_method_names :patch, :post
 
   @organization : Auth::Organization?
@@ -9,6 +10,7 @@ class OrganizationUpdateHandler < RequestHandler
   end
 
   def patch
+    # todo organization can be updated only by owner up
     if schema.valid?
       organization.update!(schema.validated_data)
       json OrganizationSerializer.serialize(organization), status: 200

@@ -18,6 +18,8 @@ Marten.configure do |config|
   # Application middlewares
   # https://martenframework.com/docs/development/reference/settings#middleware
   config.middleware = [
+    CrossRequestAuthorizer,
+    OptionsRequestResponder,
     Marten::Middleware::Session,
     Marten::Middleware::Flash,
     Marten::Middleware::GZip,

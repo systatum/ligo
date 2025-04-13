@@ -1,8 +1,9 @@
 module Auth
   class SignInHandler < RequestHandler
-    @schema : SignInSchema?
-
+    protect_from_forgery false
     http_method_names :post
+
+    @schema : SignInSchema?
 
     def post
       if schema.valid?

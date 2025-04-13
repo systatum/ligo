@@ -1,7 +1,8 @@
 class OrganizationCreateHandler < RequestHandler
-  @schema : Auth::OrganizationSchema?
-
+  protect_from_forgery false
   http_method_names :post
+
+  @schema : Auth::OrganizationSchema?
 
   def post
     if schema.valid?

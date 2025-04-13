@@ -1,0 +1,24 @@
+default: &default
+
+  ligo:
+    app: &ligo_app
+      cors_whitelist: "*"
+      cors_ok_headers: "Content-Type, Authorization, Access-Control-Allow-Origin"
+
+production:
+  <<: *default
+
+  ligo:
+    app:
+      <<: *ligo_app
+      cors_whitelist: "https://workaty.com, https://dashtomer.com"
+
+development: &development
+  <<: *default
+
+  ligo:
+    app:
+      <<: *ligo_app
+
+test:
+  <<: *development

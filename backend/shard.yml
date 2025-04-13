@@ -18,11 +18,15 @@ dependencies:
     github: mamantoha/nanoid.cr
   marten_auth:
     github: martenframework/marten-auth
+  typed_env_config:
+    github: systatum/typed_env_config
   halite:
     github: icyleaf/halite
   hashids:
     github: splattael/hashids.cr
     version: 0.3.0
+  email:
+    github: arcage/crystal-email
 
 development_dependencies:
   # test group

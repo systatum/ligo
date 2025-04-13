@@ -8,6 +8,10 @@ shards:
     git: https://github.com/crystal-lang/crystal-db.git
     version: 0.13.1
 
+  email:
+    git: https://github.com/arcage/crystal-email.git
+    version: 0.7.1
+
   envy:
     git: https://github.com/grottopress/envy.git
     version: 1.0.4
@@ -59,4 +63,8 @@ shards:
   sqlite3:
     git: https://github.com/crystal-lang/crystal-sqlite3.git
     version: 0.21.0
+
+  typed_env_config:
+    git: https://github.com/systatum/typed_env_config.git
+    version: 0.1.0+git.commit.184b8749844791c6f60db3043b306856e286bcf8
 

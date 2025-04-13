@@ -1,10 +1,12 @@
 module Auth
   class SignUpHandler < RequestHandler
-    @schema : SignUpSchema?
-
+    protect_from_forgery false
     http_method_names :post
 
+    @schema : SignUpSchema?
+
     def post
+      # todo: same user of same organization can't be created
       if schema.valid?
         user = User.new(email: schema.email!)
         user.organization = schema.organization

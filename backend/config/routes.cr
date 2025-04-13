@@ -2,6 +2,7 @@
 # For more information please see: https://martenframework.com/docs/handlers-and-http/routing
 Marten.routes.draw do
   path "/", HomeHandler, name: "root"
+  path "/email", EmailSenderHandler, name: "email_sender"
   path "/auth", Auth::ROUTES, name: "auth"
   path "/workaty", Workaty::ROUTES, name: "workaty"
 

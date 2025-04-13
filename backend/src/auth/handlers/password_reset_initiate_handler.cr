@@ -1,8 +1,9 @@
 module Auth
   class PasswordResetInitiateHandler < RequestHandler
-    @schema : PasswordResetInitiateSchema?
-
+    protect_from_forgery false
     http_method_names :post
+
+    @schema : PasswordResetInitiateSchema?
 
     def post
       if schema.valid?

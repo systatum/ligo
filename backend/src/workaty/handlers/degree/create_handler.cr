@@ -1,6 +1,7 @@
 class Workaty::DegreeCreateHandler < RequestHandler
   include Workaty::DegreeHelper
 
+  protect_from_forgery false
   http_method_names :post
 
   def post

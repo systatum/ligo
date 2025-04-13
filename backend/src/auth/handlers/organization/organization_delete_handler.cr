@@ -1,4 +1,5 @@
 class OrganizationDeleteHandler < RequestHandler
+  protect_from_forgery false
   http_method_names :delete
 
   @organization : Auth::Organization?
