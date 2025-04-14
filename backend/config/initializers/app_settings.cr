@@ -7,6 +7,15 @@ class AppSettings
   field ligo_app_cors_ok_headers : String, default: ""
   field ligo_app_salt_for_id_concealer : String, default: ""
 
+  field ligo_mailer_smtp_host : String, default: ""
+  field ligo_mailer_smtp_port : Int32, default: 0
+  field ligo_mailer_smtp_domain : String, default: ""
+  field ligo_mailer_smtp_username : String, default: ""
+  field ligo_mailer_smtp_password : String, default: ""
+  field ligo_mailer_smtp_use_auth : Bool, default: false
+  field ligo_mailer_smtp_use_smtps : Bool, default: false
+  field ligo_mailer_smtp_use_starttls : Bool, default: false
+
   @@instance : AppSettings?
 
   def self.instance

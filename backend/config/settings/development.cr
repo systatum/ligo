@@ -3,10 +3,6 @@ Marten.configure :development do |config|
   config.host = "0.0.0.0"
   config.port = 3000
 
-  # Print sent emails to the standard output in development.
-  # https://martenframework.com/docs/development/reference/settings#emailing-settings
-  config.emailing.backend = Marten::Emailing::Backend::Development.new(print_emails: true)
-
   # configure the database
   config.database do |db|
     db.host = "ligo_db"

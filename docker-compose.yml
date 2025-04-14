@@ -18,6 +18,7 @@ services:
 
   ligo_backend:
     container_name: ligo_backend
+    restart: on-failure
     build:
       dockerfile: Dockerfile.dev
     command: marten serve -p 3003
@@ -31,6 +32,16 @@ services:
     ports:
       - 3003:3003 # forward the port
       - 8080:8080 # for marten play
+
+  mailcatcher:
+    restart: on-failure
+    image: dockage/mailcatcher:0.9.0
+    ports:
+      - 1025:1025
+      - 1080:1080
+    environment:
+      MAILCATCHER_SMTP_PORT: 1025
+      MAILCATCHER_HTTP_PORT: 1080
 
 volumes:
   ligo_db_data:

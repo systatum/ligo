@@ -1,11 +1,24 @@
 default: &default
-  ligo:
+  ligo: &ligo
     app: &ligo_app
       cors_whitelist: "*"
       cors_ok_headers: "Content-Type, Authorization, Access-Control-Allow-Origin"
 
       salt_for:
         id_concealer: "salted_id_for_custy_app"
+
+    mailer:
+      smtp: &mailer_smtp
+        host: "mailcatcher" # LIGO_MAILER_SMTP_HOST
+        port: 1025 # LIGO_MAILER_SMTP_PORT
+        domain: "localhost" # LIGO_MAILER_SMTP_DOMAIN
+        use_auth: true
+        username: "user" # LIGO_MAILER_SMTP_USER_NAME
+        password: "password" # LIGO_MAILER_SMTP_PASSWORD
+        use_smtps: false # LIGO_MAILER_SMTP_USE_SMPTS
+        use_starttls: false # LIGO_MAILER_SMTP_USE_STARTTLS
+
+# ------------------------------------------------------------------
 
 production:
   <<: *default
@@ -15,12 +28,29 @@ production:
       <<: *ligo_app
       cors_whitelist: "https://workaty.com, https://dashtomer.com"
 
+    mailer:
+      smtp:
+        <<: *mailer_smtp
+        address: "sandbox.smtp.mailtrap.io"
+        port: 2525
+        use_auth: true
+        username: "6e597f234ce69c"
+        password: "65465d34f00cef"
+        use_starttls: true
+
+# ------------------------------------------------------------------
+
 development: &development
   <<: *default
 
   ligo:
-    app:
-      <<: *ligo_app
+    <<: *ligo
+
+    mailer:
+      smtp:
+        <<: *mailer_smtp
+        use_auth: false
+
 
 test:
   <<: *development

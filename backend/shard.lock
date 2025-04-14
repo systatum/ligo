@@ -44,6 +44,10 @@ shards:
     git: https://github.com/martenframework/marten-auth.git
     version: 0.2.1
 
+  marten_smtp_emailing:
+    git: https://github.com/martenframework/marten-smtp-emailing.git
+    version: 0.1.1
+
   msgpack:
     git: https://github.com/crystal-community/msgpack-crystal.git
     version: 1.3.4
@@ -66,5 +70,5 @@ shards:
 
   typed_env_config:
     git: https://github.com/systatum/typed_env_config.git
-    version: 0.1.0+git.commit.184b8749844791c6f60db3043b306856e286bcf8
+    version: 0.2.0
 

@@ -18,8 +18,11 @@ dependencies:
     github: mamantoha/nanoid.cr
   marten_auth:
     github: martenframework/marten-auth
+  marten_smtp_emailing:
+    github: martenframework/marten-smtp-emailing
   typed_env_config:
     github: systatum/typed_env_config
+    version: 0.2.0
   halite:
     github: icyleaf/halite
   hashids:

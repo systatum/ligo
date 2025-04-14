@@ -1,4 +1,5 @@
 Marten.configure do |config|
+  app_settings = AppSettings.instance
   config.auth.user_model = Auth::User
 
   # IMPORTANT: please ensure that the secret key value is kept secret!
@@ -41,4 +42,14 @@ Marten.configure do |config|
     Marten::Template::ContextProducer::Debug,
     Marten::Template::ContextProducer::I18n,
   ]
+
+  # configure the mailer
+  config.emailing.backend = MartenSMTPEmailing::Backend.new(
+    host: app_settings.ligo_mailer_smtp_host,
+    port: app_settings.ligo_mailer_smtp_port,
+    helo_domain: app_settings.ligo_mailer_smtp_domain,
+    use_tls: app_settings.ligo_mailer_smtp_use_starttls,
+    username: app_settings.ligo_mailer_smtp_use_auth ? app_settings.ligo_mailer_smtp_username : nil,
+    password: app_settings.ligo_mailer_smtp_use_auth ? app_settings.ligo_mailer_smtp_password : nil,
+  )
 end

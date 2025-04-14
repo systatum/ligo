@@ -2,6 +2,7 @@
 require "envy"
 require "marten"
 require "marten_auth"
+require "marten_smtp_emailing"
 require "csv"
 require "sqlite3"
 require "envy"

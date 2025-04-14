@@ -7,7 +7,7 @@ Quick start:
 ```bash
 docker compose up
 docker compose run ligo_backend shards install
-docker compose run ligo_backend marten genmigrations # create a new migration
+docker compose run ligo_backend marten genmigrations # reflect a new migration; in Marten, migrations are created automatically through `genmigrations` after you change/add/remove columns reflected within model files.
 docker compose run ligo_backend marten routes # print all the routes in the app
 docker compose run ligo_backend marten migrate
 docker compose run ligo_backend marten migrate main <migration-date-to-unapply>
@@ -19,44 +19,17 @@ docker compose run ligo_backend crystal spec [--fail-fast]
 docker compose run ligo_backend crystal spec spec/handlers/product_state_handler_spec.cr
 ```
 
-In Marten, migrations are created automatically through `genmigrations` after you change/add/remove columns reflected within model files.
-
 You can get into the container by doing:
 
 ```bash
 docker compose run ligo_backend bash
 ```
 
-## Development
+## Email
 
-Before committing, run:
-
-```bash
-crystal tool format
-```
-
-Our app is consist of multiple mini-apps, such as "auth" which handles authentication and user-related handling. In each app, there's `app.cr` which handles loading files in order. And yes, each app would have their own `routes.cr` where all routes are defined, like in Rails.
-
-## Endpoints
-
-Unlike in Rails where actions are put into the same controller, in Marten each action has its own handler.
-
-### Auth::User
-
-- `api_sign_in`
-  - returns 200: on successful signing in
-  - returns 404: on user not found
-  - returns 400: on invalid payload
-- `api_sign_up`
-  - returns 200: on successful signing up
-  - returns 400:
-    - invalid payload:
-      - incomplete fields
-      - user already exists
-- `api_request_password_reset`
-  - returns 200:
-    - when there's account associated to a given email address, and email is sent successfully to said address
-    - when there's no account associated to a given email address, avoid helping attacker knows if there is/there is no account associated
+- On dev, you can inspect all mails sent during development at http://localhost:1080, the MailCatche'r UI.
+- On staging, please use mailtrap.
+- On production, please use postmark.
 
 ## Todo
 
@@ -70,6 +43,13 @@ Next release (for hospital):
 
 ## Convention
 
+- Before committing, please run:
+
+  ```bash
+  crystal tool format
+  ```
+- Our app consists of multiple mini-apps, such as "auth" which handles authentication. In each app, there's `app.cr` to load files in order. And yes, each app would have their own `routes.cr` where all routes are defined, like in Rails.
+- Unlike in Rails or most other frameworks where actions are put into the same controller, in Marten each action has its own handler.
 - Routing convention:
 
   | path                                | handler       | description                     |
@@ -88,10 +68,10 @@ Next release (for hospital):
 - Each handler needs a helper class.
 - Auhtorization functions are put into helper closely related to handlers.
 - We believe in a quality software: let's write spec! Write spec whenever possible.
-
-## Upon deployment
-
-- Set `LIGO_SALT_FOR_HASHED_ID`
+- General status code:
+  - 200: on successful signing in
+  - 404: on user not found
+  - 400: on invalid payload
 
 ## Reference
 
