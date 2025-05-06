@@ -15,7 +15,7 @@ class Workaty::DegreeUpdateHandler < RequestHandler
       degree.update!(schema.validated_data)
       json Workaty::DegreeSerializer.serialize(degree), status: 200
     else
-      render_invalid_payload
+      render_invalid_payload(schema)
     end
   rescue e
     handle_error(e)

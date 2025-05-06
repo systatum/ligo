@@ -14,7 +14,7 @@ module Auth
         # so that attacker doesn't know if email exists or not
         render_no_content
       else
-        render_invalid_payload
+        render_invalid_payload(schema)
       end
     rescue e
       handle_error(e)

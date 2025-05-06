@@ -11,7 +11,7 @@ class ProductCreateHandler < RequestHandler
       product.save!
       json ProductSerializer.serialize(product), status: 200
     else
-      render_invalid_payload
+      render_invalid_payload(schema)
     end
   rescue e
     handle_error(e)

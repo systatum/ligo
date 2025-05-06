@@ -52,7 +52,7 @@ describe OrganizationUpdateHandler do
         )
 
         response.status.should eq 400
-        response.content.should eq({error: {messages: ["Invalid payload"]}}.to_json)
+        response.content.should eq({error: {messages: ["Name: This field is required."]}}.to_json)
       end
     end
   end

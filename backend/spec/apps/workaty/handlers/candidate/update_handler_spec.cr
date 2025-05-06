@@ -42,7 +42,7 @@ describe Workaty::CandidateUpdateHandler do
             )
 
             response.status.should eq 400
-            response.content.should eq({error: {messages: ["Invalid payload"]}}.to_json)
+            response.content.should eq({error: {messages: ["First name: This field is required."]}}.to_json)
           end
         end
 

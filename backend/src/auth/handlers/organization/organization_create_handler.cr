@@ -10,7 +10,7 @@ class OrganizationCreateHandler < RequestHandler
       organization.save!
       json OrganizationSerializer.serialize(organization), status: 200
     else
-      render_invalid_payload
+      render_invalid_payload(schema)
     end
   rescue e
     handle_error(e)

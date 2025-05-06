@@ -14,7 +14,7 @@ module Auth
           render_error 404, ["Invalid credentials"]
         end
       else
-        render_invalid_payload
+        render_invalid_payload(schema)
       end
     rescue e
       handle_error(e)
