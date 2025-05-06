@@ -1,4 +1,4 @@
-require "../../../spec_helper"
+require "../../spec_helper"
 
 describe Workaty::DegreeDeleteHandler do
   describe "#delete" do
@@ -10,7 +10,7 @@ describe Workaty::DegreeDeleteHandler do
         degree.deleted_at.should be_nil
 
         response = Marten::Spec.client.delete(
-          Marten.routes.reverse("workaty:api_degree_delete", candidate_slug: candidate.slug!, degree_hashed_id: degree.hashed_id),
+          Marten.routes.reverse("workaty:candidate:degree:delete", candidate_slug: candidate.slug!, degree_hashed_id: degree.hashed_id),
           headers: {authorization: "Bearer #{user.jwt_token}"},
         )
 
@@ -33,7 +33,7 @@ describe Workaty::DegreeDeleteHandler do
         degree.deleted_at.should be_nil
 
         response = Marten::Spec.client.delete(
-          Marten.routes.reverse("workaty:api_degree_delete", candidate_slug: candidate.slug!, degree_hashed_id: degree.hashed_id),
+          Marten.routes.reverse("workaty:candidate:degree:delete", candidate_slug: candidate.slug!, degree_hashed_id: degree.hashed_id),
           headers: {authorization: "Bearer #{other_user.jwt_token}"},
         )
 
@@ -54,7 +54,7 @@ describe Workaty::DegreeDeleteHandler do
         degree.deleted_at.should be_nil
 
         response = Marten::Spec.client.delete(
-          Marten.routes.reverse("workaty:api_degree_delete", candidate_slug: candidate.slug!, degree_hashed_id: degree.hashed_id),
+          Marten.routes.reverse("workaty:candidate:degree:delete", candidate_slug: candidate.slug!, degree_hashed_id: degree.hashed_id),
           headers: {authorization: "Bearer #{less_authorized_user.jwt_token}"},
         )
 

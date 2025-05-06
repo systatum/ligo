@@ -1,11 +1,11 @@
-require "../../../spec_helper"
+require "../../spec_helper"
 
 describe Workaty::CandidateUpdateHandler do
   describe "#patch" do
     context "when the candidate cannot be found" do
       it "renders 404" do
         response = Marten::Spec.client.patch(
-          Marten.routes.reverse("workaty:api_candidate_update", candidate_slug: "123"),
+          Marten.routes.reverse("workaty:candidate:update", candidate_slug: "123"),
           data: {
             first_name: "Steve",
             last_name:  "Evets",
@@ -35,7 +35,7 @@ describe Workaty::CandidateUpdateHandler do
             cand.last_name.should eq "B"
 
             response = Marten::Spec.client.patch(
-              Marten.routes.reverse("workaty:api_candidate_update", candidate_slug: cand.slug!),
+              Marten.routes.reverse("workaty:candidate:update", candidate_slug: cand.slug!),
               data: {name: "Steve"}.to_json,
               headers: {authorization: "Bearer #{user.jwt_token}"},
               content_type: "application/json",
@@ -58,7 +58,7 @@ describe Workaty::CandidateUpdateHandler do
           cand.last_name.should eq "B"
 
           response = Marten::Spec.client.patch(
-            Marten.routes.reverse("workaty:api_candidate_update", candidate_slug: cand.slug!),
+            Marten.routes.reverse("workaty:candidate:update", candidate_slug: cand.slug!),
             data: {
               first_name: "Steve",
               last_name:  "Evets",
@@ -97,7 +97,7 @@ describe Workaty::CandidateUpdateHandler do
           other_user = create_user role: Auth::Role::SECURITY_STAFF
 
           response = Marten::Spec.client.patch(
-            Marten.routes.reverse("workaty:api_candidate_update", candidate_slug: cand.slug!),
+            Marten.routes.reverse("workaty:candidate:update", candidate_slug: cand.slug!),
             data: {
               first_name: "A123",
               last_name:  "B456",

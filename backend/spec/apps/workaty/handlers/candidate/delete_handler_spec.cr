@@ -1,4 +1,4 @@
-require "../../../spec_helper"
+require "../../spec_helper"
 
 describe Workaty::CandidateDeleteHandler do
   describe "#delete" do
@@ -9,7 +9,7 @@ describe Workaty::CandidateDeleteHandler do
         c.deleted_at.should be_nil
 
         response = Marten::Spec.client.delete(
-          Marten.routes.reverse("workaty:api_candidate_delete", candidate_slug: c.slug!),
+          Marten.routes.reverse("workaty:candidate:delete", candidate_slug: c.slug!),
           headers: {authorization: "Bearer #{u.jwt_token}"},
         )
 
@@ -31,7 +31,7 @@ describe Workaty::CandidateDeleteHandler do
         c.deleted_at.should be_nil
 
         response = Marten::Spec.client.delete(
-          Marten.routes.reverse("workaty:api_candidate_delete", candidate_slug: c.slug!),
+          Marten.routes.reverse("workaty:candidate:delete", candidate_slug: c.slug!),
           headers: {authorization: "Bearer #{other_u.jwt_token}"},
         )
 
@@ -51,7 +51,7 @@ describe Workaty::CandidateDeleteHandler do
         c.deleted_at.should be_nil
 
         response = Marten::Spec.client.delete(
-          Marten.routes.reverse("workaty:api_candidate_delete", candidate_slug: c.slug!),
+          Marten.routes.reverse("workaty:candidate:delete", candidate_slug: c.slug!),
           headers: {authorization: "Bearer #{less_authorized_u.jwt_token}"},
         )
 

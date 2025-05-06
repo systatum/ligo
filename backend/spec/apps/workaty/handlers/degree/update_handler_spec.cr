@@ -1,4 +1,4 @@
-require "../../../spec_helper"
+require "../../spec_helper"
 
 describe Workaty::DegreeUpdateHandler do
   describe "#patch" do
@@ -8,7 +8,7 @@ describe Workaty::DegreeUpdateHandler do
         candidate = create_candidate(adder: user)
 
         response = Marten::Spec.client.patch(
-          Marten.routes.reverse("workaty:api_degree_update", candidate_slug: candidate.slug!, degree_hashed_id: "123"),
+          Marten.routes.reverse("workaty:candidate:degree:update", candidate_slug: candidate.slug!, degree_hashed_id: "123"),
           data: {
             institution: "Institution",
             level:       Workaty::Degree::Level::BACHELOR,
@@ -33,7 +33,7 @@ describe Workaty::DegreeUpdateHandler do
             degree = create_degree(candidate: candidate)
 
             response = Marten::Spec.client.patch(
-              Marten.routes.reverse("workaty:api_degree_update", candidate_slug: candidate.slug!, degree_hashed_id: degree.hashed_id),
+              Marten.routes.reverse("workaty:candidate:degree:update", candidate_slug: candidate.slug!, degree_hashed_id: degree.hashed_id),
               data: {level: Workaty::Degree::Level::MASTER}.to_json,
               headers: {authorization: "Bearer #{other_user.jwt_token}"},
               content_type: "application/json",
@@ -56,7 +56,7 @@ describe Workaty::DegreeUpdateHandler do
             )
 
             response = Marten::Spec.client.patch(
-              Marten.routes.reverse("workaty:api_degree_update", candidate_slug: candidate.slug!, degree_hashed_id: degree.hashed_id),
+              Marten.routes.reverse("workaty:candidate:degree:update", candidate_slug: candidate.slug!, degree_hashed_id: degree.hashed_id),
               data: {
                 institution: "Updated Institution",
                 level:       Workaty::Degree::Level::MASTER,
@@ -90,7 +90,7 @@ describe Workaty::DegreeUpdateHandler do
           )
 
           response = Marten::Spec.client.patch(
-            Marten.routes.reverse("workaty:api_degree_update", candidate_slug: candidate.slug!, degree_hashed_id: degree.hashed_id),
+            Marten.routes.reverse("workaty:candidate:degree:update", candidate_slug: candidate.slug!, degree_hashed_id: degree.hashed_id),
             data: {institution: "Updated Institution"}.to_json,
             headers: {authorization: "Bearer #{create_user.jwt_token}"},
             content_type: "application/json",

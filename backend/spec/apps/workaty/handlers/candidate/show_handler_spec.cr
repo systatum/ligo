@@ -1,4 +1,4 @@
-require "../../../spec_helper"
+require "../../spec_helper"
 
 describe Workaty::CandidateShowHandler do
   describe "#show" do
@@ -7,7 +7,7 @@ describe Workaty::CandidateShowHandler do
       cand = create_candidate adder: user
 
       response = Marten::Spec.client.get(
-        Marten.routes.reverse("workaty:api_candidate_show", candidate_slug: cand.slug!),
+        Marten.routes.reverse("workaty:candidate:show", candidate_slug: cand.slug!),
         headers: {authorization: "Bearer #{user.jwt_token}"},
         content_type: "application/json",
       )
@@ -34,7 +34,7 @@ describe Workaty::CandidateShowHandler do
         degree2 = create_degree candidate: cand, institution: "Harvard", major_field: "Physics", level: Workaty::Degree::Level::MASTER
 
         response = Marten::Spec.client.get(
-          Marten.routes.reverse("workaty:api_candidate_show", candidate_slug: cand.slug!),
+          Marten.routes.reverse("workaty:candidate:show", candidate_slug: cand.slug!),
           headers: {authorization: "Bearer #{user.jwt_token}"},
           content_type: "application/json",
         )

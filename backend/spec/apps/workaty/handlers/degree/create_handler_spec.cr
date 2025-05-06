@@ -1,4 +1,4 @@
-require "../../../spec_helper"
+require "../../spec_helper"
 
 describe Workaty::DegreeCreateHandler do
   describe "#post" do
@@ -9,7 +9,7 @@ describe Workaty::DegreeCreateHandler do
           candidate = create_candidate(adder: user)
 
           response = Marten::Spec.client.post(
-            Marten.routes.reverse("workaty:api_degree_create", candidate_slug: candidate.slug!),
+            Marten.routes.reverse("workaty:candidate:degree:create", candidate_slug: candidate.slug!),
             data: {
               institution: "Institution",
               level:       Workaty::Degree::Level::BACHELOR,
@@ -39,7 +39,7 @@ describe Workaty::DegreeCreateHandler do
           candidate = create_candidate
 
           response = Marten::Spec.client.post(
-            Marten.routes.reverse("workaty:api_degree_create", candidate_slug: candidate.slug!),
+            Marten.routes.reverse("workaty:candidate:degree:create", candidate_slug: candidate.slug!),
             data: {
               institution: "Institution",
               level:       Workaty::Degree::Level::BACHELOR,
@@ -59,7 +59,7 @@ describe Workaty::DegreeCreateHandler do
           user = create_user
 
           response = Marten::Spec.client.post(
-            Marten.routes.reverse("workaty:api_degree_create", candidate_slug: "not-real123"),
+            Marten.routes.reverse("workaty:candidate:degree:create", candidate_slug: "not-real123"),
             data: {
               institution: "Institution",
               level:       Workaty::Degree::Level::BACHELOR,

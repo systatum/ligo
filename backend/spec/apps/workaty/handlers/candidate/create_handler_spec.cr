@@ -1,4 +1,4 @@
-require "../../../spec_helper"
+require "../../spec_helper"
 
 describe Workaty::CandidateCreateHandler do
   describe "#post" do
@@ -6,7 +6,7 @@ describe Workaty::CandidateCreateHandler do
       it "creates a new candidate" do
         user = create_user
         response = Marten::Spec.client.post(
-          Marten.routes.reverse("workaty:api_candidate_create"),
+          Marten.routes.reverse("workaty:candidate:create"),
           data: {
             first_name: "Steve",
             last_name:  "Evets",
