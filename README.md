@@ -25,6 +25,90 @@ You can get into the container by doing:
 docker compose run ligo_backend bash
 ```
 
+## Running without Docker
+
+We need to install Crystal. One recommended way of doing so is by using asdf.
+
+<details>
+<summary>Installing asdf package manager and Crystal</summary>
+
+- Install the [asdf package manager](https://asdf-vm.com/)
+- Add [asdf-crystal](https://github.com/asdf-community/asdf-crystal).
+
+  ```bash
+  asdf plugin-add crystal https://github.com/asdf-community/asdf-crystal.git
+  ```
+- Then, install the same Crystal version as in the `Dockerfile`:
+
+  ```bash
+  asdf install crystal 1.14.0
+  ```
+- Then configure to use that version of Crystal on the local directory:
+
+  ```bash
+  asdf set crystal 1.14.0
+  ```
+</details>
+
+<details>
+<summary>Setting up your local MariaDB</summary>
+
+You'll also need to have MariaDB installed locally, the [macOS guide is here](https://mariadb.com/kb/en/installing-mariadb-on-macos-using-homebrew/). It could take anywhere from 10 mnutes to 30 minutes or even more to install MariaDB locally. After that:
+
+- Ensure your local MariaDB is running:
+  ```bash
+  mysql.server start
+  ```
+- Then, connect to `root` and set your root password:
+  ```bash
+  mysql -u root
+  ```
+
+  Then run the following SQL:
+
+  ```sql
+  ALTER USER 'root'@'localhost' IDENTIFIED BY 'rootpwd';
+  ```
+
+  You can change `rootpwd` with any password you like using.
+- Create 2 databases:
+  ```sql
+  CREATE DATABASE IF NOT EXISTS ligo_development;
+  CREATE DATABASE IF NOT EXISTS ligo_test;
+  ```
+</details>
+
+<details>
+<summary>Setting up the project</summary>
+
+- Installing the project dependencies:
+
+  ```bash
+  cd backend
+  shards install
+  ```
+
+- Change the `development.cr` database setting to:
+  ```crystal
+  config.database do |db|
+    db.host = "127.0.0.1"
+    db.name = "ligo_development"
+    db.user = "root"
+    db.password = "rootpwd"
+  end
+  ```
+- Then run the following commands at your shell to setup the project and get it running on port  `3003`:
+  ```crystal
+  marten migrate
+  marten serve -p 3003
+  ```
+
+</details>
+
+## Connecting to the development database
+
+To connect to the database from your host machine
+
 ## Email
 
 - On dev, you can inspect all mails sent during development at http://localhost:1080, the MailCatche'r UI.
