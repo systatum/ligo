@@ -4,10 +4,11 @@ Marten.configure :test do |config|
   # production environments.
   # If test database names are not explicitly set, your specs suite won't be allowed to run at all.
   config.database do |db| # ameba:disable Naming/BlockParameterName
-    db.host = ENV.fetch("LIGO_DB_HOST", "ligo_db")
+    db.host = ENV.fetch("LIGO_DB_HOST", "127.0.0.1")
     db.name = ENV.fetch("LIGO_DB_NAME", "ligo_test")
     db.user = ENV.fetch("LIGO_DB_USERNAME", "root")
     db.password = ENV.fetch("LIGO_DB_PASSWORD", "ligo_db_root_password")
+    db.port = ENV.fetch("LIGO_DB_PORT", 3366).to_i
   end
 
   config.allowed_hosts = ["127.0.0.1"]

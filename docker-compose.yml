@@ -14,26 +14,7 @@ services:
       - ligo_db_data:/var/lib/mysql
       - ./backend/dev_init.sql:/docker-entrypoint-initdb.d/setup.sql
     ports:
-      - 3306:3306
-
-  ligo_backend:
-    container_name: ligo_backend
-    restart: on-failure
-    build:
-      dockerfile: Dockerfile.dev
-    environment:
-      MARTEN_ENV: development
-    command: marten serve -p 3003
-    # tty: true
-    # stdin_open: true
-    volumes:
-      - ./backend:/app
-      # - bundle_data:/usr/local/bundle:cached
-    depends_on:
-      - ligo_db
-    ports:
-      - 3003:3003 # forward the port
-      - 8080:8080 # for marten play
+      - 3366:3306
 
   mailcatcher:
     restart: on-failure

@@ -5,9 +5,10 @@ Marten.configure :development do |config|
 
   # configure the database
   config.database do |db|
-    db.host = "ligo_db"
+    db.host = "127.0.0.1"
     db.name = "ligo_development"
     db.user = "root"
     db.password = "ligo_db_root_password"
+    db.port = 3366
   end
 end

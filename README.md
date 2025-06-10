@@ -2,27 +2,25 @@
 
 What is Ligo? Ligo is our "Everything Backend." It is a latin word, a related word of which is ligandus, or in chemistry: ligand, or in toys: lego.
 
+Before moving forward, please install `asdf` and `asdf crystal`. Make sure to use the same version as that specified in `.tool-versions`.
+
 Quick start:
 
 ```bash
-docker compose up
-docker compose run ligo_backend shards install
-docker compose run ligo_backend marten genmigrations # reflect a new migration; in Marten, migrations are created automatically through `genmigrations` after you change/add/remove columns reflected within model files.
-docker compose run ligo_backend marten routes # print all the routes in the app
-docker compose run ligo_backend marten migrate
-docker compose run ligo_backend marten migrate main <migration-date-to-unapply>
-docker compose run ligo_backend MARTEN_ENV=test marten migrate
-docker compose run ligo_backend marten play -p 8080 -b 0.0.0.0
+cd backend # must be in the backend folder
+
+shards install
+marten genmigrations # reflect a new migration; in Marten, migrations are created automatically through `genmigrations` after you change/add/remove columns reflected within model files.
+marten routes # print all the routes in the app
+marten migrate
+marten migrate main <migration-date-to-unapply>
+MARTEN_ENV=test marten migrate
+marten serve -p 3003 # to run the server
+marten play -p 8080 -b 0.0.0.0 # to run playground
 
 # running spec
-docker compose run ligo_backend crystal spec [--fail-fast]
-docker compose run ligo_backend crystal spec spec/handlers/product_state_handler_spec.cr
-```
-
-You can get into the container by doing:
-
-```bash
-docker compose run ligo_backend bash
+crystal spec [--fail-fast]
+crystal spec spec/handlers/product_state_handler_spec.cr
 ```
 
 ## Running without Docker
