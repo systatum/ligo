@@ -40,7 +40,7 @@ describe Workaty::TeamDivisionCreateHandler do
             content_type: "application/json"
           )
 
-          response.status.should eq 400
+          response.status.should eq 422
           response.content.should eq({error: {messages: ["Name: must be unique"]}}.to_json)
 
           # try with lower case
@@ -53,7 +53,7 @@ describe Workaty::TeamDivisionCreateHandler do
             content_type: "application/json"
           )
 
-          response.status.should eq 400
+          response.status.should eq 422
           response.content.should eq({error: {messages: ["Name: must be unique"]}}.to_json)
         end
 

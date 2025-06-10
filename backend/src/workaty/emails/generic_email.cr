@@ -10,7 +10,7 @@ class Workaty::GenericEmail < Marten::Email
     sender_email : String,
     sender_name : String,
     subject : String,
-    content : String
+    content : String,
   )
     @receiver_signature = Marten::Emailing::Address.new(receiver_email, receiver_name)
     @sender_signature = Marten::Emailing::Address.new(sender_email, sender_name)

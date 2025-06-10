@@ -13,14 +13,10 @@ module Workaty::TeamDivisionHelper
   private def team_division
     @team_division ||= Workaty::TeamDivision
       .filter_by_hashed_id(params["team_division_hashed_id"].to_s)
-      .get!(organization_id: current_user.organization_id)
+      .get!(organization_id: current_user!.organization_id)
   end
 
   private def schema
-    @schema ||= begin
-      schema = Workaty::TeamDivisionSchema.new(request.data)
-      schema.user = current_user
-      schema
-    end
+    @schema ||= Workaty::TeamDivisionSchema.new(request.data, current_user!)
   end
 end

@@ -1,5 +1,9 @@
 Marten.configure do |config|
   app_settings = AppSettings.instance
+
+  config.i18n.default_locale = "en-US"
+  config.i18n.available_locales = ["en-US"]
+
   config.auth.user_model = Auth::User
 
   # IMPORTANT: please ensure that the secret key value is kept secret!

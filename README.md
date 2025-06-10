@@ -149,6 +149,7 @@ Next release (for hospital):
 - Any `macro included` on any module should be the last block (look ad `IdConcealer` for a role model).
 - Each handler needs a helper class.
 - Auhtorization functions are put into helper closely related to handlers.
+- When manipulating relationship, avoid using `relationship.add`, since that [won't trigger a callback](https://github.com/martenframework/marten/discussions/309) and thus no changelog will be recorded. Please follow the example of `Employee` which defines `add_team_divisions`.
 - We believe in a quality software: let's write spec! Write spec whenever possible.
 - General status code:
   - 200: on successful signing in

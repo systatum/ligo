@@ -2,7 +2,7 @@ require "../../spec_helper"
 
 describe Workaty::TeamDivisionUpdateHandler do
   describe "#patch" do
-    context "the team division cannot be found" do
+    context "when the team division cannot be found" do
       it "renders 404" do
         user = create_user
 
@@ -73,7 +73,7 @@ describe Workaty::TeamDivisionUpdateHandler do
         it "won't be updated" do
           user = create_user
           team_division = create_team_division(adder: user, name: "HR")
-          other_user = create_user role: Auth::Role::SECURITY_STAFF
+          other_user = create_user role: Auth::Role::SECURITY_STAFF, organization: user.organization!
 
           response = Marten::Spec.client.patch(
             Marten.routes.reverse("workaty:team_division:update", team_division_hashed_id: team_division.hashed_id),

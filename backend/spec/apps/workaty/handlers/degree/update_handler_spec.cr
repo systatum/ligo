@@ -91,7 +91,10 @@ describe Workaty::DegreeUpdateHandler do
 
           response = Marten::Spec.client.patch(
             Marten.routes.reverse("workaty:candidate:degree:update", candidate_slug: candidate.slug!, degree_hashed_id: degree.hashed_id),
-            data: {institution: "Updated Institution"}.to_json,
+            data: {
+              institution: "Updated Institution",
+              level:       Workaty::Degree::Level::MASTER,
+            }.to_json,
             headers: {authorization: "Bearer #{create_user.jwt_token}"},
             content_type: "application/json",
           )

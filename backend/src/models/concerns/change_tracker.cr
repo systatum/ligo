@@ -19,7 +19,7 @@ module ChangeTracker
   end
 
   macro included
-    @initial_record_values = {} of String => ChangeRecord
+    @initial_record_values = {} of Marten::DB::Field::Base => ChangeRecord
 
     after_initialize :track_initial_record_values
     after_create :track_record_creation
@@ -46,6 +46,7 @@ module ChangeTracker
 
   private def track_record_update
     track_record_event(Changelog::ActionType::UPDATE)
+    track_initial_record_values
   end
 
   private def track_record_deletion
@@ -61,9 +62,13 @@ module ChangeTracker
     delta = {} of String => NamedTuple(type: String | Nil, current_value: TrackableType, old_value: TrackableType)
     current_values = self.local_field_db_values
 
-    @initial_record_values.each do |field_name, change_record|
-      current_value = sanitize_value(current_values[field_name])
+    @initial_record_values.each do |field, change_record|
+      field_name = field.id
+      current_value = capture_value(field)
+
+      # skip if the value has not changed
       next if change_record.old_value == current_value
+
       change_record.current_value = current_value
       delta[field_name] = change_record.to_tupple
     end
@@ -79,17 +84,15 @@ module ChangeTracker
   )
 
   private def take_fields_snapshot(into kv)
-    local_values = self.local_field_db_values
-
-    self.class.fields.each do |field|
+    self.class.local_fields.each do |field|
       field_name = field.id
 
       # skip created_at and updated_at field
       next if SKIPPED_FIELDS.includes?(field_name)
 
       rec = ChangeRecord.new
-      kv[field_name] = rec
-      rec.old_value = sanitize_value(local_values[field_name])
+      kv[field] = rec
+      rec.old_value = capture_value(field)
 
       # start recording the value
       if field.is_a?(Marten::DB::Field::String) || field.is_a?(Marten::DB::Field::Text)
@@ -104,8 +107,30 @@ module ChangeTracker
         rec.type = "datetime"
       elsif field.is_a?(Marten::DB::Field::Bool)
         rec.type = "boolean"
+      elsif field.is_a?(Marten::DB::Field::ManyToMany)
+        rec.type = "ref_m2m" # many to many references
       end
     end
+  end
+
+  private def capture_value(field : Marten::DB::Field::Base)
+    field_name = field.id
+    if field.is_a?(Marten::DB::Field::ManyToMany)
+      capture_m2m_value(field)
+    else
+      sanitize_value(local_field_db_values[field_name])
+    end
+  end
+
+  private def capture_m2m_value(field : Marten::DB::Field::ManyToMany)
+    return "[]" unless persisted?
+
+    referenced_ids_set = field
+      .through
+      .filter("#{field.through_from_field.id} = ?", id)
+    referenced_ids = referenced_ids_set.pick(field.through_to_field.id)
+
+    return referenced_ids ? sanitize_value(referenced_ids) : "[]"
   end
 
   private def sanitize_value(value) : TrackableType
@@ -126,7 +151,10 @@ module ChangeTracker
       value.as(Time).to_s
     when Bool
       value.as(Bool)
+    when Array
+      "[#{value.join(", ")}]"
     else
+      puts "sanitizing value, is a: #{value.class} #{value.is_a?(Marten::DB::Query::ManyToManySet)}" # when array of values, let's sort it
       value.to_s
     end
   end

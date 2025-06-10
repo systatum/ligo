@@ -20,23 +20,27 @@ module Auth::Role
 
   # in the future, we will be able to set the role in such a fine-grained fashion
 
-  def self.admin?(user)
+  def self.admin?(user : User?)
+    return false unless user
     user.role! > Auth::Role::SECURITY_STAFF
   end
 
-  def self.hr_staff?(user)
+  def self.hr_staff?(user : User?)
+    return false unless user
     user.role! == Auth::Role::HR_STAFF
   end
 
-  def self.at_least_bizdev?(user)
+  def self.at_least_bizdev?(user : User?)
+    return false unless user
     user.role! >= Auth::Role::BIZDEV_STAFF
   end
 
-  def self.at_least_chief_staff?(user)
+  def self.at_least_chief_staff?(user : User?)
+    return false unless user
     user.role! >= Auth::Role::CHIEF_STAFF
   end
 
-  def self.must_at_least_bizdev!(user)
+  def self.must_at_least_bizdev!(user : User?)
     raise Auth::AuthorizationError.new unless at_least_bizdev?(user)
   end
 end

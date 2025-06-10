@@ -9,7 +9,7 @@ class Workaty::CandidateCreateHandler < RequestHandler
 
     if schema.valid?
       candidate = Workaty::Candidate.new(schema.validated_data)
-      candidate.organization = current_user.organization
+      candidate.organization = current_user!.organization
       candidate.save!
       json Workaty::CandidateSerializer.serialize(candidate), status: 200
     else

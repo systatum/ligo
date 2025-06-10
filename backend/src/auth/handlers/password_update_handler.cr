@@ -20,11 +20,7 @@ module Auth
     end
 
     private def schema : PasswordUpdateSchema
-      @schema ||= begin
-        schema = PasswordUpdateSchema.new(request.data)
-        schema.user = current_user
-        schema
-      end
+      @schema ||= PasswordUpdateSchema.new(request.data, current_user!)
     end
   end
 end

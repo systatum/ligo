@@ -45,9 +45,9 @@ module HandlerResponders
   # fetch the error from the schema, otherwise a generic error is given
   protected def render_invalid_payload(schema : Marten::Schema? = nil)
     if schema && schema.errors.any?
-      render_error 400, flatten_error_set(schema.errors)
+      render_error 422, flatten_error_set(schema.errors)
     else
-      render_error 400, ["Invalid payload"]
+      render_error 422, ["Invalid payload"]
     end
   end
 

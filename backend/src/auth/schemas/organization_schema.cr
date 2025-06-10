@@ -1,5 +1,5 @@
 module Auth
-  class OrganizationSchema < Marten::Schema
+  class OrganizationSchema < BaseSchema
     field :name, :string, max_size: 255
   end
 end

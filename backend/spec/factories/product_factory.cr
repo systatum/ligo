@@ -3,7 +3,7 @@ require "./organization_factory"
 def create_product(
   organization = create_organization,
   short_description = "",
-  note = nil
+  note = nil,
 )
   n = Product.last.nil? ? 1 : (Product.last!.id! + 1)
 

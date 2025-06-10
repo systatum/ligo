@@ -1,5 +1,5 @@
 module Auth
-  class PasswordResetInitiateSchema < Marten::Schema
+  class PasswordResetInitiateSchema < BaseSchema
     field :email, :email
   end
 end

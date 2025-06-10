@@ -7,7 +7,7 @@ class ProductCreateHandler < RequestHandler
   def post
     if schema.valid?
       product = Product.new(schema.validated_data)
-      product.organization = current_user.organization
+      product.organization = current_user!.organization
       product.save!
       json ProductSerializer.serialize(product), status: 200
     else

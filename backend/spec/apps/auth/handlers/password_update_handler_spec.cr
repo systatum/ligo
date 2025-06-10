@@ -53,7 +53,7 @@ describe Auth::PasswordUpdateHandler do
         content_type: "application/json"
       )
 
-      response.status.should eq 400
+      response.status.should eq 422
       response.content.should eq({error: {messages: ["Current password: Invalid"]}}.to_json)
     end
   end
@@ -76,7 +76,7 @@ describe Auth::PasswordUpdateHandler do
         content_type: "application/json"
       )
 
-      response.status.should eq 400
+      response.status.should eq 422
       response.content.should eq({error: {messages: ["New password: Does not match to each other"]}}.to_json)
     end
   end

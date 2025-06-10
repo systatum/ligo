@@ -1,5 +1,5 @@
 module Auth
-  class SignUpSchema < Marten::Schema
+  class SignUpSchema < BaseSchema
     field :email, :email, required: true
     field :password, :string, max_size: 128, strip: false, required: true
     field :first_name, :string, max_size: 255, strip: true, required: true
@@ -29,7 +29,7 @@ module Auth
       return unless email?
 
       if User.filter(email__iexact: email).exists?
-        errors.add(:email, "This address is taken")
+        errors.add(:email, I18n.t("marten.schema.field.email.errors.taken"))
       end
     end
 

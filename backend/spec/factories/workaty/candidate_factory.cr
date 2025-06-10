@@ -5,7 +5,7 @@ def create_candidate(
   fitness : Workaty::Candidate::Fitness = Workaty::Candidate::Fitness::UNKNOWN,
   first_name : String = "Steve",
   last_name : String = "Evets",
-)
+) : Workaty::Candidate
   cand = Workaty::Candidate.new
   cand.organization = adder.organization
   cand.first_name = first_name

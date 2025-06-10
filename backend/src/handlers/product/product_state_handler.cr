@@ -36,7 +36,7 @@ class ProductStateHandler < RequestHandler
   private def product
     @product ||= Product
       .filter_by_hashed_id(params["id"].to_s)
-      .get!(organization_id: current_user.organization_id)
+      .get!(organization_id: current_user!.organization_id)
   end
 
   private def schema

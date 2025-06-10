@@ -1,5 +1,5 @@
 module Workaty
-  class TeamDivisionSchema < Marten::Schema
+  class TeamDivisionSchema < BaseSchema
     property :user
 
     field :name, :string, max_size: 255, required: true, strip: true

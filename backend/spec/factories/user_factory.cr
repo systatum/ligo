@@ -4,7 +4,7 @@ def create_user(
   organization : Auth::Organization = create_organization,
   email : String? = nil,
   password : String = "Password01",
-  role : Int = Auth::Role::OWNER
+  role : Int = Auth::Role::OWNER,
 )
   n = Auth::User.last.nil? ? 1 : (Auth::User.last!.id! + 1)
   unless email

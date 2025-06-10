@@ -20,7 +20,15 @@ module Workaty
       path "/<team_division_hashed_id:str>/delete", TeamDivisionDeleteHandler, name: "delete"
     end
 
+    employee_routes = Marten::Routing::Map.draw(:employee) do
+      path "/", EmployeeCreateHandler, name: "create"
+      path "/index", EmployeeIndexHandler, name: "index"
+      path "/<employee_slug:str>/update", EmployeeUpdateHandler, name: "update"
+      path "/<employee_slug:str>/delete", EmployeeDeleteHandler, name: "delete"
+    end
+
     path "/api/candidate", candidate_routes
     path "/api/team_division", team_division_routes
+    path "/api/employee", employee_routes
   end
 end

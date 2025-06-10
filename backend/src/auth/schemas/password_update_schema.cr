@@ -1,5 +1,5 @@
 module Auth
-  class PasswordUpdateSchema < Marten::Schema
+  class PasswordUpdateSchema < BaseSchema
     property :user
 
     field :current_password, :string, max_size: 128, strip: false

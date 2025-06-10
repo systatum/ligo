@@ -1,5 +1,5 @@
 module Auth
-  class PasswordResetSchema < Marten::Schema
+  class PasswordResetSchema < BaseSchema
     field :password1, :string, max_size: 128, strip: false
     field :password2, :string, max_size: 128, strip: false
 

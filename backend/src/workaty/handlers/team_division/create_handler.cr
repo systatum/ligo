@@ -9,7 +9,7 @@ class Workaty::TeamDivisionCreateHandler < RequestHandler
 
     if schema.valid?
       team_division = Workaty::TeamDivision.new(schema.validated_data)
-      team_division.organization = current_user.organization
+      team_division.organization = current_user!.organization
       team_division.save!
       json Workaty::TeamDivisionSerializer.serialize(team_division), status: 200
     else

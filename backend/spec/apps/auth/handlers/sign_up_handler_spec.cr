@@ -74,8 +74,8 @@ describe Auth::SignUpHandler do
         content_type: "application/json"
       )
 
-      response.status.should eq 400
-      response.content.should eq({error: {messages: ["Email: This address is taken"]}}.to_json)
+      response.status.should eq 422
+      response.content.should eq({error: {messages: ["Email: Already taken."]}}.to_json)
     end
   end
 end

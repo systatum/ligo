@@ -1,5 +1,5 @@
 class Workaty::TeamDivisionDeleteHandler < RequestHandler
-  include Workaty::TeamDivisionHelper
+  include TeamDivisionHelper
 
   protect_from_forgery false
   http_method_names :delete

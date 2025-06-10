@@ -41,8 +41,8 @@ describe Workaty::CandidateUpdateHandler do
               content_type: "application/json",
             )
 
-            response.status.should eq 400
-            response.content.should eq({error: {messages: ["First name: This field is required."]}}.to_json)
+            response.status.should eq 422
+            response.content.should eq({error: {messages: ["First name: Must be filled."]}}.to_json)
           end
         end
 

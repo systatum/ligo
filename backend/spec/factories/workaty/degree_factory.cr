@@ -7,6 +7,7 @@ def create_degree(
   level = Workaty::Degree::Level::BACHELOR,
   obtained_at : Time? = nil,
 )
+  ::Workaty::Degree
   degree = Workaty::Degree.new
   degree.candidate = candidate
   degree.institution = institution

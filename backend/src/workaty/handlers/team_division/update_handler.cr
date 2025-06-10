@@ -15,7 +15,7 @@ class Workaty::TeamDivisionUpdateHandler < RequestHandler
       team_division.update!(schema.validated_data)
       json Workaty::TeamDivisionSerializer.serialize(team_division), status: 200
     else
-      render_invalid_payload
+      render_invalid_payload(schema)
     end
   rescue e
     handle_error(e)
