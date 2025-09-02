@@ -1,15 +1,11 @@
+require "./concerns/database_config"
+
 Marten.configure :test do |config|
   # Warning: the database used in the context of specs will be flushed and generated automatically every time the specs
   # suite is executed. Do not set these database names to the same names as the ones used for your development or
   # production environments.
   # If test database names are not explicitly set, your specs suite won't be allowed to run at all.
-  config.database do |db| # ameba:disable Naming/BlockParameterName
-    db.host = ENV.fetch("LIGO_DB_HOST", "127.0.0.1")
-    db.name = ENV.fetch("LIGO_DB_NAME", "ligo_test")
-    db.user = ENV.fetch("LIGO_DB_USERNAME", "root")
-    db.password = ENV.fetch("LIGO_DB_PASSWORD", "ligo_db_root_password")
-    db.port = ENV.fetch("LIGO_DB_PORT", 3366).to_i
-  end
+  DatabaseConfig.configure(config)
 
   config.allowed_hosts = ["127.0.0.1"]
 

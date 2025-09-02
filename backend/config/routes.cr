@@ -6,6 +6,8 @@ Marten.routes.draw do
   path "/auth", Auth::ROUTES, name: "auth"
   path "/workaty", Workaty::ROUTES, name: "workaty"
 
+  path "/ping", PingHandler, name: "ping"
+
   path "/api/app_info", AppInfoHandler, name: "app_info"
 
   path "/api/products", ProductCreateHandler, name: "api_product_create"

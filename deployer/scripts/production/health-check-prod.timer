@@ -1,0 +1,10 @@
+[Unit]
+Description=Run production server health check every second
+
+[Timer]
+OnActiveSec=1
+OnUnitActiveSec=1
+Unit=health-check-prod.service
+
+[Install]
+WantedBy=timers.target

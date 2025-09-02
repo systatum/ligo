@@ -1,4 +1,8 @@
+require "./concerns/database_config"
+
 Marten.configure :production do |config|
+  DatabaseConfig.configure(config)
+
   config.host = "0.0.0.0"
   config.port = 8000
 

@@ -156,6 +156,354 @@ Next release (for hospital):
   - 404: on user not found
   - 400: on invalid payload
 
+## Deployment
+
+The project uses **Capistrano** for automated deployment to Azure VM with GitHub Actions CI/CD.
+
+### Overview
+
+- **CI/CD**: GitHub Actions builds, tests, and deploys automatically
+- **Infrastructure**: Azure VMs (production & staging)
+- **Database**: Azure Database for MySQL flexible server
+- **Deployment Tool**: Capistrano (Ruby-based deployment automation)
+- **Health Monitoring**: Systemd timers with Ruby health check scripts
+<details>
+<summary>Key Folders & Files</summary>
+
+```
+deployer/                          # Capistrano deployment configuration
+├── Capfile                        # Capistrano entry point
+├── config/
+│   ├── deploy.rb                  # Global deployment settings
+│   └── deploy/
+│       ├── production.rb          # Production environment config
+│       └── staging.rb             # Staging environment config
+├── lib/capistrano/tasks/
+│   └── ligo.rake                  # Custom deployment tasks
+└── scripts/
+    ├── production/                # Production service files
+    │   ├── ligo-prod.service      # Systemd service for app
+    │   ├── health-check-prod.service  # Health check service
+    │   ├── health-check-prod.timer    # Health check timer (every second)
+    │   └── health-check-prod.rb       # Health check script
+    └── staging/                   # Staging service files (similar structure)
+
+backend/
+├── mybin/                         # Built binaries (created during CI)
+│   ├── ligo-prod                  # Production binary
+│   ├── ligo-stage                 # Staging binary
+│   └── manage                     # Database migration tool (Marten)
+└── config/settings/
+    └── concerns/
+        └── database_config.cr     # Database connection (SSL=PREFFERED by default)
+```
+</details>
+
+### GitHub Secrets Required
+
+Set these in our repository's Settings > Secrets and variables > Actions:
+
+```bash
+# Azure VM Access
+AZURE_CLIENT_ID=our-service-principal-client-id
+AZURE_TENANT_ID=our-azure-tenant-id 
+AZURE_SUBSCRIPTION_ID=our-subscription-id
+AZURE_RG=our-resource-group-name
+AZURE_VM_NAME=our-vm-name
+AZURE_USER=our-vm-username
+
+# Deployment Paths
+PROD_PATH="/home/$AZURE_USER/ligo-prod"
+STAGE_PATH="/home/$AZURE_USER/ligo-stage"
+
+# Database (multi-line environment variables)
+LIGO_DB_ENV="LIGO_DB_HOST=our-db-host\nLIGO_DB_NAME=our-db-name\nLIGO_DB_USERNAME=our-db-user\nLIGO_DB_PASSWORD=our-db-password\nLIGO_DB_PORT=our-db-port"
+```
+
+### Database Configuration
+
+Database connections use environment variables:
+
+```crystal
+# In database_config.cr
+db.host = ENV.fetch("LIGO_DB_HOST", AppSettings.instance.ligo_database_host)
+db.name = ENV.fetch("LIGO_DB_NAME", AppSettings.instance.ligo_database_name)
+# ... other settings
+```
+
+**Note**: MySQL 8.0+ requires `mysql_native_password` for compatibility. The CI workflow configures this automatically.
+
+### Deployment Flow
+
+1. **Test**: Automated tests run on GitHub Actions (Crystal specs, database migrations)
+2. **Manual Approval**: Production deployment requires manual approval via GitHub issue
+3. **Build**: Crystal binaries built in GitHub Actions
+4. **Deploy**: Capistrano uploads binaries and symlinks scripts
+5. **Services**: Systemd services started/restarted
+6. **Health Checks**: Timer-based monitoring begins
+
+### Health Check & Monitoring System
+
+**Health Check Script** (`scripts/*/health-check-*.rb`):
+- Pings `/ping` endpoint every second via systemd timer
+- **On Success**: Logs "." to `~/server-logs/server_fine_YYYY_MM_DD_HH.txt`
+- **On Failure**: Restarts service, logs crash to `~/server-logs/server_crashes.txt`
+
+### Local Deployment
+
+For emergency deployments, testing, or when GitHub Actions is unavailable.
+
+#### Option A: Docker-based Build (Recommended for Cross-Platform)
+
+<details>
+<summary>Step 1: Build with Docker</summary>
+
+**Important**: Use Docker to ensure binaries are compatible with the Azure VM (Ubuntu), especially when building from non-Linux platforms:
+
+- Build binaries using the official Crystal Docker image:
+
+  ```bash
+  cd backend
+  docker run --rm -v $PWD:/workspace -w /workspace crystallang/crystal:latest sh -c \
+      "apt-get update && apt-get install -y libsqlite3-dev && \
+       shards install && mkdir -p mybin && \
+       crystal build manage.cr -o mybin/manage && \
+       crystal build src/server.cr -o mybin/ligo-server --release
+      "
+  ```
+
+- Copy binary for target environment:
+
+  ```bash
+  cp mybin/ligo-server mybin/ligo-prod    # For production
+  # OR
+  cp mybin/ligo-server mybin/ligo-stage   # For staging
+  ```
+</details>
+
+#### Option B: Native Crystal Build (Linux Only)
+
+<details>
+<summary>Step 1: Build the Application (Native)</summary>
+
+**Note**: Only use this option if you're building on Linux Ubuntu 24.04 or compatible system. For macOS/Windows, use Option A to ensure server compatibility.
+
+- Install required system dependencies:
+
+  ```bash
+  # Ubuntu/Debian
+  sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+  ```
+
+- Navigate to the backend directory and install dependencies:
+
+  ```bash
+  cd backend
+  shards install
+  ```
+
+- Create the binary directory and build the application:
+
+  ```bash
+  mkdir -p mybin
+  crystal build manage.cr -o mybin/manage
+  crystal build src/server.cr -o mybin/ligo-prod --release # For production
+  # OR
+  # crystal build src/server.cr -o mybin/ligo-stage --release # For staging
+  ```
+</details>
+
+**Note**: After building with either option above, continue with the following shared steps:
+
+<details>
+<summary>Step 2: Configure Environment Variables</summary>
+
+Set the required Azure and deployment variables:
+
+```bash
+export AZURE_RG=our-resource-group-name
+export AZURE_VM_NAME=our-vm-name
+export AZURE_IP=our-vm-ip
+export AZURE_USER=our-vm-username
+export MARTEN_ENV=production
+export LIGO_DB_ENV=$(cat << 'EOF'
+LIGO_DB_HOST=our-db-host
+LIGO_DB_NAME=our-db-name
+LIGO_DB_USERNAME=our-db-username
+LIGO_DB_PASSWORD=our-db-password
+LIGO_DB_PORT=our-db-port
+EOF
+)
+
+# Choose one based on your target environment
+export PROD_PATH=/home/$AZURE_USER/ligo-prod     # For production
+export STAGE_PATH=/home/$AZURE_USER/ligo-stage   # For staging
+```
+
+</details>
+
+<details>
+<summary>Step 3: Setup GitHub Access Token</summary>
+
+Since Capistrano needs to clone the repository, you need a GitHub Personal Access Token:
+
+- Go to [GitHub Settings > Developer settings > Personal access tokens > Tokens (classic)](https://github.com/settings/tokens)
+
+- Click "Generate new token (classic)"
+
+- Set the following:
+  - **Note**: "Ligo Local Deployment"
+  - **Expiration**: Choose appropriate duration (e.g., 30 days)
+  - **Scopes**: Select `repo` (Full control of private repositories)
+
+- Copy the generated token and export it:
+
+  ```bash
+  export GITHUB_TOKEN=your-generated-token-here
+  ```
+
+**Note**: Store this token securely and delete it after deployment if it's temporary.
+
+</details>
+
+<details>
+<summary>Step 4: Azure Authentication</summary>
+
+- Install [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) if not already installed
+
+- Login to Azure CLI (if not already logged in):
+
+  ```bash
+  az login
+  ```
+
+- Verify you're in the correct subscription:
+
+  ```bash
+  az account show
+  ```
+
+</details>
+
+<details>
+<summary>Step 5: Setup Temporary SSH Access</summary>
+
+- Generate a temporary SSH key pair for this deployment:
+
+  ```bash
+  ssh-keygen -t ed25519 -f ~/.ssh/deploy_key -N ""
+  ```
+
+- Inject your public key to the Azure VM's authorized_keys:
+
+  ```bash
+  az vm run-command invoke \
+    -g "$AZURE_RG" \
+    -n "$AZURE_VM_NAME" \
+    --command-id RunShellScript \
+    --scripts "mkdir -p /home/$AZURE_USER/.ssh && \
+      echo '$(cat ~/.ssh/deploy_key.pub) # local-deploy' >> \
+      /home/$AZURE_USER/.ssh/authorized_keys"
+  ```
+
+- Setup SSH agent for Capistrano to use:
+
+  ```bash
+  eval $(ssh-agent -s)
+  ssh-add ~/.ssh/deploy_key
+  ```
+
+</details>
+
+<details>
+<summary>Step 6: Deploy with Capistrano</summary>
+
+- Install Ruby and Bundler using asdf (if not already installed):
+
+  ```bash
+  # Install Ruby plugin for asdf
+  asdf plugin add ruby https://github.com/asdf-vm/asdf-ruby.git
+  
+  # Install Ruby (check .tool-versions for the correct version)
+  asdf install ruby
+  
+  # Install Bundler
+  gem install bundler
+  ```
+
+- Navigate to the deployer directory and install Ruby dependencies:
+
+  ```bash
+  cd ../deployer
+  bundle install
+  ```
+
+- Run the deployment for your target environment:
+
+  ```bash
+  # For production
+  cap production deploy
+  
+  # For staging
+  cap staging deploy
+  ```
+
+</details>
+
+<details>
+<summary>Step 7: Cleanup</summary>
+
+After deployment completes, clean up the temporary SSH access:
+
+- Remove the public key from the VM:
+
+  ```bash
+  az vm run-command invoke \
+    -g "$AZURE_RG" \
+    -n "$AZURE_VM_NAME" \
+    --command-id RunShellScript \
+    --scripts "grep -v '# local-deploy' \
+      /home/$AZURE_USER/.ssh/authorized_keys > \
+      /tmp/ak && mv /tmp/ak \
+      /home/$AZURE_USER/.ssh/authorized_keys"
+  ```
+
+- Remove local SSH files and kill the SSH agent:
+
+  ```bash
+  rm -f ~/.ssh/deploy_key ~/.ssh/deploy_key.pub
+  kill $SSH_AGENT_PID
+  ```
+
+</details>
+
+<details>
+<summary>Verification</summary>
+
+After deployment, verify the service is running:
+
+```bash
+# SSH to the server
+az ssh vm --ip $AZURE_IP -- -t "sudo -u $AZURE_USER --login"
+
+# Check service status
+sudo systemctl status ligo-prod.service  # or ligo-stage.service
+
+# Check health check timer
+sudo systemctl status health-check-prod.timer
+
+# View recent logs
+sudo journalctl -u ligo-prod.service -n 50
+sudo journalctl -u health-check-prod.timer -n 50
+```
+
+</details>
+
+### Important Note
+
+- **MySQL Version**: Azure Database uses MySQL 8.4, but for compatibility with `crystal-mysql` requires changing user authentication to `mysql_native_password`: `ALTER USER '$LIGO_DB_USERNAME'@'%' IDENTIFIED WITH mysql_native_password BY '$LIGO_DB_PASSWORD';`
+- **Crystal MySQL driver**: Use `crystal-mysql` version 0.16.0 as specified in shard.lock, even though it comes from the master branch. Do not update this dependency without testing compatibility with the current MySQL setup.
+
 ## Reference
 
 - [Testing](https://crystal-lang.org/reference/1.14/guides/testing.html)

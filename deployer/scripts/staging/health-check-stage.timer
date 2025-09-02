@@ -1,0 +1,10 @@
+[Unit]
+Description=Run staging server health check every second
+
+[Timer]
+OnActiveSec=1
+OnUnitActiveSec=1
+Unit=health-check-stage.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,17 @@
+[Unit]
+Description=Ligo Production
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/systatum/ligo-prod/current/backend
+ExecStart=/home/systatum/ligo-prod/current/backend/bin/ligo-prod
+Restart=always
+RestartSec=3
+StandardOutput=append:/var/log/ligo-prod.log
+StandardError=append:/var/log/ligo-prod.err.log
+User=systatum
+Group=systatum
+
+[Install]
+WantedBy=multi-user.target

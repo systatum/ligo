@@ -1,0 +1,6 @@
+[Unit]
+Description=Health check staging server every second
+
+[Service]
+ExecStart=/usr/bin/ruby /home/systatum/server-logs/health-check-stage.rb
+Type=oneshot

@@ -1,0 +1,6 @@
+[Unit]
+Description=Health check production server every second
+
+[Service]
+ExecStart=/usr/bin/ruby /home/systatum/server-logs/health-check-prod.rb
+Type=oneshot

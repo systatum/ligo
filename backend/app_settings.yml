@@ -7,6 +7,13 @@ default: &default
       salt_for:
         id_concealer: "salted_id_for_custy_app"
 
+    database: &ligo_database
+      host: "localhost"
+      port: 3306
+      name: "ligo_development"
+      user: "root"
+      password: ""
+
     mailer:
       smtp: &mailer_smtp
         host: "mailcatcher" # LIGO_MAILER_SMTP_HOST
@@ -28,6 +35,9 @@ production:
       <<: *ligo_app
       cors_whitelist: "https://workaty.com, https://dashtomer.com"
 
+    database:
+      <<: *ligo_database
+
     mailer:
       smtp:
         <<: *mailer_smtp
@@ -46,6 +56,12 @@ development: &development
   ligo:
     <<: *ligo
 
+    database: &ligo_database_development
+      <<: *ligo_database
+      host: "127.0.0.1"
+      port: 3366
+      password: "ligo_db_root_password"
+
     mailer:
       smtp:
         <<: *mailer_smtp
@@ -54,3 +70,10 @@ development: &development
 
 test:
   <<: *development
+
+  ligo:
+    <<: *ligo
+
+    database:
+      <<: *ligo_database_development
+      name: "ligo_test"

@@ -14,6 +14,7 @@ dependencies:
     github: crystal-community/jwt
   mysql:
     github: crystal-lang/crystal-mysql
+    branch: master
   nanoid:
     github: mamantoha/nanoid.cr
   marten_auth:
@@ -30,6 +31,8 @@ dependencies:
     version: 0.3.0
   email:
     github: arcage/crystal-email
+  dotenv:
+    github: gdotdesign/cr-dotenv
 
 development_dependencies:
   # test group

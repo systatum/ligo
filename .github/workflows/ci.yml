@@ -3,32 +3,74 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [ main ]
+    branches: [ main, staging, 'deploy-*']
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
+  approval: 
+    name: Workflow Approval
+    runs-on: ubuntu-24.04
+    if: ${{ github.ref == 'refs/heads/main' }}
+    
+    permissions:
+      issues: write
+
+    steps:
+      - name: Await Workflow Approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: adamnoto
+          minimum-approvals: 1
+          issue-title: "Ligo Production Deployment Approval"
+          issue-body: "Please approve or deny the production deployment to main branch."
+
   test:
+    name: Run Tests
     runs-on: ubuntu-24.04
 
     defaults:
       run:
         shell: bash
         working-directory: ${{ github.workspace }}/backend
-
-    strategy:
-      matrix:
-        crystal: [ 1.14.0 ]
-
+    
     env:
       MARTEN_ENV: test
       LIGO_DB_HOST: 127.0.0.1
       LIGO_DB_PORT: 3306
       LIGO_DB_USERNAME: root
       LIGO_DB_PASSWORD: root
-      LIGO_DB_NAME: test_db
+      LIGO_DB_NAME: ligo_test
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: ligo_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    strategy:
+      matrix:
+        crystal: [ 1.16.3 ]
 
     steps:
       - name: Download source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
+
+      - name: Install MySQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mysql-client
 
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
@@ -44,29 +86,162 @@ jobs:
       - name: Install shards
         run: shards check || shards install
 
-      - name: Build app binary
+      - name: Wait for MySQL
         run: |
-          ls
+          until mysqladmin ping -h"127.0.0.1" -P"3306" -u"root" -p"root" --silent; do
+            echo 'Waiting for mysqld to be connectable...'
+            sleep 2
+          done
+
+      - name: Verify MySQL and database
+        run: |
+          mysql -h127.0.0.1 -P3306 -uroot -proot -e \
+            "SHOW DATABASES;"
+          mysql -h127.0.0.1 -P3306 -uroot -proot -e \
+            "SELECT User, Host, plugin FROM mysql.user WHERE User='root';"
+          
+          mysql -h127.0.0.1 -P3306 -uroot -proot -e \
+            "ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'root';"
+          mysql -h127.0.0.1 -P3306 -uroot -proot -e \
+            "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';"
+          mysql -h127.0.0.1 -P3306 -uroot -proot -e \
+            "FLUSH PRIVILEGES;"
+          
+          mysql -h127.0.0.1 -P3306 -uroot -proot -e \
+            "SELECT User, Host, plugin FROM mysql.user WHERE User='root';"
+
+      - name: Build app binaries
+        run: |
           mkdir -p mybin
-          # crystal build src/server.cr -o bin/server --release
           crystal build manage.cr -o mybin/manage
+          crystal build src/server.cr -o mybin/ligo-server --release
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ligo-binaries-${{ github.sha }}
+          path: backend/mybin/
+          retention-days: 1
 
       - name: Lint
         run: crystal tool format --check
 
-      - name: Setup MySQL
-        uses: shogo82148/actions-setup-mysql@v1
-        with:
-          distribution: "mariadb"
-          mysql-version: "10.6"
-          root-password: ${{ env.LIGO_DB_PASSWORD}}
-
-      - name: Creating database
-        run: |
-          mysql -uroot -proot -e 'CREATE DATABASE ${{ env.LIGO_DB_NAME }};'
-
       - name: Run migration
-        run: mybin/manage migrate
+        run: |
+          mybin/manage migrate
 
       - name: Run Spec
         run: crystal spec
+
+  deploy:
+    name: Ligo Deployment
+    runs-on: ubuntu-24.04
+    needs: [test, approval]
+    if: >-
+      ${{ always() && 
+          needs.test.result == 'success' && 
+          (needs.approval.result == 'success' || 
+          needs.approval.result == 'skipped') }}
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ github.workspace }}/backend
+
+    env:
+      MARTEN_ENV: production
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      AZURE_IP: ${{ secrets.AZURE_IP }}
+      AZURE_RG: ${{ secrets.AZURE_RG }}
+      AZURE_VM_NAME: ${{ secrets.AZURE_VM_NAME }}
+      AZURE_USER: ${{ secrets.AZURE_USER }}
+      PROD_PATH: ${{ secrets.PROD_PATH }}
+      STAGE_PATH: ${{ secrets.STAGE_PATH }}
+      LIGO_DB_ENV: ${{ secrets.LIGO_DB_ENV }}
+      DEPLOY_BRANCH: ${{ github.ref_name }}
+
+    strategy:
+      matrix:
+        ruby: [ 3.4.5 ]
+
+    steps:
+      - name: Download source
+        uses: actions/checkout@v5
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ligo-binaries-${{ github.sha }}
+          path: backend/mybin/
+
+      - name: Prepare deployment binary
+        run: |
+          chmod +x mybin/ligo-server
+          if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+            cp mybin/ligo-server mybin/ligo-prod
+          else
+            cp mybin/ligo-server mybin/ligo-stage
+          fi
+
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Generate temporary keys
+        run: |
+          ssh-keygen -t ed25519 -f ~/.ssh/deploy_key -N ""
+          echo "PUBKEY=$(cat ~/.ssh/deploy_key.pub)" >> $GITHUB_ENV
+
+      - name: Inject public key
+        run: |
+          az vm run-command invoke \
+            -g ${{ secrets.AZURE_RG }} \
+            -n ${{ secrets.AZURE_VM_NAME }} \
+            --command-id RunShellScript \
+            --scripts "mkdir -p \
+              /home/${{ secrets.AZURE_USER }}/.ssh && \
+              echo '${{ env.PUBKEY }} # github-actions' >> \
+              /home/${{ secrets.AZURE_USER }}/.ssh/authorized_keys"
+
+      - name: Setup ssh-agent
+        run: |
+          eval $(ssh-agent -s)
+          ssh-add ~/.ssh/deploy_key
+
+      - name: Deploy to Production with Capistrano
+        if: >-
+          ${{ github.ref == 'refs/heads/main' || 
+          startsWith(github.ref, 'refs/heads/deploy-') }}
+        run: |
+          cd ${{ github.workspace }}/deployer
+          bundle install
+          cap production deploy
+
+      - name: Deploy to Staging with Capistrano
+        if: >-
+          ${{ github.ref == 'refs/heads/staging' || 
+          github.ref == 'refs/heads/feat/deployer' }}
+        run: |
+          cd ${{ github.workspace }}/deployer
+          bundle install
+          cap staging deploy
+
+      - name: Cleanup public key
+        if: always()
+        run: |
+          az vm run-command invoke \
+            -g ${{ secrets.AZURE_RG }} \
+            -n ${{ secrets.AZURE_VM_NAME }} \
+            --command-id RunShellScript \
+            --scripts "grep -v '# github-actions' \
+              /home/${{ secrets.AZURE_USER }}/.ssh/authorized_keys > \
+              /tmp/ak && mv /tmp/ak \
+              /home/${{ secrets.AZURE_USER }}/.ssh/authorized_keys"

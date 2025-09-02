@@ -1,0 +1,17 @@
+[Unit]
+Description=Ligo Staging
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/systatum/ligo-stage/current/backend
+ExecStart=/home/systatum/ligo-stage/current/backend/bin/ligo-stage
+Restart=always
+RestartSec=3
+StandardOutput=append:/var/log/ligo-stage.log
+StandardError=append:/var/log/ligo-stage.err.log
+User=systatum
+Group=systatum
+
+[Install]
+WantedBy=multi-user.target
