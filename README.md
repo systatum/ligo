@@ -502,7 +502,6 @@ sudo journalctl -u health-check-prod.timer -n 50
 ### Important Note
 
 - **MySQL Version**: Azure Database uses MySQL 8.4, but for compatibility with `crystal-mysql` requires changing user authentication to `mysql_native_password`: `ALTER USER '$LIGO_DB_USERNAME'@'%' IDENTIFIED WITH mysql_native_password BY '$LIGO_DB_PASSWORD';`
-- **Crystal MySQL driver**: Use `crystal-mysql` version 0.16.0 as specified in shard.lock, even though it comes from the master branch. Do not update this dependency without testing compatibility with the current MySQL setup.
 
 ## Reference
 

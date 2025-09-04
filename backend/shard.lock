@@ -18,7 +18,7 @@ shards:
 
   envy:
     git: https://github.com/grottopress/envy.git
-    version: 1.0.4
+    version: 1.0.5
 
   halite:
     git: https://github.com/icyleaf/halite.git
@@ -42,7 +42,7 @@ shards:
 
   marten:
     git: https://github.com/martenframework/marten.git
-    version: 0.5.4
+    version: 0.6.0
 
   marten_auth:
     git: https://github.com/martenframework/marten-auth.git
@@ -58,11 +58,11 @@ shards:
 
   mysql:
     git: https://github.com/crystal-lang/crystal-mysql.git
-    version: 0.16.0
+    version: 0.16.0+git.commit.9c196131a5a8c8bd508f3fcece51de093f8734a0
 
   nanoid:
     git: https://github.com/mamantoha/nanoid.cr.git
-    version: 0.7.1
+    version: 0.7.2
 
   openssl_ext:
     git: https://github.com/spider-gazelle/openssl_ext.git

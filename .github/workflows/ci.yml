@@ -13,8 +13,8 @@ jobs:
   approval: 
     name: Workflow Approval
     runs-on: ubuntu-24.04
-    if: ${{ github.ref == 'refs/heads/main' }}
-    
+    if: ${{ github.ref_name == 'main' }}
+
     permissions:
       issues: write
 
@@ -83,8 +83,8 @@ jobs:
           path: "**/lib"
           key: ${{ runner.os }}-shards-${{ hashFiles('**/shard.lock') }}
 
-      - name: Install shards
-        run: shards check || shards install
+      - name: Update and install shards
+        run: shards update && shards check || shards install
 
       - name: Wait for MySQL
         run: |
@@ -218,17 +218,15 @@ jobs:
 
       - name: Deploy to Production with Capistrano
         if: >-
-          ${{ github.ref == 'refs/heads/main' || 
-          startsWith(github.ref, 'refs/heads/deploy-') }}
+          ${{ github.ref_name == 'main' || 
+          startsWith(github.ref_name, 'deploy-') }}
         run: |
           cd ${{ github.workspace }}/deployer
           bundle install
           cap production deploy
 
       - name: Deploy to Staging with Capistrano
-        if: >-
-          ${{ github.ref == 'refs/heads/staging' || 
-          github.ref == 'refs/heads/feat/deployer' }}
+        if: ${{ github.ref_name == 'staging' }}
         run: |
           cd ${{ github.workspace }}/deployer
           bundle install
