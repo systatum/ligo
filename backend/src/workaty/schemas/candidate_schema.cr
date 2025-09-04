@@ -10,6 +10,8 @@ module Workaty
     validate :validate_email_uniqueness
 
     private def validate_email_uniqueness
+      return if email.nil? || email.try(&.empty?)
+
       users_with_similar_email = Workaty::Candidate.filter(
         email__iexact: email,
         deleted_at: nil,
