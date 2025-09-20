@@ -13,14 +13,29 @@ shards install
 marten genmigrations # reflect a new migration; in Marten, migrations are created automatically through `genmigrations` after you change/add/remove columns reflected within model files.
 marten routes # print all the routes in the app
 marten migrate
-marten migrate main <migration-date-to-unapply>
 MARTEN_ENV=test marten migrate
+
+marten migrate main <migration-date-to-unapply>
 marten serve -p 3003 # to run the server
 marten play -p 8080 -b 0.0.0.0 # to run playground
 
 # running spec
 crystal spec [--fail-fast]
 crystal spec spec/handlers/product_state_handler_spec.cr
+```
+
+If you want to remove your containers and their associated volumes, and setup anew, run the following commands:
+
+```bash
+# ensure after running there's no error/warning printed in console
+docker compose down --volumes
+```
+
+If you encounter errors or warnings on the above command, the following commands may help. First, we ensure that any containers removed from docker-compose.yml are actually deleted. Then, let's re-pull images and rebuild the containers from scratch.
+
+```bash
+docker stop $(docker container ls -q)
+docker compose down --rmi all --volumes
 ```
 
 ## Running without Docker
@@ -206,7 +221,7 @@ Set these in our repository's Settings > Secrets and variables > Actions:
 ```bash
 # Azure VM Access
 AZURE_CLIENT_ID=our-service-principal-client-id
-AZURE_TENANT_ID=our-azure-tenant-id 
+AZURE_TENANT_ID=our-azure-tenant-id
 AZURE_SUBSCRIPTION_ID=our-subscription-id
 AZURE_RG=our-resource-group-name
 AZURE_VM_NAME=our-vm-name
@@ -423,10 +438,10 @@ Since Capistrano needs to clone the repository, you need a GitHub Personal Acces
   ```bash
   # Install Ruby plugin for asdf
   asdf plugin add ruby https://github.com/asdf-vm/asdf-ruby.git
-  
+
   # Install Ruby (check .tool-versions for the correct version)
   asdf install ruby
-  
+
   # Install Bundler
   gem install bundler
   ```
@@ -443,7 +458,7 @@ Since Capistrano needs to clone the repository, you need a GitHub Personal Acces
   ```bash
   # For production
   cap production deploy
-  
+
   # For staging
   cap staging deploy
   ```
@@ -502,6 +517,21 @@ sudo journalctl -u health-check-prod.timer -n 50
 ### Important Note
 
 - **MySQL Version**: Azure Database uses MySQL 8.4, but for compatibility with `crystal-mysql` requires changing user authentication to `mysql_native_password`: `ALTER USER '$LIGO_DB_USERNAME'@'%' IDENTIFIED WITH mysql_native_password BY '$LIGO_DB_PASSWORD';`
+- If you got this error:
+
+  ```
+  Unhandled exception: Could not bind to '0.0.0.0:3003': Address already in use (Socket::BindError)
+  ```
+
+  Run:
+
+  ```
+  lsof -nP -i4TCP:3003
+  COMMAND     PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+  com.docke 47531  mac  157u  IPv6 0xe3e0acf8814dbd30      0t0  TCP *:3003 (LISTEN)
+  ```
+
+  Then, kill: `kill -9 47531` so that the port is freed. `47531` is from the `PID`.
 
 ## Reference
 

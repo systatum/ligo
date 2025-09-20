@@ -1,9 +1,7 @@
-version: "3"
-
 services:
   ligo_db:
     container_name: ligo_db
-    image: mariadb:11.4.4
+    image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: ligo_db_root_password
       MYSQL_USER: ligo_db_user
