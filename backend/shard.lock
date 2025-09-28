@@ -6,7 +6,7 @@ shards:
 
   db:
     git: https://github.com/crystal-lang/crystal-db.git
-    version: 0.13.1
+    version: 0.14.0
 
   dotenv:
     git: https://github.com/gdotdesign/cr-dotenv.git
@@ -58,7 +58,7 @@ shards:
 
   mysql:
     git: https://github.com/crystal-lang/crystal-mysql.git
-    version: 0.16.0+git.commit.9c196131a5a8c8bd508f3fcece51de093f8734a0
+    version: 0.17.0
 
   nanoid:
     git: https://github.com/mamantoha/nanoid.cr.git
@@ -70,7 +70,7 @@ shards:
 
   sqlite3:
     git: https://github.com/crystal-lang/crystal-sqlite3.git
-    version: 0.21.0
+    version: 0.22.0
 
   typed_env_config:
     git: https://github.com/systatum/typed_env_config.git
