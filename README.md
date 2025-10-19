@@ -2,9 +2,74 @@
 
 What is Ligo? Ligo is our "Everything Backend." It is a latin word, a related word of which is ligandus, or in chemistry: ligand, or in toys: lego.
 
-Before moving forward, please install `asdf` and `asdf crystal`. Make sure to use the same version as that specified in `.tool-versions`.
+## Setup MySQL database
 
-Quick start:
+If you want to remove your containers and their associated volumes, and setup anew, run the following commands:
+
+```bash
+# ensure after running there's no error/warning printed in console
+docker compose down --volumes
+```
+
+If you encounter errors or warnings on the above command, the following commands may help. First, we ensure that any containers removed from docker-compose.yml are actually deleted. Then, let's re-pull images and rebuild the containers from scratch.
+
+```bash
+docker stop $(docker container ls -q)
+docker compose down --rmi all --volumes
+```
+
+To continue with the setup:
+
+```bash
+docker compose up
+```
+
+Then, you can use your database admin app of choice (ie TablePlus or BeeKeeper Studio) and fill up the following credentials:
+
+- Host: 127.0.0.1
+- Port: 3366
+- User: ligo_db_user
+- Password: ligo_db_password
+
+## Setup Crystal and Marten
+
+Before moving forward, please install `asdf` and `asdf crystal`. Follow the following steps:
+
+- Install the [asdf package manager](https://asdf-vm.com/)
+- Add [asdf-crystal](https://github.com/asdf-community/asdf-crystal).
+
+  ```bash
+  asdf plugin-add crystal https://github.com/asdf-community/asdf-crystal.git
+  ```
+- Install the same Crystal version as in the `.tool-versions`:
+
+  ```bash
+  asdf install crystal 1.16.3
+  ```
+- Then configure to use that version of Crystal on the local directory:
+
+  ```bash
+  asdf set crystal 1.16.3
+  ```
+- To check if Crystal has been installed successfully:
+
+  ```bash
+  crystal -v
+  ```
+- Install the Marten framework:
+
+  ```bash
+  cd backend
+  shads install
+  brew tap martenframework/marten
+  brew install marten
+  ```
+
+  It's possible that the install `marten` framework is of the newer version, in which case please upgrade our Marten shard as well.
+
+You can then proceed with the common commands to run database migrations and the server.
+
+## Common commands:
 
 ```bash
 cd backend # must be in the backend folder
@@ -23,100 +88,6 @@ marten play -p 8080 -b 0.0.0.0 # to run playground
 crystal spec [--fail-fast]
 crystal spec spec/handlers/product_state_handler_spec.cr
 ```
-
-If you want to remove your containers and their associated volumes, and setup anew, run the following commands:
-
-```bash
-# ensure after running there's no error/warning printed in console
-docker compose down --volumes
-```
-
-If you encounter errors or warnings on the above command, the following commands may help. First, we ensure that any containers removed from docker-compose.yml are actually deleted. Then, let's re-pull images and rebuild the containers from scratch.
-
-```bash
-docker stop $(docker container ls -q)
-docker compose down --rmi all --volumes
-```
-
-## Running without Docker
-
-We need to install Crystal. One recommended way of doing so is by using asdf.
-
-<details>
-<summary>Installing asdf package manager and Crystal</summary>
-
-- Install the [asdf package manager](https://asdf-vm.com/)
-- Add [asdf-crystal](https://github.com/asdf-community/asdf-crystal).
-
-  ```bash
-  asdf plugin-add crystal https://github.com/asdf-community/asdf-crystal.git
-  ```
-- Then, install the same Crystal version as in the `Dockerfile`:
-
-  ```bash
-  asdf install crystal 1.14.0
-  ```
-- Then configure to use that version of Crystal on the local directory:
-
-  ```bash
-  asdf set crystal 1.14.0
-  ```
-</details>
-
-<details>
-<summary>Setting up your local MariaDB</summary>
-
-You'll also need to have MariaDB installed locally, the [macOS guide is here](https://mariadb.com/kb/en/installing-mariadb-on-macos-using-homebrew/). It could take anywhere from 10 mnutes to 30 minutes or even more to install MariaDB locally. After that:
-
-- Ensure your local MariaDB is running:
-  ```bash
-  mysql.server start
-  ```
-- Then, connect to `root` and set your root password:
-  ```bash
-  mysql -u root
-  ```
-
-  Then run the following SQL:
-
-  ```sql
-  ALTER USER 'root'@'localhost' IDENTIFIED BY 'rootpwd';
-  ```
-
-  You can change `rootpwd` with any password you like using.
-- Create 2 databases:
-  ```sql
-  CREATE DATABASE IF NOT EXISTS ligo_development;
-  CREATE DATABASE IF NOT EXISTS ligo_test;
-  ```
-</details>
-
-<details>
-<summary>Setting up the project</summary>
-
-- Installing the project dependencies:
-
-  ```bash
-  cd backend
-  shards install
-  ```
-
-- Change the `development.cr` database setting to:
-  ```crystal
-  config.database do |db|
-    db.host = "127.0.0.1"
-    db.name = "ligo_development"
-    db.user = "root"
-    db.password = "rootpwd"
-  end
-  ```
-- Then run the following commands at your shell to setup the project and get it running on port  `3003`:
-  ```crystal
-  marten migrate
-  marten serve -p 3003
-  ```
-
-</details>
 
 ## Connecting to the development database
 
