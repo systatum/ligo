@@ -222,6 +222,7 @@ jobs:
       - name: Run migration
         run: |
           mybin/manage migrate
+          mybin/manage migrate_system_fields
 
       - name: Run Spec
         run: crystal spec

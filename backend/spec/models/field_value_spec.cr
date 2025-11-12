@@ -1,6 +1,11 @@
 require "../spec_helper"
 
 describe FieldValue do
+  before_each do
+    FieldDefinition.all.delete
+    FieldValue.all.delete
+  end
+
   describe "#new" do
     it "creates a field value with string data" do
       field = create_field("first_name", FieldDataType::DTYPE_STRING)
@@ -14,7 +19,7 @@ describe FieldValue do
 
       field_value.string_value.should eq "John Doe"
       field_value.resource_id.should eq 1
-      field_value.resource_type.should eq FieldResourceType::CANDIDATE
+      field_value.resource_type_enum.should eq FieldResourceType::CANDIDATE
     end
 
     it "creates a field value with integer data" do
@@ -183,7 +188,7 @@ describe FieldValue do
     end
   end
 
-  context "validations" do
+  context "when validating presence" do
     it "validates that no value columns are populated" do
       field = create_field("first_name", FieldDataType::DTYPE_STRING)
       field_value = FieldValue.new(
@@ -330,7 +335,7 @@ describe FieldValue do
     end
   end
 
-  context "uniqueness logic" do
+  context "when enforcing uniqueness" do
     it "allows duplicate values when uniqueness is UNIQUELESS" do
       field = FieldDefinition.new(
         name: "nickname",

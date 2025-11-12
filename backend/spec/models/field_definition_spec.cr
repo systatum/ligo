@@ -2,7 +2,7 @@ require "../spec_helper"
 
 describe FieldDefinition do
   describe "#new" do
-    context "creates a field with default values" do
+    context "when creating a field with default values" do
       it "sets default attributes" do
         field = FieldDefinition.new(
           name: "first_name",
@@ -16,7 +16,7 @@ describe FieldDefinition do
       end
     end
 
-    context "generates a hashed ID when saved" do
+    context "when generating a hashed ID when saved" do
       it "creates a hashed_id" do
         field = FieldDefinition.new(
           name: "email",
@@ -32,46 +32,46 @@ describe FieldDefinition do
   end
 
   describe "#localized_name" do
-    context "creates field with localized name" do
+    context "when creating a field with localized name" do
       it "saves and loads localized names" do
-        localized_name = {
-          "english"    => "First Name",
-          "indonesian" => "Nama Depan",
-          "japanese"   => "名",
-        }
+        localized_name = LocalizedName.new(
+          english: "First Name",
+          indonesian: "Nama Depan",
+          japanese: "名"
+        )
         field = FieldDefinition.new(
           name: "first_name",
           resource_type: FieldResourceType::CANDIDATE,
           data_type: FieldDataType::DTYPE_STRING,
-          localized_name: JSON.parse(localized_name.to_json)
+          localized_name: localized_name
         )
         field.save!
 
         field.localized_name.should_not be_nil
-        field.localized_name.try(&.as_h).try(&.["english"]).should eq "First Name"
+        field.localized_name.try(&.english).should eq "First Name"
       end
     end
 
-    context "returns proper localized name based on locale" do
+    context "when returning proper localized name based on locale" do
       it "returns correct value for each locale" do
-        localized_name = {
-          "english"    => "First Name",
-          "indonesian" => "Nama Depan",
-          "japanese"   => "名",
-        }
+        localized_name = LocalizedName.new(
+          english: "First Name",
+          indonesian: "Nama Depan",
+          japanese: "名"
+        )
         field = FieldDefinition.new(
           name: "first_name",
           resource_type: FieldResourceType::CANDIDATE,
           data_type: FieldDataType::DTYPE_STRING,
-          localized_name: JSON.parse(localized_name.to_json)
+          localized_name: localized_name
         )
-        field.localized_name.try(&.as_h).try(&.[]?("english")).should eq "First Name"
-        field.localized_name.try(&.as_h).try(&.[]?("indonesian")).should eq "Nama Depan"
-        field.localized_name.try(&.as_h).try(&.[]?("japanese")).should eq "名"
+        field.localized_name.try(&.english).should eq "First Name"
+        field.localized_name.try(&.indonesian).should eq "Nama Depan"
+        field.localized_name.try(&.japanese).should eq "名"
       end
     end
 
-    context "falls back to field name when no localized name" do
+    context "when falling back to field name when no localized name" do
       it "returns nil for missing localized_name" do
         field = FieldDefinition.new(
           name: "first_name",
@@ -315,15 +315,15 @@ describe FieldDefinition do
     end
   end
 
-  context "enums" do
-    context "has proper resource type enum values" do
+  describe "#value" do
+    context "when having proper resource type enum values" do
       it "matches expected values" do
         FieldResourceType::USER.value.should eq 1
         FieldResourceType::CANDIDATE.value.should eq 2
       end
     end
 
-    context "has proper data type enum values" do
+    context "when having proper data type enum values" do
       it "matches expected values" do
         FieldDataType::DTYPE_STRING.value.should eq 0
         FieldDataType::DTYPE_INT.value.should eq 1
@@ -335,7 +335,7 @@ describe FieldDefinition do
       end
     end
 
-    context "has proper uniqueness enum values" do
+    context "when having proper uniqueness enum values" do
       it "matches expected values" do
         FieldUniqueness::UNIQUELESS.value.should eq 0
         FieldUniqueness::UNIQUE_ALWAYS.value.should eq 1

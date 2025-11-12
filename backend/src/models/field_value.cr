@@ -4,7 +4,148 @@ class FieldValue < Marten::Model
   field :id, :big_int, primary_key: true, auto: true
   field :field_id, :big_int, null: false, index: true
   field :resource_id, :big_int, null: false, index: true
-  field :resource_type, :enum, values: FieldResourceType, null: false, index: true
+  field :resource_type, :int, null: false, index: true
+
+  def resource_type_enum : FieldResourceType
+    rt_value = resource_type!
+    unless rt_value >= Int32::MIN && rt_value <= Int32::MAX
+      raise ArgumentError.new("resource_type value #{rt_value} is outside Int32 range")
+    end
+
+    rt_i32 = rt_value.to_i32
+    FieldResourceType.from_value?(rt_i32) ||
+      raise ArgumentError.new("Invalid resource_type value: #{rt_i32}. Valid values: #{FieldResourceType.values.map(&.value).join(", ")}")
+  end
+
+  def resource_type_enum=(value : FieldResourceType)
+    self.resource_type = value.value.to_i64
+  end
+
+  def resource_type=(value : FieldResourceType)
+    @resource_type = value.value.to_i64
+  end
+
+  def initialize(
+    *,
+    field_id : Int64? = nil,
+    resource_id : Int64? = nil,
+    resource_type : FieldResourceType,
+    string_value : String? = nil,
+    integer_value : Int64? = nil,
+    float_value : Float64? = nil,
+    date_value : Time? = nil,
+    time_value : Time? = nil,
+    datetime_value : Time? = nil,
+    boolean_value : Bool? = nil,
+  )
+    super(
+      field_id: field_id,
+      resource_id: resource_id,
+      resource_type: resource_type.value.to_i64,
+      string_value: string_value,
+      integer_value: integer_value,
+      float_value: float_value,
+      date_value: date_value,
+      time_value: time_value,
+      datetime_value: datetime_value,
+      boolean_value: boolean_value
+    )
+  end
+
+  def initialize(
+    *,
+    field_id : Int32,
+    resource_id : Int64? = nil,
+    resource_type : FieldResourceType,
+    string_value : String? = nil,
+    integer_value : Int64? = nil,
+    float_value : Float64? = nil,
+    date_value : Time? = nil,
+    time_value : Time? = nil,
+    datetime_value : Time? = nil,
+    boolean_value : Bool? = nil,
+  )
+    initialize(
+      field_id: field_id.to_i64,
+      resource_id: resource_id,
+      resource_type: resource_type,
+      string_value: string_value,
+      integer_value: integer_value,
+      float_value: float_value,
+      date_value: date_value,
+      time_value: time_value,
+      datetime_value: datetime_value,
+      boolean_value: boolean_value
+    )
+  end
+
+  def initialize(
+    *,
+    field_id : Int64? = nil,
+    resource_id : Int64? = nil,
+    resource_type : Int64? = nil,
+    string_value : String? = nil,
+    integer_value : Int64? = nil,
+    float_value : Float64? = nil,
+    date_value : Time? = nil,
+    time_value : Time? = nil,
+    datetime_value : Time? = nil,
+    boolean_value : Bool? = nil,
+  )
+    super(
+      field_id: field_id,
+      resource_id: resource_id,
+      resource_type: resource_type,
+      string_value: string_value,
+      integer_value: integer_value,
+      float_value: float_value,
+      date_value: date_value,
+      time_value: time_value,
+      datetime_value: datetime_value,
+      boolean_value: boolean_value
+    )
+  end
+
+  def self.filter(*, resource_type : FieldResourceType)
+    super(resource_type: resource_type.value.to_i64)
+  end
+
+  def self.filter(*, resource_type : FieldResourceType, field_id : Int64)
+    super(resource_type: resource_type.value.to_i64, field_id: field_id)
+  end
+
+  def self.filter(*, resource_type : FieldResourceType, resource_id : Int64)
+    super(resource_type: resource_type.value.to_i64, resource_id: resource_id)
+  end
+
+  def self.filter(*, resource_type : FieldResourceType, field_id : Int64, resource_id : Int64)
+    super(resource_type: resource_type.value.to_i64, field_id: field_id, resource_id: resource_id)
+  end
+
+  def self.filter(*, resource_type__in : Array(FieldResourceType))
+    super(resource_type__in: resource_type__in.map(&.value.to_i64))
+  end
+
+  private def resource_type! : Int64
+    rt = @resource_type
+    case rt
+    when Int64
+      rt
+    when Int32
+      rt.to_i64
+    when String
+      s = rt.as(String)
+      if (ival = s.to_i64?)
+        ival
+      elsif RESOURCE_TYPE_MAP.has_key?(s.upcase)
+        RESOURCE_TYPE_MAP[s.upcase]
+      else
+        raise ArgumentError.new("Invalid resource_type string: '#{s}'. Must be a valid integer or one of: #{RESOURCE_TYPE_MAP.keys.join(", ")}")
+      end
+    else
+      raise TypeCastError.new("resource_type must be Int64, Int32, or String, got: #{rt.class}")
+    end
+  end
 
   field :string_value, :text, null: true, blank: true
   field :integer_value, :big_int, null: true, blank: true
@@ -17,13 +158,38 @@ class FieldValue < Marten::Model
   field :created_at, :date_time, null: false, auto_now_add: true
   field :updated_at, :date_time, null: false, auto_now: true
 
+  after_initialize :coerce_resource_type!
+
+  RESOURCE_TYPE_MAP = FieldResourceType.values.to_h { |v| {v.to_s.upcase, v.value.to_i64} }
+
   validate :validate_unique_field_per_resource
   validate :validate_uniqueness_constraint
+
+  private def coerce_resource_type!
+    rt = @resource_type
+    return if rt.nil?
+    case rt
+    when Int64, Int32
+      return
+    when String
+      s = rt.as(String)
+      if (ival = s.to_i64?)
+        @resource_type = ival
+        return
+      end
+      upper = s.upcase
+      if RESOURCE_TYPE_MAP.has_key?(upper)
+        @resource_type = RESOURCE_TYPE_MAP[upper]
+      else
+        raise ArgumentError.new("Unknown resource_type string: '#{s}'. Valid types: #{RESOURCE_TYPE_MAP.keys.join(", ")}")
+      end
+    end
+  end
 
   private def validate_unique_field_per_resource
     existing = FieldValue.filter(
       field_id: field_id,
-      resource_type: resource_type,
+      resource_type: resource_type!,
       resource_id: resource_id
     )
     existing = existing.exclude(id: id) if persisted?
@@ -45,19 +211,19 @@ class FieldValue < Marten::Model
       existing =
         case field.data_type.not_nil!
         when FieldDataType::DTYPE_STRING
-          FieldValue.filter(field_id: field_id, resource_type: resource_type, string_value: value)
+          FieldValue.filter(field_id: field_id, resource_type: resource_type!, string_value: value)
         when FieldDataType::DTYPE_INT
-          FieldValue.filter(field_id: field_id, resource_type: resource_type, integer_value: value)
+          FieldValue.filter(field_id: field_id, resource_type: resource_type!, integer_value: value)
         when FieldDataType::DTYPE_FLOAT
-          FieldValue.filter(field_id: field_id, resource_type: resource_type, float_value: value)
+          FieldValue.filter(field_id: field_id, resource_type: resource_type!, float_value: value)
         when FieldDataType::DTYPE_DATE
-          FieldValue.filter(field_id: field_id, resource_type: resource_type, date_value: value)
+          FieldValue.filter(field_id: field_id, resource_type: resource_type!, date_value: value)
         when FieldDataType::DTYPE_TIME
-          FieldValue.filter(field_id: field_id, resource_type: resource_type, time_value: value)
+          FieldValue.filter(field_id: field_id, resource_type: resource_type!, time_value: value)
         when FieldDataType::DTYPE_DATETIME
-          FieldValue.filter(field_id: field_id, resource_type: resource_type, datetime_value: value)
+          FieldValue.filter(field_id: field_id, resource_type: resource_type!, datetime_value: value)
         when FieldDataType::DTYPE_BOOLEAN
-          FieldValue.filter(field_id: field_id, resource_type: resource_type, boolean_value: value)
+          FieldValue.filter(field_id: field_id, resource_type: resource_type!, boolean_value: value)
         else
           FieldValue.all.filter(id: -1)
         end
@@ -70,19 +236,19 @@ class FieldValue < Marten::Model
       existing =
         case field.data_type.not_nil!
         when FieldDataType::DTYPE_STRING
-          FieldValue.filter(field_id: field_id, resource_type: resource_type, string_value: value)
+          FieldValue.filter(field_id: field_id, resource_type: resource_type!, string_value: value)
         when FieldDataType::DTYPE_INT
-          FieldValue.filter(field_id: field_id, resource_type: resource_type, integer_value: value)
+          FieldValue.filter(field_id: field_id, resource_type: resource_type!, integer_value: value)
         when FieldDataType::DTYPE_FLOAT
-          FieldValue.filter(field_id: field_id, resource_type: resource_type, float_value: value)
+          FieldValue.filter(field_id: field_id, resource_type: resource_type!, float_value: value)
         when FieldDataType::DTYPE_DATE
-          FieldValue.filter(field_id: field_id, resource_type: resource_type, date_value: value)
+          FieldValue.filter(field_id: field_id, resource_type: resource_type!, date_value: value)
         when FieldDataType::DTYPE_TIME
-          FieldValue.filter(field_id: field_id, resource_type: resource_type, time_value: value)
+          FieldValue.filter(field_id: field_id, resource_type: resource_type!, time_value: value)
         when FieldDataType::DTYPE_DATETIME
-          FieldValue.filter(field_id: field_id, resource_type: resource_type, datetime_value: value)
+          FieldValue.filter(field_id: field_id, resource_type: resource_type!, datetime_value: value)
         when FieldDataType::DTYPE_BOOLEAN
-          FieldValue.filter(field_id: field_id, resource_type: resource_type, boolean_value: value)
+          FieldValue.filter(field_id: field_id, resource_type: resource_type!, boolean_value: value)
         else
           FieldValue.all.filter(id: -1)
         end
@@ -181,7 +347,7 @@ class FieldValue < Marten::Model
 
   def self.search(query : String, resource_types : Array(FieldResourceType)? = nil)
     base_query = all
-    base_query = base_query.filter(resource_type__in: resource_types) if resource_types
+    base_query = base_query.filter(resource_type__in: resource_types.map(&.value.to_i64)) if resource_types
 
     string_results = base_query.filter(string_value__icontains: query)
 
@@ -189,14 +355,14 @@ class FieldValue < Marten::Model
   end
 
   def self.for_resource(resource_type : FieldResourceType, resource_id : Int64)
-    filter(resource_type: resource_type, resource_id: resource_id)
+    filter(resource_type: resource_type.value.to_i64, resource_id: resource_id)
   end
 
   def self.for_resource_field(resource_type : FieldResourceType, resource_id : Int64, field_name : String)
     field = FieldDefinition.find_by_name_and_resource_type(field_name, resource_type)
     return nil unless field
     filter(
-      resource_type: resource_type,
+      resource_type: resource_type.value.to_i64,
       resource_id: resource_id,
       field_id: field.id
     ).first?

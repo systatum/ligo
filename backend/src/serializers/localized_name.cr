@@ -28,4 +28,10 @@ class LocalizedName
   def to_s(io : IO) : Nil
     fallback.to_s(io)
   end
+
+  def ==(other : LocalizedName) : Bool
+    english == other.english &&
+      indonesian == other.indonesian &&
+      japanese == other.japanese
+  end
 end

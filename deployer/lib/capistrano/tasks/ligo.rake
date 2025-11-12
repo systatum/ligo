@@ -56,6 +56,7 @@ namespace :ligo do
         marten = "#{release_path}/backend/bin/manage"
         execute :"#{marten}", "genmigrations"
         execute :"#{marten}", "migrate"
+        execute :"#{marten}", "migrate_system_fields"
       end
     end
   end
