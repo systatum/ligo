@@ -33,6 +33,8 @@ dependencies:
     github: arcage/crystal-email
   dotenv:
     github: gdotdesign/cr-dotenv
+  markd:
+    github: icyleaf/markd
 
 development_dependencies:
   # test group

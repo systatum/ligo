@@ -76,3 +76,9 @@ test:
     database:
       <<: *ligo_database_development
       name: "ligo_test"
+
+    mailer:
+      smtp:
+        <<: *mailer_smtp
+        host: "localhost"
+        use_auth: false
