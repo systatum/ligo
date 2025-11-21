@@ -25,6 +25,7 @@ Marten.configure do |config|
   config.middleware = [
     CrossRequestAuthorizer,
     OptionsRequestResponder,
+    UserDetector,
     Marten::Middleware::Session,
     Marten::Middleware::Flash,
     Marten::Middleware::GZip,

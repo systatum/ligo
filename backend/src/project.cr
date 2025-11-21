@@ -17,6 +17,12 @@ require "jwt"
 # Require all middlewares
 require "./middlewares/**"
 
+# Project-specific extensions (e.g. request helpers)
+require "./extensions/**"
+
+# Project-specific libraries
+require "./lib/**"
+
 # Configuration requirements.
 require "../config/settings/base"
 require "../config/settings/**"
