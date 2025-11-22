@@ -234,6 +234,7 @@ jobs:
 
   deploy:
     name: Ligo Deployment
+    timeout-minutes: 2
     runs-on: ubuntu-24.04
     needs: [test, approval]
     if: >-
