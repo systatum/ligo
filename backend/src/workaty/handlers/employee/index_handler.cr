@@ -19,7 +19,5 @@ class Workaty::EmployeeIndexHandler < RequestHandler
       employees:      employees,
       team_divisions: team_divisions,
     }, status: 200)
-  rescue e
-    handle_error(e)
   end
 end

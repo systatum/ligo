@@ -9,7 +9,5 @@ class Workaty::TeamDivisionDeleteHandler < RequestHandler
 
     team_division.soft_delete!
     json Workaty::TeamDivisionSerializer.serialize(team_division), status: 200
-  rescue e
-    handle_error(e)
   end
 end

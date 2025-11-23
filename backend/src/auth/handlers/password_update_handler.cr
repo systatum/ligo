@@ -15,8 +15,6 @@ module Auth
       else
         render_invalid_payload(schema)
       end
-    rescue e
-      handle_error(e)
     end
 
     private def schema : PasswordUpdateSchema

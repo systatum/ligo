@@ -9,7 +9,5 @@ class Workaty::EmployeeDeleteHandler < RequestHandler
 
     employee.soft_delete!
     json Workaty::EmployeeSerializer.serialize(employee), status: 200
-  rescue e
-    handle_error(e)
   end
 end

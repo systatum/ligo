@@ -9,7 +9,5 @@ class Workaty::DegreeDeleteHandler < RequestHandler
 
     degree.soft_delete!
     json Workaty::DegreeSerializer.serialize(degree), status: 200
-  rescue e
-    handle_error(e)
   end
 end

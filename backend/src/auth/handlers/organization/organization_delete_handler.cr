@@ -8,8 +8,6 @@ class OrganizationDeleteHandler < RequestHandler
   def delete
     organization.soft_delete!
     json OrganizationSerializer.serialize(organization), status: 200
-  rescue e
-    handle_error(e)
   end
 
   private def organization
