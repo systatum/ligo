@@ -6,8 +6,11 @@ require "../src/project"
 require "marten/spec"
 require "./factories/**"
 require "../src/lib/**"
-require "../src/config/system_fields"
 require "../src/cli/migrate_system_fields"
+
+Spec.before_suite do
+  SystemFieldsMigrator.migrate!
+end
 
 def date_time_format
   /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/

@@ -1,5 +1,4 @@
 require "../lib/system_fields_migrator"
-require "../config/system_fields"
 
 class MigrateSystemFields < Marten::CLI::Command
   help "Migrate system fields definitions to the database"
@@ -7,8 +6,14 @@ class MigrateSystemFields < Marten::CLI::Command
   @verbose : Bool = false
   @dry_run : Bool = false
   @clear : Bool = false
+  @yaml_file : String?
 
   def setup
+    on_argument(
+      :yaml_file,
+      "Path to the YAML file containing system fields definitions",
+    ) { |file| @yaml_file = file }
+
     on_option(
       :v,
       :verbose,
@@ -36,14 +41,6 @@ class MigrateSystemFields < Marten::CLI::Command
       SystemFieldsMigrator.clear!
       print_success "✓ Cleared registered fields"
       print_verbose ""
-
-      begin
-        SystemFields.load_defaults
-        print_success "✓ Reloaded default system fields"
-      rescue ex
-        print_error "✗ Failed to reload default system fields: #{ex.message}"
-        exit(1)
-      end
     end
 
     if @dry_run
@@ -58,6 +55,12 @@ class MigrateSystemFields < Marten::CLI::Command
     print_verbose ""
 
     begin
+      yaml_path = get_yaml_path
+      if yaml_path && File.exists?(yaml_path)
+        SystemFieldsMigrator.clear!
+        SystemFieldsMigrator.load_from_yaml(yaml_path)
+      end
+
       SystemFieldsMigrator.verbose = @verbose
       result = SystemFieldsMigrator.migrate!
       print ""
@@ -73,11 +76,18 @@ class MigrateSystemFields < Marten::CLI::Command
     print_warning "DRY RUN MODE - No changes will be made"
     print_verbose ""
 
+    yaml_path = get_yaml_path
+    if yaml_path && File.exists?(yaml_path)
+      unless @clear
+        SystemFieldsMigrator.clear!
+        SystemFieldsMigrator.load_from_yaml(yaml_path)
+      end
+    end
+
     fields = SystemFieldsMigrator.fields
 
     if fields.empty?
-      print_warning "No system fields are registered."
-      print_verbose "Make sure src/config/system_fields.cr is loaded and defines fields."
+      print_warning "No system definition found."
       return
     end
 
@@ -116,6 +126,11 @@ class MigrateSystemFields < Marten::CLI::Command
     end
 
     print_dry_run_summary(create_count, update_count, skip_count)
+  end
+
+  private def get_yaml_path : String?
+    return @yaml_file if @yaml_file
+    File.join(File.dirname(__FILE__), "..", "config", "system_fields.yml")
   end
 
   private def detect_changes(existing : FieldDefinition, config : SystemFieldsMigrator::FieldDefinitionConfig) : Array(String)

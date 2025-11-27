@@ -1,0 +1,87 @@
+---
+CANDIDATE:
+  first_name__str:
+    nullable: false
+    caption:
+      en: First Name
+      id: Nama Depan
+      ja: 名
+
+  last_name__str:
+    nullable: true
+    caption:
+      en: Last Name
+      id: Nama Belakang
+      ja: 姓
+
+  email__str:
+    nullable: true
+    caption:
+      en: Email Address
+      id: Alamat Email
+      ja: メールアドレス
+
+  phone__str:
+    nullable: true
+    caption:
+      en: Phone Number
+      id: Nomor Telepon
+      ja: 電話番号
+
+  note__str:
+    nullable: true
+    caption:
+      en: Note
+      id: Catatan
+      ja: メモ
+
+  fitness__str:
+    nullable: false
+    caption:
+      en: Fitness Status
+      id: Status Kebugaran
+      ja: フィットネスステータス
+
+USER:
+  first_name__str:
+    nullable: false
+    caption:
+      en: First Name
+      id: Nama Depan
+      ja: 名
+
+  last_name__str:
+    nullable: true
+    caption:
+      en: Last Name
+      id: Nama Belakang
+      ja: 姓
+
+  email__str:
+    nullable: false
+    uniqueness: UNIQUE_ALWAYS
+    caption:
+      en: Email Address
+      id: Alamat Email
+      ja: メールアドレス
+
+  locale__str:
+    nullable: false
+    caption:
+      en: Locale
+      id: Bahasa
+      ja: 言語
+
+  role__str:
+    nullable: false
+    caption:
+      en: Role
+      id: Peran
+      ja: 役割
+
+  password_updated_at__datetime:
+    nullable: false
+    caption:
+      en: Password Updated At
+      id: Kata Sandi Diperbarui Pada
+      ja: パスワード更新日時

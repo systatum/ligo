@@ -244,6 +244,307 @@ describe SystemFieldsMigrator do
     end
   end
 
+  describe "#load_from_yaml" do
+    it "loads fields from YAML file" do
+      yaml_content = <<-YAML
+      ---
+      CANDIDATE:
+        test_yaml_field__str:
+          nullable: false
+          caption:
+            en: Test Field
+            id: Bidang Tes
+            ja: テストフィールド
+        test_number__int:
+          nullable: true
+          caption:
+            en: Test Number
+      USER:
+        test_email__str:
+          nullable: false
+          uniqueness: UNIQUE_ALWAYS
+          caption:
+            en: Email
+      YAML
+
+      temp_file = File.tempfile("system_fields", ".yml") do |file|
+        file.print(yaml_content)
+      end
+
+      begin
+        SystemFieldsMigrator.load_from_yaml(temp_file.path)
+
+        fields = SystemFieldsMigrator.fields
+        fields.size.should eq(3)
+
+        candidate_fields = fields.select { |f| f.resource_type == FieldResourceType::CANDIDATE }
+        candidate_fields.size.should eq(2)
+
+        string_field = candidate_fields.find { |f| f.name == "test_yaml_field" }
+        string_field.should_not be_nil
+        string_field.not_nil!.data_type.should eq(FieldDataType::DTYPE_STRING)
+        string_field.not_nil!.nullable.should eq(false)
+        string_field_localized_name = string_field.not_nil!.localized_name.not_nil!
+        string_field_localized_name.english.should eq("Test Field")
+        string_field_localized_name.indonesian.should eq("Bidang Tes")
+        string_field_localized_name.japanese.should eq("テストフィールド")
+
+        int_field = candidate_fields.find { |f| f.name == "test_number" }
+        int_field.should_not be_nil
+        int_field.not_nil!.data_type.should eq(FieldDataType::DTYPE_INT)
+        int_field.not_nil!.nullable.should eq(true)
+
+        user_fields = fields.select { |f| f.resource_type == FieldResourceType::USER }
+        user_fields.size.should eq(1)
+
+        email_field = user_fields.first
+        email_field.name.should eq("test_email")
+        email_field.uniqueness.should eq(FieldUniqueness::UNIQUE_ALWAYS)
+      ensure
+        temp_file.delete if temp_file
+      end
+    end
+
+    it "supports all data types with abbreviations" do
+      yaml_content = <<-YAML
+      ---
+      CANDIDATE:
+        field_str__str:
+          nullable: true
+          caption:
+            en: String Field
+        field_string__string:
+          nullable: true
+          caption:
+            en: String Field Alt
+        field_int__int:
+          nullable: true
+          caption:
+            en: Integer Field
+        field_float__float:
+          nullable: true
+          caption:
+            en: Float Field
+        field_bool__bool:
+          nullable: true
+          caption:
+            en: Boolean Field
+        field_boolean__boolean:
+          nullable: true
+          caption:
+            en: Boolean Field Alt
+        field_date__date:
+          nullable: true
+          caption:
+            en: Date Field
+        field_time__time:
+          nullable: true
+          caption:
+            en: Time Field
+        field_dt__dt:
+          nullable: true
+          caption:
+            en: DateTime Field
+        field_datetime__datetime:
+          nullable: true
+          caption:
+            en: DateTime Field Alt
+      YAML
+
+      temp_file = File.tempfile("system_fields_types", ".yml") do |file|
+        file.print(yaml_content)
+      end
+
+      begin
+        SystemFieldsMigrator.load_from_yaml(temp_file.path)
+
+        fields = SystemFieldsMigrator.fields
+        fields.size.should eq(10)
+
+        fields.find { |f| f.name == "field_str" }.not_nil!.data_type.should eq(FieldDataType::DTYPE_STRING)
+        fields.find { |f| f.name == "field_string" }.not_nil!.data_type.should eq(FieldDataType::DTYPE_STRING)
+        fields.find { |f| f.name == "field_int" }.not_nil!.data_type.should eq(FieldDataType::DTYPE_INT)
+        fields.find { |f| f.name == "field_float" }.not_nil!.data_type.should eq(FieldDataType::DTYPE_FLOAT)
+        fields.find { |f| f.name == "field_bool" }.not_nil!.data_type.should eq(FieldDataType::DTYPE_BOOLEAN)
+        fields.find { |f| f.name == "field_boolean" }.not_nil!.data_type.should eq(FieldDataType::DTYPE_BOOLEAN)
+        fields.find { |f| f.name == "field_date" }.not_nil!.data_type.should eq(FieldDataType::DTYPE_DATE)
+        fields.find { |f| f.name == "field_time" }.not_nil!.data_type.should eq(FieldDataType::DTYPE_TIME)
+        fields.find { |f| f.name == "field_datetime" }.not_nil!.data_type.should eq(FieldDataType::DTYPE_DATETIME)
+        fields.find { |f| f.name == "field_dt" }.not_nil!.data_type.should eq(FieldDataType::DTYPE_DATETIME)
+      ensure
+        temp_file.delete if temp_file
+      end
+    end
+
+    it "defaults nullable to true when not specified" do
+      yaml_content = <<-YAML
+      ---
+      CANDIDATE:
+        test_default__str:
+          caption:
+            en: Test
+      YAML
+
+      temp_file = File.tempfile("system_fields_default", ".yml") do |file|
+        file.print(yaml_content)
+      end
+
+      begin
+        SystemFieldsMigrator.load_from_yaml(temp_file.path)
+
+        field = SystemFieldsMigrator.fields.first
+        field.nullable.should eq(true)
+      ensure
+        temp_file.delete if temp_file
+      end
+    end
+
+    it "defaults uniqueness to UNIQUELESS when not specified" do
+      yaml_content = <<-YAML
+      ---
+      CANDIDATE:
+        test_unique__str:
+          nullable: false
+          caption:
+            en: Test
+      YAML
+
+      temp_file = File.tempfile("system_fields_unique", ".yml") do |file|
+        file.print(yaml_content)
+      end
+
+      begin
+        SystemFieldsMigrator.load_from_yaml(temp_file.path)
+
+        field = SystemFieldsMigrator.fields.first
+        field.uniqueness.should eq(FieldUniqueness::UNIQUELESS)
+      ensure
+        temp_file.delete if temp_file
+      end
+    end
+
+    it "raises error for invalid field key format" do
+      yaml_content = <<-YAML
+      ---
+      CANDIDATE:
+        invalid_field:
+          nullable: false
+      YAML
+
+      temp_file = File.tempfile("system_fields_invalid", ".yml") do |file|
+        file.print(yaml_content)
+      end
+
+      begin
+        expect_raises(ArgumentError, /Invalid field key format/) do
+          SystemFieldsMigrator.load_from_yaml(temp_file.path)
+        end
+      ensure
+        temp_file.delete if temp_file
+      end
+    end
+
+    it "raises error for unknown data type" do
+      yaml_content = <<-YAML
+      ---
+      CANDIDATE:
+        test_field__unknown:
+          nullable: false
+      YAML
+
+      temp_file = File.tempfile("system_fields_unknown_type", ".yml") do |file|
+        file.print(yaml_content)
+      end
+
+      begin
+        expect_raises(ArgumentError, /Unknown data type/) do
+          SystemFieldsMigrator.load_from_yaml(temp_file.path)
+        end
+      ensure
+        temp_file.delete if temp_file
+      end
+    end
+
+    it "raises error for non-existent file" do
+      expect_raises(ArgumentError, /YAML file not found/) do
+        SystemFieldsMigrator.load_from_yaml("/non/existent/file.yml")
+      end
+    end
+
+    it "supports all uniqueness types" do
+      yaml_content = <<-YAML
+      ---
+      CANDIDATE:
+        field_uniqueless__str:
+          uniqueness: UNIQUELESS
+          caption:
+            en: Field 1
+        field_always__str:
+          uniqueness: UNIQUE_ALWAYS
+          caption:
+            en: Field 2
+        field_fill__str:
+          uniqueness: UNIQUE_FILL
+          caption:
+            en: Field 3
+      YAML
+
+      temp_file = File.tempfile("system_fields_uniqueness", ".yml") do |file|
+        file.print(yaml_content)
+      end
+
+      begin
+        SystemFieldsMigrator.load_from_yaml(temp_file.path)
+
+        fields = SystemFieldsMigrator.fields
+        fields.find { |f| f.name == "field_uniqueless" }.not_nil!.uniqueness.should eq(FieldUniqueness::UNIQUELESS)
+        fields.find { |f| f.name == "field_always" }.not_nil!.uniqueness.should eq(FieldUniqueness::UNIQUE_ALWAYS)
+        fields.find { |f| f.name == "field_fill" }.not_nil!.uniqueness.should eq(FieldUniqueness::UNIQUE_FILL)
+      ensure
+        temp_file.delete if temp_file
+      end
+    end
+
+    it "handles fields without caption" do
+      yaml_content = <<-YAML
+      ---
+      CANDIDATE:
+        test_no_caption__str:
+          nullable: false
+      YAML
+
+      temp_file = File.tempfile("system_fields_no_caption", ".yml") do |file|
+        file.print(yaml_content)
+      end
+
+      begin
+        SystemFieldsMigrator.load_from_yaml(temp_file.path)
+
+        field = SystemFieldsMigrator.fields.first
+        field.localized_name.should be_nil
+      ensure
+        temp_file.delete if temp_file
+      end
+    end
+  end
+
+  describe "#migrate! with YAML" do
+    it "automatically loads from default YAML file if it exists" do
+      SystemFieldsMigrator.clear!
+
+      result = SystemFieldsMigrator.migrate!
+
+      fields = SystemFieldsMigrator.fields
+      fields.should_not be_empty
+
+      candidate_fields = fields.select { |f| f.resource_type == FieldResourceType::CANDIDATE }
+      candidate_fields.should_not be_empty
+
+      first_name = candidate_fields.find { |f| f.name == "first_name" }
+      first_name.should_not be_nil
+    end
+  end
+
   context "with integration testing" do
     note_rt = 101
     student_rt = 102
