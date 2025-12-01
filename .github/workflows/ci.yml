@@ -14,7 +14,9 @@ jobs:
   approval: 
     name: Workflow Approval
     runs-on: ubuntu-24.04
-    if: ${{ github.ref_name == 'main' || startsWith(github.ref_name, 'deploy-') }}
+    if: |
+      (github.ref_name == 'main' || startsWith(github.ref_name, 'deploy-')) &&
+      github.actor != 'dependabot[bot]'
     outputs:
       approved: ${{ steps.approval_result.outputs.approved }}
       denied:   ${{ steps.approval_result.outputs.denied }}
