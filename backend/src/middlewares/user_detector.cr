@@ -2,6 +2,7 @@ class UserDetector < Marten::Middleware
   def call(request : Marten::HTTP::Request, get_response : Proc(Marten::HTTP::Response)) : Marten::HTTP::Response
     user = detect_user(request)
     request.current_user = user if user
+    Current.set_performer_id(user.try(&.id))
     get_response.call
   end
 

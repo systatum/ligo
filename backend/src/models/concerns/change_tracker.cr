@@ -32,6 +32,8 @@ module ChangeTracker
     changelog.record_class = self.class.to_s
     changelog.record_id = self.id
     changelog.changes = changed_record_values
+    changelog.performer_id = Current.performer_id
+
     changelog.save!
 
     # refresh the snapshot

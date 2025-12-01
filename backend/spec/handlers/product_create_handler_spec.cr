@@ -23,6 +23,28 @@ describe ProductCreateHandler do
 
         response.content.should eq ProductSerializer.serialize(prod)
       end
+
+      it "sets the performer_id on the changelog entry" do
+        user = create_user
+        response = Marten::Spec.client.post(
+          Marten.routes.reverse("api_product_create"),
+          data: {name: "Created Prod"}.to_json,
+          headers: {authorization: "Bearer #{user.jwt_token}"},
+          content_type: "application/json"
+        )
+
+        response.status.should eq 200
+
+        prod = Product.last!
+        changelog = Changelog.filter(
+          record_class: "Product",
+          record_id: prod.id,
+          action_type: Changelog::ActionType::CREATE
+        ).first!
+
+        changelog.performer_id.should_not be_nil
+        changelog.performer_id.should eq user.id
+      end
     end
   end
 end
