@@ -325,13 +325,13 @@ describe FieldDefinition do
 
     context "when having proper data type enum values" do
       it "matches expected values" do
-        FieldDataType::DTYPE_STRING.value.should eq 0
-        FieldDataType::DTYPE_INT.value.should eq 1
-        FieldDataType::DTYPE_FLOAT.value.should eq 2
-        FieldDataType::DTYPE_DATE.value.should eq 3
-        FieldDataType::DTYPE_TIME.value.should eq 4
-        FieldDataType::DTYPE_DATETIME.value.should eq 5
-        FieldDataType::DTYPE_BOOLEAN.value.should eq 6
+        FieldDataType::DTYPE_STRING.value.should eq 100
+        FieldDataType::DTYPE_INT.value.should eq 101
+        FieldDataType::DTYPE_FLOAT.value.should eq 102
+        FieldDataType::DTYPE_DATE.value.should eq 103
+        FieldDataType::DTYPE_TIME.value.should eq 104
+        FieldDataType::DTYPE_DATETIME.value.should eq 105
+        FieldDataType::DTYPE_BOOLEAN.value.should eq 106
       end
     end
 
@@ -340,6 +340,28 @@ describe FieldDefinition do
         FieldUniqueness::UNIQUELESS.value.should eq 0
         FieldUniqueness::UNIQUE_ALWAYS.value.should eq 1
         FieldUniqueness::UNIQUE_FILL.value.should eq 2
+      end
+    end
+
+    context "extended data types exist" do
+      it "exposes extended field data types" do
+        FieldDataType::DTYPE_TEXT.should_not be_nil
+        FieldDataType::DTYPE_TEXT_RICH.should_not be_nil
+        FieldDataType::DTYPE_YESNO.should_not be_nil
+        FieldDataType::DTYPE_EMAIL.should_not be_nil
+        FieldDataType::DTYPE_PHONE.should_not be_nil
+        FieldDataType::DTYPE_COUNTRY.should_not be_nil
+        FieldDataType::DTYPE_LOCALE.should_not be_nil
+        FieldDataType::DTYPE_COLOR.should_not be_nil
+        FieldDataType::DTYPE_MONEY.should_not be_nil
+
+        FieldDataType::DTYPE_CHOICE_DROPDOWN.should_not be_nil
+        FieldDataType::DTYPE_CHOICE_RADIO.should_not be_nil
+        FieldDataType::DTYPE_CHOICE_CHECKBOX.should_not be_nil
+        FieldDataType::DTYPE_CHOICE_TOGGLE.should_not be_nil
+
+        FieldDataType::DTYPE_FILE_ANY.should_not be_nil
+        FieldDataType::DTYPE_FILE_IMAGE.should_not be_nil
       end
     end
   end
@@ -365,6 +387,156 @@ describe FieldDefinition do
         data_type: FieldDataType::DTYPE_STRING
       )
       different_resource_field.save.should be_true
+    end
+  end
+
+  describe "metadata" do
+    context "with file types" do
+      it "validates file_meta arguments" do
+        expect_raises(ArgumentError) do
+          FieldDefinition.file_meta(false, 0.0, "*")
+        end
+
+        expect_raises(ArgumentError) do
+          FieldDefinition.file_meta(false, 2048.0, "*")
+        end
+
+        expect_raises(ArgumentError) do
+          FieldDefinition.file_meta(false, 3.0, "invalidtype")
+        end
+      end
+
+      it "persists file metadata" do
+        meta = FieldDefinition.file_meta(true, 5, "image/png,image/jpeg")
+
+        field = FieldDefinition.new(
+          name: "attachments",
+          resource_type: FieldResourceType::CANDIDATE,
+          data_type: FieldDataType::DTYPE_FILE_ANY,
+          localized_name: LocalizedName.new(english: "Attachments")
+        )
+        field.metadata = meta
+        field.save!.should be_true
+
+        fetched = FieldDefinition.find_by_name_and_resource_type("attachments", FieldResourceType::CANDIDATE).not_nil!
+        fetched.metadata.should_not be_nil
+        h = fetched.metadata.as(JSON::Any).as_h
+        h["many"].as_bool.should be_true
+        h["max_mb"].as_f.should eq(5)
+        h["ok_mimes"].as_s.should eq("image/png,image/jpeg")
+
+        fetched.delete
+      end
+
+      it "raises when needs metadata" do
+        field = FieldDefinition.new(
+          name: "single_file",
+          resource_type: FieldResourceType::CANDIDATE,
+          data_type: FieldDataType::DTYPE_FILE_IMAGE,
+          localized_name: LocalizedName.new(english: "Profile Image")
+        )
+        expect_raises(Exception) do
+          field.save!
+        end
+      end
+
+      it "rejects malformed metadata (invalid ok_mimes structure)" do
+        bad_meta = JSON.parse({"many" => true, "max_mb" => 3.0, "ok_mimes" => ["image/png"]}.to_json)
+        field = FieldDefinition.new(
+          name: "bad_file_meta",
+          resource_type: FieldResourceType::CANDIDATE,
+          data_type: FieldDataType::DTYPE_FILE_ANY,
+          localized_name: LocalizedName.new(english: "Bad File Meta")
+        )
+        field.metadata = bad_meta
+        field.save.should be_false
+        expect_raises(Exception) do
+          field.save!
+        end
+      end
+    end
+
+    context "with choice types" do
+      it "persists choice metadata and honors default" do
+        options = [
+          FieldDefinition.option("opt1", {"en" => "First"}),
+          FieldDefinition.option("opt2", {"en" => "Second"}),
+        ]
+        meta = FieldDefinition.options_meta(options, "opt2")
+
+        field = FieldDefinition.new(
+          name: "choice_test",
+          resource_type: FieldResourceType::CANDIDATE,
+          data_type: FieldDataType::DTYPE_CHOICE_RADIO,
+          localized_name: LocalizedName.new(english: "Choice Test")
+        )
+        field.metadata = meta
+        field.save!.should be_true
+
+        fetched = FieldDefinition.find_by_name_and_resource_type("choice_test", FieldResourceType::CANDIDATE).not_nil!
+        fetched.metadata.should_not be_nil
+        h = fetched.metadata.as(JSON::Any).as_h
+        h["options"].as_a.size.should eq(2)
+        h["default"].as_s.should eq("opt2")
+
+        fetched.delete
+      end
+
+      it "rejects malformed metadata (missing options)" do
+        bad_meta = JSON.parse({"default" => "a"}.to_json)
+        field = FieldDefinition.new(
+          name: "bad_choice",
+          resource_type: FieldResourceType::CANDIDATE,
+          data_type: FieldDataType::DTYPE_CHOICE_DROPDOWN,
+          localized_name: LocalizedName.new(english: "Bad Choice")
+        )
+        field.metadata = bad_meta
+        field.save.should be_false
+        expect_raises(Exception) do
+          field.save!
+        end
+      end
+
+      it "clears metadata for non-meta types (metadata removed and save succeeds)" do
+        options = [
+          FieldDefinition.option("x", {"en" => "X"}),
+        ]
+        meta = FieldDefinition.options_meta(options)
+
+        field = FieldDefinition.new(
+          name: "should_not_have_meta",
+          resource_type: FieldResourceType::CANDIDATE,
+          data_type: FieldDataType::DTYPE_STRING,
+          localized_name: LocalizedName.new(english: "No Meta Allowed")
+        )
+        field.metadata = meta
+
+        field.save.should be_true
+
+        fetched = FieldDefinition.find_by_name_and_resource_type("should_not_have_meta", FieldResourceType::CANDIDATE).not_nil!
+        fetched.metadata.should be_nil
+
+        fetched.delete
+      end
+
+      it "rejects bad default" do
+        options = [
+          FieldDefinition.option("a", {"en" => "A"}),
+        ]
+
+        bad_meta = JSON.parse({"options" => options, "default" => "b"}.to_json)
+        field = FieldDefinition.new(
+          name: "salutation_bad_default",
+          resource_type: FieldResourceType::CANDIDATE,
+          data_type: FieldDataType::DTYPE_CHOICE_DROPDOWN,
+          localized_name: LocalizedName.new(english: "Salutation Bad"),
+        )
+        field.metadata = bad_meta
+        field.save.should be_false
+        expect_raises(Exception) do
+          field.save!
+        end
+      end
     end
   end
 end

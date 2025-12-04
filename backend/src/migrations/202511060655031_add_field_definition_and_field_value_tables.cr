@@ -8,8 +8,9 @@ class Migration::Main::V202511060655031 < Marten::Migration
       column :id, :big_int, primary_key: true, auto: true
       column :name, :string, max_size: 255, null: false
       column :localized_name, :json, null: true
+      column :metadata, :json, null: true
       column :resource_type, :int, null: false, index: true
-      column :data_type, :enum, values: ["DTYPE_STRING", "DTYPE_INT", "DTYPE_FLOAT", "DTYPE_DATE", "DTYPE_TIME", "DTYPE_DATETIME", "DTYPE_BOOLEAN"], null: false
+      column :data_type, :enum, values: ["DTYPE_STRING", "DTYPE_TEXT", "DTYPE_TEXT_RICH", "DTYPE_INT", "DTYPE_FLOAT", "DTYPE_DATE", "DTYPE_TIME", "DTYPE_DATETIME", "DTYPE_BOOLEAN", "DTYPE_YESNO", "DTYPE_EMAIL", "DTYPE_PHONE", "DTYPE_COUNTRY", "DTYPE_LOCALE", "DTYPE_COLOR", "DTYPE_MONEY", "DTYPE_CHOICE_DROPDOWN", "DTYPE_CHOICE_RADIO", "DTYPE_CHOICE_CHECKBOX", "DTYPE_CHOICE_TOGGLE", "DTYPE_FILE_ANY", "DTYPE_FILE_IMAGE"], null: false
       column :is_system_field, :bool, default: false, null: false
       column :nullable, :bool, default: true, null: false
       column :uniqueness, :enum, values: ["UNIQUELESS", "UNIQUE_ALWAYS", "UNIQUE_FILL"], default: "UNIQUELESS", null: false

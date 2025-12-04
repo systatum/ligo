@@ -20,6 +20,7 @@ module SystemFieldsMigrator
     property localized_name : LocalizedName?
     property nullable : Bool
     property uniqueness : FieldUniqueness
+    property metadata : JSON::Any?
 
     def initialize(
       @name : String,
@@ -28,6 +29,7 @@ module SystemFieldsMigrator
       @localized_name : LocalizedName? = nil,
       @nullable : Bool = true,
       @uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+      @metadata : JSON::Any? = nil,
     )
     end
   end
@@ -222,6 +224,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+    metadata : JSON::Any? = nil,
   )
     config = FieldDefinitionConfig.new(
       name: name,
@@ -229,7 +232,8 @@ module SystemFieldsMigrator
       data_type: data_type,
       localized_name: localized_name,
       nullable: nullable,
-      uniqueness: uniqueness
+      uniqueness: uniqueness,
+      metadata: metadata
     )
     @@fields << config
   end
@@ -241,6 +245,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+    metadata : JSON::Any? = nil,
   )
     add_field!(
       name: name,
@@ -248,7 +253,8 @@ module SystemFieldsMigrator
       data_type: data_type,
       localized_name: localized_name,
       nullable: nullable,
-      uniqueness: uniqueness
+      uniqueness: uniqueness,
+      metadata: metadata
     )
   rescue
     raise ArgumentError.new("Invalid FieldResourceType integer: #{resource_type_raw}")
@@ -260,6 +266,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+    metadata : JSON::Any? = nil,
   )
     add_field!(
       name: name,
@@ -267,7 +274,8 @@ module SystemFieldsMigrator
       data_type: FieldDataType::DTYPE_STRING,
       localized_name: localized_name,
       nullable: nullable,
-      uniqueness: uniqueness
+      uniqueness: uniqueness,
+      metadata: metadata
     )
   end
 
@@ -277,13 +285,15 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+    metadata : JSON::Any? = nil,
   )
     add_string_field!(
       name: name,
       to: FieldResourceType.new(resource_type_raw),
       localized_name: localized_name,
       nullable: nullable,
-      uniqueness: uniqueness
+      uniqueness: uniqueness,
+      metadata: metadata
     )
   end
 
@@ -293,6 +303,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+    metadata : JSON::Any? = nil,
   )
     add_field!(
       name: name,
@@ -300,7 +311,8 @@ module SystemFieldsMigrator
       data_type: FieldDataType::DTYPE_INT,
       localized_name: localized_name,
       nullable: nullable,
-      uniqueness: uniqueness
+      uniqueness: uniqueness,
+      metadata: metadata
     )
   end
 
@@ -310,13 +322,15 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+    metadata : JSON::Any? = nil,
   )
     add_int_field!(
       name: name,
       to: FieldResourceType.new(resource_type_raw),
       localized_name: localized_name,
       nullable: nullable,
-      uniqueness: uniqueness
+      uniqueness: uniqueness,
+      metadata: metadata
     )
   end
 
@@ -326,6 +340,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+    metadata : JSON::Any? = nil,
   )
     add_field!(
       name: name,
@@ -333,7 +348,8 @@ module SystemFieldsMigrator
       data_type: FieldDataType::DTYPE_FLOAT,
       localized_name: localized_name,
       nullable: nullable,
-      uniqueness: uniqueness
+      uniqueness: uniqueness,
+      metadata: metadata
     )
   end
 
@@ -343,13 +359,15 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+    metadata : JSON::Any? = nil,
   )
     add_float_field!(
       name: name,
       to: FieldResourceType.new(resource_type_raw),
       localized_name: localized_name,
       nullable: nullable,
-      uniqueness: uniqueness
+      uniqueness: uniqueness,
+      metadata: metadata
     )
   end
 
@@ -359,6 +377,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+    metadata : JSON::Any? = nil,
   )
     add_field!(
       name: name,
@@ -366,7 +385,8 @@ module SystemFieldsMigrator
       data_type: FieldDataType::DTYPE_DATE,
       localized_name: localized_name,
       nullable: nullable,
-      uniqueness: uniqueness
+      uniqueness: uniqueness,
+      metadata: metadata
     )
   end
 
@@ -376,13 +396,15 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+    metadata : JSON::Any? = nil,
   )
     add_date_field!(
       name: name,
       to: FieldResourceType.new(resource_type_raw),
       localized_name: localized_name,
       nullable: nullable,
-      uniqueness: uniqueness
+      uniqueness: uniqueness,
+      metadata: metadata
     )
   end
 
@@ -392,6 +414,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+    metadata : JSON::Any? = nil,
   )
     add_field!(
       name: name,
@@ -399,7 +422,8 @@ module SystemFieldsMigrator
       data_type: FieldDataType::DTYPE_TIME,
       localized_name: localized_name,
       nullable: nullable,
-      uniqueness: uniqueness
+      uniqueness: uniqueness,
+      metadata: metadata
     )
   end
 
@@ -409,13 +433,15 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+    metadata : JSON::Any? = nil,
   )
     add_time_field!(
       name: name,
       to: FieldResourceType.new(resource_type_raw),
       localized_name: localized_name,
       nullable: nullable,
-      uniqueness: uniqueness
+      uniqueness: uniqueness,
+      metadata: metadata
     )
   end
 
@@ -425,6 +451,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+    metadata : JSON::Any? = nil,
   )
     add_field!(
       name: name,
@@ -432,7 +459,8 @@ module SystemFieldsMigrator
       data_type: FieldDataType::DTYPE_DATETIME,
       localized_name: localized_name,
       nullable: nullable,
-      uniqueness: uniqueness
+      uniqueness: uniqueness,
+      metadata: metadata
     )
   end
 
@@ -442,13 +470,15 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+    metadata : JSON::Any? = nil,
   )
     add_datetime_field!(
       name: name,
       to: FieldResourceType.new(resource_type_raw),
       localized_name: localized_name,
       nullable: nullable,
-      uniqueness: uniqueness
+      uniqueness: uniqueness,
+      metadata: metadata
     )
   end
 
@@ -458,6 +488,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+    metadata : JSON::Any? = nil,
   )
     add_field!(
       name: name,
@@ -465,7 +496,8 @@ module SystemFieldsMigrator
       data_type: FieldDataType::DTYPE_BOOLEAN,
       localized_name: localized_name,
       nullable: nullable,
-      uniqueness: uniqueness
+      uniqueness: uniqueness,
+      metadata: metadata
     )
   end
 
@@ -475,13 +507,145 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+    metadata : JSON::Any? = nil,
   )
     add_boolean_field!(
       name: name,
       to: FieldResourceType.new(resource_type_raw),
       localized_name: localized_name,
       nullable: nullable,
-      uniqueness: uniqueness
+      uniqueness: uniqueness,
+      metadata: metadata
+    )
+  end
+
+  def add_choice_dropdown_field!(
+    name : String,
+    to resource_type : FieldResourceType,
+    options : Array,
+    default : String? = nil,
+    localized_name : LocalizedName? = nil,
+    nullable : Bool = true,
+    uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+  )
+    metadata = FieldDefinition.options_meta(options, default)
+    add_field!(
+      name: name,
+      to: resource_type,
+      data_type: FieldDataType::DTYPE_CHOICE_DROPDOWN,
+      localized_name: localized_name,
+      nullable: nullable,
+      uniqueness: uniqueness,
+      metadata: metadata
+    )
+  end
+
+  def add_choice_radio_field!(
+    name : String,
+    to resource_type : FieldResourceType,
+    options : Array,
+    default : String? = nil,
+    localized_name : LocalizedName? = nil,
+    nullable : Bool = true,
+    uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+  )
+    metadata = FieldDefinition.options_meta(options, default)
+    add_field!(
+      name: name,
+      to: resource_type,
+      data_type: FieldDataType::DTYPE_CHOICE_RADIO,
+      localized_name: localized_name,
+      nullable: nullable,
+      uniqueness: uniqueness,
+      metadata: metadata
+    )
+  end
+
+  def add_choice_checkbox_field!(
+    name : String,
+    to resource_type : FieldResourceType,
+    options : Array,
+    default : String? = nil,
+    localized_name : LocalizedName? = nil,
+    nullable : Bool = true,
+    uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+  )
+    metadata = FieldDefinition.options_meta(options, default)
+    add_field!(
+      name: name,
+      to: resource_type,
+      data_type: FieldDataType::DTYPE_CHOICE_CHECKBOX,
+      localized_name: localized_name,
+      nullable: nullable,
+      uniqueness: uniqueness,
+      metadata: metadata
+    )
+  end
+
+  def add_choice_toggle_field!(
+    name : String,
+    to resource_type : FieldResourceType,
+    options : Array,
+    default : String? = nil,
+    localized_name : LocalizedName? = nil,
+    nullable : Bool = true,
+    uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+  )
+    metadata = FieldDefinition.options_meta(options, default)
+    add_field!(
+      name: name,
+      to: resource_type,
+      data_type: FieldDataType::DTYPE_CHOICE_TOGGLE,
+      localized_name: localized_name,
+      nullable: nullable,
+      uniqueness: uniqueness,
+      metadata: metadata
+    )
+  end
+
+  # Convenience methods for file field types
+
+  def add_file_field!(
+    name : String,
+    to resource_type : FieldResourceType,
+    many : Bool = false,
+    max_mb : Float64 = 3,
+    ok_mimes : String | Array(String) = "*",
+    localized_name : LocalizedName? = nil,
+    nullable : Bool = true,
+    uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+  )
+    metadata = FieldDefinition.file_meta(many, max_mb, ok_mimes)
+    add_field!(
+      name: name,
+      to: resource_type,
+      data_type: FieldDataType::DTYPE_FILE_ANY,
+      localized_name: localized_name,
+      nullable: nullable,
+      uniqueness: uniqueness,
+      metadata: metadata
+    )
+  end
+
+  def add_image_field!(
+    name : String,
+    to resource_type : FieldResourceType,
+    many : Bool = false,
+    max_mb : Float64 = 3,
+    ok_mimes : String | Array(String) = ["image/png", "image/jpeg", "image/gif", "image/webp"],
+    localized_name : LocalizedName? = nil,
+    nullable : Bool = true,
+    uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
+  )
+    metadata = FieldDefinition.file_meta(many, max_mb, ok_mimes)
+    add_field!(
+      name: name,
+      to: resource_type,
+      data_type: FieldDataType::DTYPE_FILE_IMAGE,
+      localized_name: localized_name,
+      nullable: nullable,
+      uniqueness: uniqueness,
+      metadata: metadata
     )
   end
 
@@ -578,6 +742,11 @@ module SystemFieldsMigrator
               needs_update = true
             end
 
+            if config.metadata != existing_field.metadata
+              existing_field.metadata = config.metadata
+              needs_update = true
+            end
+
             if !existing_field.is_system_field
               existing_field.is_system_field = true
               needs_update = true
@@ -598,7 +767,8 @@ module SystemFieldsMigrator
               data_type: config.data_type,
               nullable: config.nullable,
               uniqueness: config.uniqueness,
-              is_system_field: true
+              is_system_field: true,
+              metadata: config.metadata
             )
             field.resource_type_enum = config.resource_type
             field.localized_name = config.localized_name

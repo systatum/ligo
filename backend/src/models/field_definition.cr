@@ -2,9 +2,15 @@ class FieldDefinition < Marten::Model
   include IdConcealer
   include SoftDeleter
 
+  alias FDC = FieldDefinitionConcerns
+  extend FDC::MetafieldManipulator
+  extend FDC::Finder
+  include FDC::Coercer
+
   field :id, :big_int, primary_key: true, auto: true
   field :name, :string, max_size: 255, null: false, blank: false
   field :localized_name, :json, null: true, blank: true, serializable: LocalizedName
+  field :metadata, :json, null: true, blank: true
   field :resource_type, :int, null: false, index: true
   field :data_type, :enum, values: FieldDataType, null: false
   field :is_system_field, :bool, null: false, default: false
@@ -41,6 +47,7 @@ class FieldDefinition < Marten::Model
     uniqueness : FieldUniqueness? = nil,
     is_system_field : Bool? = nil,
     localized_name : LocalizedName? = nil,
+    metadata : JSON::Any? = nil,
   )
     super(name: name, resource_type: resource_type.value.to_i64)
     self.data_type = data_type if data_type
@@ -48,6 +55,7 @@ class FieldDefinition < Marten::Model
     self.uniqueness = uniqueness if uniqueness
     self.is_system_field = is_system_field if !is_system_field.nil?
     self.localized_name = localized_name if localized_name
+    self.metadata = metadata if metadata
   end
 
   def initialize(
@@ -59,6 +67,7 @@ class FieldDefinition < Marten::Model
     uniqueness : FieldUniqueness? = nil,
     is_system_field : Bool? = nil,
     localized_name : LocalizedName? = nil,
+    metadata : JSON::Any? = nil,
   )
     super(name: name, resource_type: resource_type)
     self.data_type = data_type if data_type
@@ -66,26 +75,7 @@ class FieldDefinition < Marten::Model
     self.uniqueness = uniqueness if uniqueness
     self.is_system_field = is_system_field if !is_system_field.nil?
     self.localized_name = localized_name if localized_name
-  end
-
-  def self.filter(*, resource_type : FieldResourceType)
-    super(resource_type: resource_type.value.to_i64)
-  end
-
-  def self.filter(*, resource_type : FieldResourceType, name : String)
-    super(resource_type: resource_type.value.to_i64, name: name)
-  end
-
-  def self.filter(*, resource_type : FieldResourceType, is_system_field : Bool)
-    super(resource_type: resource_type.value.to_i64, is_system_field: is_system_field)
-  end
-
-  def self.filter(*, resource_type : FieldResourceType, name : String, is_system_field : Bool)
-    super(resource_type: resource_type.value.to_i64, name: name, is_system_field: is_system_field)
-  end
-
-  def self.filter(*, resource_type__in : Array(FieldResourceType))
-    super(resource_type__in: resource_type__in.map(&.value.to_i64))
+    self.metadata = metadata if metadata
   end
 
   private def resource_type! : Int64
@@ -115,39 +105,8 @@ class FieldDefinition < Marten::Model
   scope :system_fields { filter(is_system_field: true) }
   scope :user_fields { filter(is_system_field: false) }
 
-  def self.for_resource_type(resource_type : FieldResourceType)
-    filter(resource_type: resource_type.value.to_i64)
-  end
-
-  def self.for_resource_type(resource_type : Int32)
-    filter(resource_type: resource_type.to_i64)
-  end
-
   after_initialize :store_original_name
   after_initialize :coerce_resource_type!
-
-  RESOURCE_TYPE_MAP = FieldResourceType.values.to_h { |v| {v.to_s.upcase, v.value.to_i64} }
-
-  private def coerce_resource_type!
-    rt = @resource_type
-    return if rt.nil?
-    case rt
-    when Int64, Int32
-      return
-    when String
-      s = rt.as(String)
-      if (ival = s.to_i64?)
-        @resource_type = ival
-        return
-      end
-      upper = s.upcase
-      if RESOURCE_TYPE_MAP.has_key?(upper)
-        @resource_type = RESOURCE_TYPE_MAP[upper]
-      else
-        raise ArgumentError.new("Unknown resource_type string: '#{s}'. Valid types: #{RESOURCE_TYPE_MAP.keys.join(", ")}")
-      end
-    end
-  end
 
   private def validate_name_uniqueness_per_resource_type
     existing = self.class.filter(name: name, resource_type: resource_type!)
@@ -192,31 +151,8 @@ class FieldDefinition < Marten::Model
     @original_name != self.name
   end
 
-  def self.find_by_name_and_resource_type(name : String, resource_type : FieldResourceType)
-    filter(name: name, resource_type: resource_type.value.to_i64).first?
-  end
-
-  def self.find_by_name_and_resource_type(name : String, resource_type : Int32)
-    filter(name: name, resource_type: resource_type.to_i64).first?
-  end
-
   def delete
     raise "System fields cannot be deleted" if system_field?
-    super
-  end
-
-  def save(*args, **kwargs)
-    if system_field? && persisted? && name_changed?
-      errors.add(:name, "cannot be changed for system fields")
-      return false
-    end
-    super
-  end
-
-  def save!(*args, **kwargs)
-    if system_field? && persisted? && name_changed?
-      raise "System field name cannot be changed"
-    end
     super
   end
 
