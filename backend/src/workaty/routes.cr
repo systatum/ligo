@@ -27,8 +27,25 @@ module Workaty
       path "/<employee_slug:str>/delete", EmployeeDeleteHandler, name: "delete"
     end
 
+    email_routes = Marten::Routing::Map.draw(:email) do
+      template_routes = Marten::Routing::Map.draw(:template) do
+        path "/", EmailTemplateCreateHandler, name: "create"
+        path "/index", EmailTemplateIndexHandler, name: "index"
+        path "/<template_hashed_id:str>", EmailTemplateShowHandler, name: "show"
+        path "/<template_hashed_id:str>/update", EmailTemplateUpdateHandler, name: "update"
+        path "/<template_hashed_id:str>/delete", EmailTemplateDeleteHandler, name: "delete"
+      end
+      path "/template", template_routes
+    end
+
+    fields_routes = Marten::Routing::Map.draw(:fields) do
+      path "/<resource_type:int>", FieldsShowHandler, name: "show"
+    end
+
     path "/api/candidate", candidate_routes
     path "/api/team_division", team_division_routes
     path "/api/employee", employee_routes
+    path "/api/email", email_routes
+    path "/api/fields", fields_routes
   end
 end

@@ -11,7 +11,7 @@ describe FieldValue do
       field = create_field("first_name", FieldDataType::DTYPE_STRING)
 
       field_value = FieldValue.new(
-        field_id: field.id!,
+        field: field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE,
         string_value: "John Doe"
@@ -26,7 +26,7 @@ describe FieldValue do
       field = create_field("age", FieldDataType::DTYPE_INT)
 
       field_value = FieldValue.new(
-        field_id: field.id!,
+        field: field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE,
         integer_value: 25
@@ -39,7 +39,7 @@ describe FieldValue do
       field = create_field("salary", FieldDataType::DTYPE_FLOAT)
 
       field_value = FieldValue.new(
-        field_id: field.id!,
+        field: field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE,
         float_value: 50000.50
@@ -53,7 +53,7 @@ describe FieldValue do
       date = Time.utc
 
       field_value = FieldValue.new(
-        field_id: field.id!,
+        field: field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE,
         date_value: date
@@ -67,7 +67,7 @@ describe FieldValue do
       datetime = Time.utc
 
       field_value = FieldValue.new(
-        field_id: field.id!,
+        field: field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE,
         datetime_value: datetime
@@ -80,7 +80,7 @@ describe FieldValue do
       field = create_field("is_active", FieldDataType::DTYPE_BOOLEAN)
 
       field_value = FieldValue.new(
-        field_id: field.id!,
+        field: field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE,
         boolean_value: true
@@ -94,52 +94,52 @@ describe FieldValue do
     it "returns the correct value based on field data type" do
       string_field = create_field("first_name", FieldDataType::DTYPE_STRING)
       string_value = FieldValue.new(
-        field_id: string_field.id!,
+        field: string_field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE,
         string_value: "John Doe"
       )
-      string_value.value(string_field.data_type!).should eq "John Doe"
+      string_value.value.should eq "John Doe"
 
       integer_field = create_field("age", FieldDataType::DTYPE_INT)
       integer_value = FieldValue.new(
-        field_id: integer_field.id!,
+        field: integer_field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE,
         integer_value: 25
       )
-      integer_value.value(integer_field.data_type!).should eq 25
+      integer_value.value.should eq 25
 
       float_field = create_field("salary", FieldDataType::DTYPE_FLOAT)
       float_value = FieldValue.new(
-        field_id: float_field.id!,
+        field: float_field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE,
         float_value: 50000.50
       )
-      float_value.value(float_field.data_type!).should eq 50000.50
+      float_value.value.should eq 50000.50
 
       boolean_field = create_field("is_active", FieldDataType::DTYPE_BOOLEAN)
       boolean_value = FieldValue.new(
-        field_id: boolean_field.id!,
+        field: boolean_field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE,
         boolean_value: true
       )
-      boolean_value.value(boolean_field.data_type!).should be_true
+      boolean_value.value.should be_true
     end
   end
 
-  describe "#set_value" do
+  describe "#value=" do
     it "sets the correct value based on field data type" do
       field = create_field("first_name", FieldDataType::DTYPE_STRING)
       field_value = FieldValue.new(
-        field_id: field.id!,
+        field: field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE
       )
 
-      field_value.set_value("Jane Doe", field.data_type!)
+      field_value.value = "Jane Doe"
       field_value.string_value.should eq "Jane Doe"
       field_value.integer_value.should be_nil
       field_value.float_value.should be_nil
@@ -151,12 +151,12 @@ describe FieldValue do
     it "sets integer value correctly" do
       field = create_field("age", FieldDataType::DTYPE_INT)
       field_value = FieldValue.new(
-        field_id: field.id!,
+        field: field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE
       )
 
-      field_value.set_value(30, field.data_type!)
+      field_value.value = 30
       field_value.integer_value.should eq 30
       field_value.string_value.should be_nil
     end
@@ -164,12 +164,12 @@ describe FieldValue do
     it "sets float value correctly" do
       field = create_field("salary", FieldDataType::DTYPE_FLOAT)
       field_value = FieldValue.new(
-        field_id: field.id!,
+        field: field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE
       )
 
-      field_value.set_value(75000.75, field.data_type!)
+      field_value.value = 75000.75
       field_value.float_value.should eq 75000.75
       field_value.string_value.should be_nil
     end
@@ -177,12 +177,12 @@ describe FieldValue do
     it "sets boolean value correctly" do
       field = create_field("is_active", FieldDataType::DTYPE_BOOLEAN)
       field_value = FieldValue.new(
-        field_id: field.id!,
+        field: field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE
       )
 
-      field_value.set_value(false, field.data_type!)
+      field_value.value = false
       field_value.boolean_value.should be_false
       field_value.string_value.should be_nil
     end
@@ -192,7 +192,7 @@ describe FieldValue do
     it "validates that no value columns are populated" do
       field = create_field("first_name", FieldDataType::DTYPE_STRING)
       field_value = FieldValue.new(
-        field_id: field.id!,
+        field: field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE
       )
@@ -203,14 +203,14 @@ describe FieldValue do
     it "validates unique field per resource" do
       field = create_field("first_name", FieldDataType::DTYPE_STRING)
       FieldValue.new(
-        field_id: field.id!,
+        field: field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE,
         string_value: "John Doe"
       ).tap(&.save!)
 
       duplicate_field_value = FieldValue.new(
-        field_id: field.id!,
+        field: field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE,
         string_value: "Jane Doe"
@@ -225,14 +225,14 @@ describe FieldValue do
     before_each do
       field = create_field("first_name", FieldDataType::DTYPE_STRING)
       FieldValue.new(
-        field_id: field.id!,
+        field: field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE,
         string_value: "John Doe"
       ).tap(&.save!)
 
       FieldValue.new(
-        field_id: field.id!,
+        field: field,
         resource_id: 2,
         resource_type: FieldResourceType::CANDIDATE,
         string_value: "Jane Smith"
@@ -240,7 +240,7 @@ describe FieldValue do
 
       user_field = create_field("username", FieldDataType::DTYPE_STRING)
       FieldValue.new(
-        field_id: user_field.id!,
+        field: user_field,
         resource_id: 3,
         resource_type: FieldResourceType::USER,
         string_value: "John Admin"
@@ -275,7 +275,7 @@ describe FieldValue do
     before_each do
       field = create_field("first_name", FieldDataType::DTYPE_STRING)
       FieldValue.new(
-        field_id: field.id!,
+        field: field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE,
         string_value: "John Doe"
@@ -283,7 +283,7 @@ describe FieldValue do
 
       integer_field = create_field("age", FieldDataType::DTYPE_INT)
       FieldValue.new(
-        field_id: integer_field.id!,
+        field: integer_field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE,
         integer_value: 25
@@ -319,7 +319,7 @@ describe FieldValue do
     it "soft deletes field values" do
       field = create_field("first_name", FieldDataType::DTYPE_STRING)
       field_value = FieldValue.new(
-        field_id: field.id!,
+        field: field,
         resource_id: 1,
         resource_type: FieldResourceType::CANDIDATE,
         string_value: "John Doe"
@@ -344,8 +344,8 @@ describe FieldValue do
         uniqueness: FieldUniqueness::UNIQUELESS
       )
       field.save!
-      fv1 = FieldValue.new(field_id: field.id!, resource_id: 1, resource_type: FieldResourceType::CANDIDATE, string_value: "foo")
-      fv2 = FieldValue.new(field_id: field.id!, resource_id: 2, resource_type: FieldResourceType::CANDIDATE, string_value: "foo")
+      fv1 = FieldValue.new(field: field, resource_id: 1, resource_type: FieldResourceType::CANDIDATE, string_value: "foo")
+      fv2 = FieldValue.new(field: field, resource_id: 2, resource_type: FieldResourceType::CANDIDATE, string_value: "foo")
       fv1.save!.should be_true
       fv2.save!.should be_true
     end
@@ -358,9 +358,9 @@ describe FieldValue do
         uniqueness: FieldUniqueness::UNIQUE_ALWAYS
       )
       field.save!
-      fv1 = FieldValue.new(field_id: field.id!, resource_id: 1, resource_type: FieldResourceType::CANDIDATE, string_value: "A123")
+      fv1 = FieldValue.new(field: field, resource_id: 1, resource_type: FieldResourceType::CANDIDATE, string_value: "A123")
       fv1.save!.should be_true
-      fv2 = FieldValue.new(field_id: field.id!, resource_id: 2, resource_type: FieldResourceType::CANDIDATE, string_value: "A123")
+      fv2 = FieldValue.new(field: field, resource_id: 2, resource_type: FieldResourceType::CANDIDATE, string_value: "A123")
       fv2.save.should be_false
       fv2.errors.any? { |e| e.message.includes?("Value must be unique") }.should be_true
     end
@@ -373,14 +373,14 @@ describe FieldValue do
         uniqueness: FieldUniqueness::UNIQUE_FILL
       )
       field.save!
-      fv1 = FieldValue.new(field_id: field.id!, resource_id: 1, resource_type: FieldResourceType::CANDIDATE, string_value: "X999")
+      fv1 = FieldValue.new(field: field, resource_id: 1, resource_type: FieldResourceType::CANDIDATE, string_value: "X999")
       fv1.save!.should be_true
-      fv2 = FieldValue.new(field_id: field.id!, resource_id: 2, resource_type: FieldResourceType::CANDIDATE, string_value: "X999")
+      fv2 = FieldValue.new(field: field, resource_id: 2, resource_type: FieldResourceType::CANDIDATE, string_value: "X999")
       fv2.save.should be_false
       fv2.errors.any? { |e| e.message.includes?("Value must be unique") }.should be_true
-      fv3 = FieldValue.new(field_id: field.id!, resource_id: 3, resource_type: FieldResourceType::CANDIDATE, string_value: nil)
+      fv3 = FieldValue.new(field: field, resource_id: 3, resource_type: FieldResourceType::CANDIDATE, string_value: nil)
       fv3.save.should be_true
-      fv4 = FieldValue.new(field_id: field.id!, resource_id: 4, resource_type: FieldResourceType::CANDIDATE, string_value: nil)
+      fv4 = FieldValue.new(field: field, resource_id: 4, resource_type: FieldResourceType::CANDIDATE, string_value: nil)
       fv4.save.should be_true
     end
   end

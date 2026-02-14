@@ -12,31 +12,12 @@ class FieldDefinition < Marten::Model
   field :localized_name, :json, null: true, blank: true, serializable: LocalizedName
   field :metadata, :json, null: true, blank: true
   field :resource_type, :int, null: false, index: true
-  field :data_type, :enum, values: FieldDataType, null: false
+  field :data_type, :int, null: false
   field :is_system_field, :bool, null: false, default: false
   field :nullable, :bool, null: false, default: true
   field :uniqueness, :enum, values: FieldUniqueness, null: false, default: FieldUniqueness::UNIQUELESS
   field :created_at, :date_time, null: false, auto_now_add: true
   field :updated_at, :date_time, null: false, auto_now: true
-
-  def resource_type_enum : FieldResourceType
-    rt_value = resource_type!
-    unless rt_value >= Int32::MIN && rt_value <= Int32::MAX
-      raise ArgumentError.new("resource_type value #{rt_value} is outside Int32 range")
-    end
-
-    rt_i32 = rt_value.to_i32
-    FieldResourceType.from_value?(rt_i32) ||
-      raise ArgumentError.new("Invalid resource_type value: #{rt_i32}. Valid values: #{FieldResourceType.values.map(&.value).join(", ")}")
-  end
-
-  def resource_type_enum=(value : FieldResourceType)
-    self.resource_type = value.value.to_i64
-  end
-
-  def resource_type=(value : FieldResourceType)
-    @resource_type = value.value.to_i64
-  end
 
   def initialize(
     *,
@@ -62,7 +43,7 @@ class FieldDefinition < Marten::Model
     *,
     name : String? = nil,
     resource_type : Int64? = nil,
-    data_type : FieldDataType? = nil,
+    data_type : Int64? = nil,
     nullable : Bool? = nil,
     uniqueness : FieldUniqueness? = nil,
     is_system_field : Bool? = nil,
@@ -78,27 +59,6 @@ class FieldDefinition < Marten::Model
     self.metadata = metadata if metadata
   end
 
-  private def resource_type! : Int64
-    rt = @resource_type
-    case rt
-    when Int64
-      rt
-    when Int32
-      rt.to_i64
-    when String
-      s = rt.as(String)
-      if (ival = s.to_i64?)
-        ival
-      elsif RESOURCE_TYPE_MAP.has_key?(s.upcase)
-        RESOURCE_TYPE_MAP[s.upcase]
-      else
-        raise ArgumentError.new("Invalid resource_type string: '#{s}'. Must be a valid integer or one of: #{RESOURCE_TYPE_MAP.keys.join(", ")}")
-      end
-    else
-      raise TypeCastError.new("resource_type must be Int64, Int32, or String, got: #{rt.class}")
-    end
-  end
-
   validate :validate_name_uniqueness_per_resource_type
   validate :validate_system_field_constraints
 
@@ -107,6 +67,7 @@ class FieldDefinition < Marten::Model
 
   after_initialize :store_original_name
   after_initialize :coerce_resource_type!
+  after_initialize :coerce_data_type!
 
   private def validate_name_uniqueness_per_resource_type
     existing = self.class.filter(name: name, resource_type: resource_type!)

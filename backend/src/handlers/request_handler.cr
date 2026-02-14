@@ -2,6 +2,7 @@ class RequestHandler < Marten::Handler
   include CurrentUserDetector
   include HandlerResponders
   include ExceptionsHandler
+  include RequestAuthorizer
 
   before_dispatch :set_locale
 

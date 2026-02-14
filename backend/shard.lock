@@ -72,6 +72,14 @@ shards:
     git: https://github.com/spider-gazelle/openssl_ext.git
     version: 2.4.4
 
+  rbacr:
+    git: https://github.com/systatum/rbacr.git
+    version: 0.1.0+git.commit.6e6d2ea58b5fc5876e79d72a6f2c020b2d249359
+
+  spectator:
+    git: https://gitlab.com/arctic-fox/spectator.git
+    version: 0.12.2
+
   sqlite3:
     git: https://github.com/crystal-lang/crystal-sqlite3.git
     version: 0.22.0

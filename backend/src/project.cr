@@ -13,6 +13,7 @@ require "typed_env_config"
 require "hashids"
 require "email"
 require "jwt"
+require "rbacr"
 
 # Require all middlewares
 require "./middlewares/**"

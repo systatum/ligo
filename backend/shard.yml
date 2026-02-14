@@ -29,6 +29,8 @@ dependencies:
   hashids:
     github: splattael/hashids.cr
     version: 0.3.0
+  rbacr:
+    github: systatum/rbacr
   email:
     github: arcage/crystal-email
   dotenv:
@@ -37,5 +39,6 @@ dependencies:
     github: icyleaf/markd
 
 development_dependencies:
-  # test group
-
+  spectator:
+    gitlab: arctic-fox/spectator
+    version: ~> 0.12.0

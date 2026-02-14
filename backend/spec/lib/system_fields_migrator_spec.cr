@@ -102,7 +102,7 @@ describe SystemFieldsMigrator do
         field.should_not be_nil
         field.not_nil!.is_system_field.should be_true
         field.not_nil!.nullable.should eq(false)
-        field.not_nil!.data_type.should eq(FieldDataType::DTYPE_STRING)
+        field.not_nil!.data_type_enum.should eq(FieldDataType::DTYPE_STRING)
       end
     end
 
@@ -224,9 +224,9 @@ describe SystemFieldsMigrator do
         field1.should_not be_nil
         field2.should_not be_nil
         field3.should_not be_nil
-        field1.not_nil!.data_type.should eq(FieldDataType::DTYPE_STRING)
-        field2.not_nil!.data_type.should eq(FieldDataType::DTYPE_INT)
-        field3.not_nil!.data_type.should eq(FieldDataType::DTYPE_BOOLEAN)
+        field1.not_nil!.data_type_enum.should eq(FieldDataType::DTYPE_STRING)
+        field2.not_nil!.data_type_enum.should eq(FieldDataType::DTYPE_INT)
+        field3.not_nil!.data_type_enum.should eq(FieldDataType::DTYPE_BOOLEAN)
       end
     end
   end
@@ -317,6 +317,10 @@ describe SystemFieldsMigrator do
           nullable: true
           caption:
             en: String Field Alt
+        field_text_rich__text_rich:
+          nullable: true
+          caption:
+            en: Rich Text Field
         field_int__int:
           nullable: true
           caption:
@@ -359,10 +363,11 @@ describe SystemFieldsMigrator do
         SystemFieldsMigrator.load_from_yaml(temp_file.path)
 
         fields = SystemFieldsMigrator.fields
-        fields.size.should eq(10)
+        fields.size.should eq(11)
 
         fields.find { |f| f.name == "field_str" }.not_nil!.data_type.should eq(FieldDataType::DTYPE_STRING)
         fields.find { |f| f.name == "field_string" }.not_nil!.data_type.should eq(FieldDataType::DTYPE_STRING)
+        fields.find { |f| f.name == "field_text_rich" }.not_nil!.data_type.should eq(FieldDataType::DTYPE_TEXT_RICH)
         fields.find { |f| f.name == "field_int" }.not_nil!.data_type.should eq(FieldDataType::DTYPE_INT)
         fields.find { |f| f.name == "field_float" }.not_nil!.data_type.should eq(FieldDataType::DTYPE_FLOAT)
         fields.find { |f| f.name == "field_bool" }.not_nil!.data_type.should eq(FieldDataType::DTYPE_BOOLEAN)
@@ -575,7 +580,7 @@ describe SystemFieldsMigrator do
       officials.map(&.name).compact.sort.should eq(["dummy_is_elected"])
 
       notes.find(&.name.==("dummy_title")).not_nil!.nullable.should be_false
-      officials.first.not_nil!.data_type.should eq(FieldDataType::DTYPE_BOOLEAN)
+      officials.first.not_nil!.data_type_enum.should eq(FieldDataType::DTYPE_BOOLEAN)
     end
 
     it "keeps same-named fields isolated per resource type" do
@@ -644,7 +649,7 @@ describe SystemFieldsMigrator do
 
         field = FieldDefinition.find_by_name_and_resource_type("age", FieldResourceType::CANDIDATE).not_nil!
 
-        fv = FieldValue.new(field_id: field.id!, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE, integer_value: 25_i64)
+        fv = FieldValue.new(field: field, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE, integer_value: 25_i64)
         fv.save!
 
         SystemFieldsMigrator.clear!
@@ -652,7 +657,7 @@ describe SystemFieldsMigrator do
         SystemFieldsMigrator.migrate!
 
         field.reload
-        field.data_type.should eq(FieldDataType::DTYPE_FLOAT)
+        field.data_type_enum.should eq(FieldDataType::DTYPE_FLOAT)
 
         fv.reload
         fv.float_value.should eq(25.0)
@@ -664,7 +669,7 @@ describe SystemFieldsMigrator do
         SystemFieldsMigrator.migrate!
 
         field = FieldDefinition.find_by_name_and_resource_type("count", FieldResourceType::CANDIDATE).not_nil!
-        fv = FieldValue.new(field_id: field.id!, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE, integer_value: 42_i64)
+        fv = FieldValue.new(field: field, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE, integer_value: 42_i64)
         fv.save!
 
         SystemFieldsMigrator.clear!
@@ -672,7 +677,7 @@ describe SystemFieldsMigrator do
         SystemFieldsMigrator.migrate!
 
         field.reload
-        field.data_type.should eq(FieldDataType::DTYPE_STRING)
+        field.data_type_enum.should eq(FieldDataType::DTYPE_STRING)
 
         fv.reload
         fv.string_value.should eq("42")
@@ -684,7 +689,7 @@ describe SystemFieldsMigrator do
         SystemFieldsMigrator.migrate!
 
         field = FieldDefinition.find_by_name_and_resource_type("score", FieldResourceType::CANDIDATE).not_nil!
-        fv = FieldValue.new(field_id: field.id!, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE, float_value: 3.14)
+        fv = FieldValue.new(field: field, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE, float_value: 3.14)
         fv.save!
 
         SystemFieldsMigrator.clear!
@@ -702,7 +707,7 @@ describe SystemFieldsMigrator do
         SystemFieldsMigrator.migrate!
 
         field = FieldDefinition.find_by_name_and_resource_type("active", FieldResourceType::CANDIDATE).not_nil!
-        fv = FieldValue.new(field_id: field.id!, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE, boolean_value: true)
+        fv = FieldValue.new(field: field, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE, boolean_value: true)
         fv.save!
 
         SystemFieldsMigrator.clear!
@@ -721,7 +726,7 @@ describe SystemFieldsMigrator do
 
         field = FieldDefinition.find_by_name_and_resource_type("birth_date", FieldResourceType::CANDIDATE).not_nil!
         date_value = Time.utc(1990, 1, 15)
-        fv = FieldValue.new(field_id: field.id!, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE, date_value: date_value)
+        fv = FieldValue.new(field: field, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE, date_value: date_value)
         fv.save!
 
         SystemFieldsMigrator.clear!
@@ -729,7 +734,7 @@ describe SystemFieldsMigrator do
         SystemFieldsMigrator.migrate!
 
         field.reload
-        field.data_type.should eq(FieldDataType::DTYPE_DATETIME)
+        field.data_type_enum.should eq(FieldDataType::DTYPE_DATETIME)
 
         fv.reload
         fv.datetime_value.should eq(date_value)
@@ -755,7 +760,7 @@ describe SystemFieldsMigrator do
         SystemFieldsMigrator.migrate!
 
         field = FieldDefinition.find_by_name_and_resource_type("value", FieldResourceType::CANDIDATE).not_nil!
-        fv = FieldValue.new(field_id: field.id!, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE, string_value: "123")
+        fv = FieldValue.new(field: field, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE, string_value: "123")
         fv.save!
 
         SystemFieldsMigrator.clear!
@@ -776,7 +781,7 @@ describe SystemFieldsMigrator do
         SystemFieldsMigrator.migrate!
 
         field = FieldDefinition.find_by_name_and_resource_type("value", FieldResourceType::CANDIDATE).not_nil!
-        fv = FieldValue.new(field_id: field.id!, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE, string_value: "invalid")
+        fv = FieldValue.new(field: field, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE, string_value: "invalid")
         fv.save!
 
         SystemFieldsMigrator.clear!
@@ -796,9 +801,9 @@ describe SystemFieldsMigrator do
 
         field = FieldDefinition.find_by_name_and_resource_type("value", FieldResourceType::CANDIDATE).not_nil!
 
-        fv1 = FieldValue.new(field_id: field.id!, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE, string_value: "123")
+        fv1 = FieldValue.new(field: field, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE, string_value: "123")
         fv1.save!
-        fv2 = FieldValue.new(field_id: field.id!, resource_id: 2_i64, resource_type: FieldResourceType::CANDIDATE, string_value: "invalid")
+        fv2 = FieldValue.new(field: field, resource_id: 2_i64, resource_type: FieldResourceType::CANDIDATE, string_value: "invalid")
         fv2.save!
 
         SystemFieldsMigrator.clear!
@@ -810,7 +815,7 @@ describe SystemFieldsMigrator do
         end
 
         field.reload
-        field.data_type.should eq(FieldDataType::DTYPE_STRING)
+        field.data_type_enum.should eq(FieldDataType::DTYPE_STRING)
 
         fv1.reload
         fv1.string_value.should eq("123")
@@ -829,7 +834,7 @@ describe SystemFieldsMigrator do
           SystemFieldsMigrator.migrate!
 
           field = FieldDefinition.find_by_name_and_resource_type("value", FieldResourceType::CANDIDATE).not_nil!
-          fv = FieldValue.new(field_id: field.id!, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE)
+          fv = FieldValue.new(field: field, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE)
           fv.save!
 
           SystemFieldsMigrator.clear!
@@ -850,11 +855,11 @@ describe SystemFieldsMigrator do
 
         field = FieldDefinition.find_by_name_and_resource_type("value", FieldResourceType::CANDIDATE).not_nil!
 
-        fv1 = FieldValue.new(field_id: field.id!, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE, integer_value: 10_i64)
+        fv1 = FieldValue.new(field: field, resource_id: 1_i64, resource_type: FieldResourceType::CANDIDATE, integer_value: 10_i64)
         fv1.save!
-        fv2 = FieldValue.new(field_id: field.id!, resource_id: 2_i64, resource_type: FieldResourceType::CANDIDATE, integer_value: 20_i64)
+        fv2 = FieldValue.new(field: field, resource_id: 2_i64, resource_type: FieldResourceType::CANDIDATE, integer_value: 20_i64)
         fv2.save!
-        fv3 = FieldValue.new(field_id: field.id!, resource_id: 3_i64, resource_type: FieldResourceType::CANDIDATE, integer_value: 30_i64)
+        fv3 = FieldValue.new(field: field, resource_id: 3_i64, resource_type: FieldResourceType::CANDIDATE, integer_value: 30_i64)
         fv3.save!
 
         SystemFieldsMigrator.clear!

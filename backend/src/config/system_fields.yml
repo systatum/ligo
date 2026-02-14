@@ -85,3 +85,18 @@ USER:
       en: Password Updated At
       id: Kata Sandi Diperbarui Pada
       ja: パスワード更新日時
+
+EMAIL_TEMPLATE:
+  title__str:
+    nullable: false
+    caption:
+      en: Title
+      id: Judul
+      ja: タイトル
+
+  content__text_rich:
+    nullable: false
+    caption:
+      en: Content
+      id: Konten
+      ja: コンテンツ

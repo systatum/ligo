@@ -9,6 +9,10 @@ module ExceptionsHandler
       handle_not_found(error)
     end
 
+    rescue_from JSON::ParseException do
+      handle_json_parse_error(error)
+    end
+
     rescue_from Exception do
       handle_generic_error(error)
     end
@@ -22,6 +26,11 @@ module ExceptionsHandler
   private def handle_not_found(e)
     debug_exception(e)
     render_error 404, ["Not found"]
+  end
+
+  private def handle_json_parse_error(e)
+    debug_exception(e)
+    render_error 400, ["Invalid JSON format"]
   end
 
   private def handle_generic_error(e)

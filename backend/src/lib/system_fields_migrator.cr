@@ -80,10 +80,10 @@ module SystemFieldsMigrator
   end
 
   private def migrate_field_values(field_def : FieldDefinition, new_data_type : FieldDataType)
-    old_data_type = field_def.data_type.not_nil!
+    old_data_type = field_def.data_type_enum
     return if old_data_type == new_data_type
 
-    field_values = FieldValue.filter(field_id: field_def.id!)
+    field_values = FieldValue.filter(field: field_def)
 
     field_values.each do |fv|
       begin
@@ -709,9 +709,10 @@ module SystemFieldsMigrator
           if existing_field
             needs_update = false
 
-            if existing_field.data_type != config.data_type
+            existing_data_type = existing_field.data_type_enum
+            if existing_data_type != config.data_type
               validate_data_type_transition(
-                existing_field.data_type.not_nil!,
+                existing_data_type,
                 config.data_type,
                 config.name
               )
@@ -764,13 +765,13 @@ module SystemFieldsMigrator
           else
             field = FieldDefinition.new(
               name: config.name,
-              data_type: config.data_type,
               nullable: config.nullable,
               uniqueness: config.uniqueness,
               is_system_field: true,
               metadata: config.metadata
             )
             field.resource_type_enum = config.resource_type
+            field.data_type_enum = config.data_type
             field.localized_name = config.localized_name
             field.save!
             created_count += 1
@@ -805,6 +806,10 @@ module SystemFieldsMigrator
       case type_str
       when "string", "str"
         FieldDataType::DTYPE_STRING
+      when "text_rich"
+        FieldDataType::DTYPE_TEXT_RICH
+      when "text"
+        FieldDataType::DTYPE_TEXT
       when "int"
         FieldDataType::DTYPE_INT
       when "float"
