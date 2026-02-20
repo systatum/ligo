@@ -23,6 +23,14 @@ module HandlerResponders
     end
   end
 
+  protected def render_invalid_payload(errors : Marten::Core::Validation::ErrorSet? = nil)
+    if errors && errors.any?
+      render_error 422, flatten_error_set(errors)
+    else
+      render_error 422, ["Invalid payload"]
+    end
+  end
+
   private def flatten_error_set(errors)
     error_messages = [] of String
 

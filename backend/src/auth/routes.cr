@@ -5,6 +5,8 @@ module Auth
     path "/api/user/update_password", PasswordUpdateHandler, name: "api_update_password"
     path "/api/user/request_password_reset", PasswordResetInitiateHandler, name: "api_request_password_reset"
 
+    path "/api/user/my-bio", MyBioUpdateHandler, name: "api_my_bio_update"
+
     organization_routes = Marten::Routing::Map.draw do
       path "", OrganizationCreateHandler, name: "api_organization_create"
       path "/<hashed_id:str>", OrganizationUpdateHandler, name: "api_organization_update"

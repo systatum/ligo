@@ -1,10 +1,15 @@
+# Parses and structures form data from JSON payloads
+# containing both native (predefined) and dynamic
+# (custom) fields. Expects data in the format:
+# `{"fields": {"native": {...}, "dynamic": {...}}}`
 class FormPayload
   getter native_fields : Hash(String, JSON::Any)
   getter dynamic_fields : Hash(String, JSON::Any)
 
-  def initialize(data)
-    parsed = to_json(data)
-    fields_data = parsed["fields"]?
+  alias AnyFieldType = Array(String) | Marten::Schema::Field::Any | Nil | Marten::HTTP::UploadedFile | Marten::Routing::Parameter::Types
+
+  def initialize(data : JSON::Any)
+    fields_data = data["fields"]?
 
     if fields_data && fields_data.as_h?
       fields_hash = fields_data.as_h
@@ -16,6 +21,24 @@ class FormPayload
     end
   end
 
+  def initialize(data : Hash)
+    fields_data = data["fields"]? || data[:fields]?
+
+    if fields_data.is_a?(Hash)
+      @native_fields = extract_fields(fields_data["native"]? || fields_data[:native]?)
+      @dynamic_fields = extract_fields(fields_data["dynamic"]? || fields_data[:dynamic]?)
+    else
+      @native_fields = {} of String => JSON::Any
+      @dynamic_fields = {} of String => JSON::Any
+    end
+  end
+
+  # Accepts Marten request data
+  def initialize(data : Marten::HTTP::Params::Data)
+    initialize(data.to_h)
+  end
+
+  # Accepts JSON string
   def initialize(data : String)
     parsed = JSON.parse(data)
     fields_data = parsed["fields"]?
@@ -30,10 +53,15 @@ class FormPayload
     end
   end
 
-  private def to_json(data) : JSON::Any
-    io = IO::Memory.new
-    data.to_json(io)
-    JSON.parse(io.to_s)
+  # Returns *native_fields* as a hash suitable for schema validation.
+  def to_validate
+    params = {} of String => AnyFieldType
+
+    native_fields.each do |k, v|
+      params[k.to_s] = coerce_to_schema_field(v)
+    end
+
+    params
   end
 
   private def extract_fields(value) : Hash(String, JSON::Any)
@@ -80,6 +108,20 @@ class FormPayload
       JSON::Any.new(nil)
     else
       JSON::Any.new(value.to_s)
+    end
+  end
+
+  private def coerce_to_schema_field(value : JSON::Any) : AnyFieldType
+    if value.as_s?
+      value.as_s
+    elsif value.as_i?
+      value.as_i64
+    elsif value.as_f?
+      value.as_f
+    elsif value.as_bool?
+      value.as_bool
+    else
+      nil
     end
   end
 end
