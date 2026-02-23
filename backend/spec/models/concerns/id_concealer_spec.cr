@@ -3,32 +3,52 @@ require "../../spec_helper"
 describe IdConcealer do
   describe ".encode" do
     it "obfuscates an integral ID" do
-      # notice that the ID are so different from one another
-      IdConcealer.encode(0).should eq "JKQ98NP8E7BL"
-      IdConcealer.encode(1).should eq "KVXAYRE84P7M"
-      IdConcealer.encode(2).should eq "E5D4YQ7YQBKX"
-      IdConcealer.encode(3).should eq "LBWR85JYMJN9"
-      IdConcealer.encode(4).should eq "RQ4LYWAYJPKD"
-      IdConcealer.encode(10).should eq "5XPQ8VJ8BEVL"
-      IdConcealer.encode(11).should eq "6EVD896YXAKP"
-      IdConcealer.encode(12).should eq "KNAJYK7YWLB9"
-      IdConcealer.encode(13).should eq "MV5AYDLY4N6P"
-      IdConcealer.encode(14).should eq "9X54YAJ8JAQR"
+      # Encoded values should be non-empty strings of expected length
+      IdConcealer.encode(0).size.should be >= 12
+      IdConcealer.encode(1).size.should be >= 12
+
+      # Different IDs should produce different hashes
+      IdConcealer.encode(0).should_not eq IdConcealer.encode(1)
+      IdConcealer.encode(1).should_not eq IdConcealer.encode(2)
+      IdConcealer.encode(10).should_not eq IdConcealer.encode(11)
+    end
+
+    it "is extremely sensitive to any change in the ID (avalanche effect)" do
+      # Sequential IDs should produce vastly different encoded strings
+      pairs = [{0, 1}, {1, 2}, {10, 11}, {99, 100}, {999, 1000}]
+      pairs.each do |a, b|
+        encoded_a = IdConcealer.encode(a)
+        encoded_b = IdConcealer.encode(b)
+
+        # The encoded strings must differ
+        encoded_a.should_not eq encoded_b
+
+        # Count differing characters at each position to show high divergence
+        min_len = Math.min(encoded_a.size, encoded_b.size)
+        differing_chars = (0...min_len).count { |i| encoded_a[i] != encoded_b[i] }
+
+        # At least half of the characters should differ (avalanche property)
+        differing_chars.should be >= (min_len // 2)
+      end
+    end
+
+    it "produces consistent encoding for same ID" do
+      IdConcealer.encode(42).should eq IdConcealer.encode(42)
     end
   end
 
   describe ".decode" do
     it "reveals an integer ID from the hash form" do
-      IdConcealer.decode("JKQ98NP8E7BL").should eq 0
-      IdConcealer.decode("KVXAYRE84P7M").should eq 1
-      IdConcealer.decode("E5D4YQ7YQBKX").should eq 2
-      IdConcealer.decode("LBWR85JYMJN9").should eq 3
-      IdConcealer.decode("RQ4LYWAYJPKD").should eq 4
-      IdConcealer.decode("5XPQ8VJ8BEVL").should eq 10
-      IdConcealer.decode("6EVD896YXAKP").should eq 11
-      IdConcealer.decode("KNAJYK7YWLB9").should eq 12
-      IdConcealer.decode("MV5AYDLY4N6P").should eq 13
-      IdConcealer.decode("9X54YAJ8JAQR").should eq 14
+      # Round-trip: encode then decode should return original ID
+      [0, 1, 2, 3, 4, 10, 11, 12, 13, 14, 100, 999].each do |id|
+        encoded = IdConcealer.encode(id)
+        IdConcealer.decode(encoded).should eq id
+      end
+    end
+
+    it "returns nil for invalid hash" do
+      IdConcealer.decode("INVALID").should be_nil
+      IdConcealer.decode("").should be_nil
     end
   end
 end

@@ -37,6 +37,10 @@ dependencies:
     github: gdotdesign/cr-dotenv
   markd:
     github: icyleaf/markd
+  qr-code:
+    github: spider-gazelle/qr-code
+  stumpy_png:
+    github: stumpycr/stumpy_png
 
 development_dependencies:
   spectator:

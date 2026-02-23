@@ -26,6 +26,10 @@ class ModelSerializer
     soft_serialize.to_json
   end
 
+  protected def serialize_time_span(value)
+    Converter.serialize_time_span(value)
+  end
+
   protected def fields
     NamedTuple.new
   end

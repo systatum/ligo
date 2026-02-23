@@ -1,6 +1,19 @@
 module SlugGenerator
-  # what characters can be used to genereate the Slug
+  # What characters can be used to generate the Slug.
+  # Characters chosen to avoid visual ambiguity
   CHARACTER_SET = "23456789ABCDEFHJKLMNPQRTUVWXY"
+
+  # Generates a random slug/code string
+  # @param size [Int32] the length of the generated string (default: 6)
+  # @param alphabet [String] the character set to use (default: CHARACTER_SET)
+  # @return [String] the generated slug
+  def self.generate(size : Int32 = 6, alphabet : String = CHARACTER_SET) : String
+    Nanoid.generate(
+      size: size,
+      alphabet: alphabet,
+      secure: true
+    )
+  end
 
   private def generate_slug
     return unless new_record?
@@ -13,17 +26,13 @@ module SlugGenerator
       end
     end
 
-    self.slug = Nanoid.generate(
-      size: slug_size,
-      alphabet: CHARACTER_SET,
-      secure: true
-    )
+    self.slug = SlugGenerator.generate(slug_size)
   end
 
   macro included
     after_initialize :generate_slug
 
-    # find record by the hashed ID
+    # find record by the slug field
     def self.filter_by_slug(slug : String)
       filter(slug: slug)
     end

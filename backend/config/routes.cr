@@ -4,6 +4,7 @@ Marten.routes.draw do
   path "/", HomeHandler, name: "root"
   path "/email", EmailSenderHandler, name: "email_sender"
   path "/auth", Auth::ROUTES, name: "auth"
+  path "/antrikan", Antrikan::ROUTES, name: "antrikan"
   path "/workaty", Workaty::ROUTES, name: "workaty"
 
   path "/ping", PingHandler, name: "ping"

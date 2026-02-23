@@ -18,10 +18,15 @@ module IdConcealer
   end
 
   def self.decode(encoded_id : String) : Int32 | Int64 | Nil
-    decoded_id = @@hashids.decode(encoded_id)
-    return nil if decoded_id.empty?
+    return nil if encoded_id.empty?
 
-    decoded_id[0]
+    begin
+      decoded_id = @@hashids.decode(encoded_id)
+      return nil if decoded_id.empty?
+      decoded_id[0]
+    rescue
+      nil
+    end
   end
 
   # return ID but hashed; the hashed ID is not persisted
