@@ -1,16 +1,14 @@
-class Workaty::FieldsShowHandler < RequestHandler
+class FieldIndexHandler < RequestHandler
   protect_from_forgery false
   http_method_names :get
 
   def get : Marten::HTTP::Response
-    resource_type_value = params["resource_type"].to_s.to_i
-    resource_type = FieldResourceType.from_value?(resource_type_value)
+    resource_type_name = params["resource_type"].to_s
+    resource_type = FieldResourceType.parse(resource_type_name)
 
-    unless resource_type
-      return render_error 404, ["Resource type not found"]
+    fields = FieldDefinition.filter(resource_type: resource_type).map do |f|
+      FieldDefinitionSerializer.dump(f)
     end
-
-    fields = FieldDefinitionSerializer.dump(resource_type)
 
     resp = Marten::HTTP::Response.new(
       content: {"fields" => fields}.to_json,

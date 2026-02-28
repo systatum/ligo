@@ -36,4 +36,31 @@ enum FieldDataType
   # File types
   DTYPE_FILE_ANY   = 400
   DTYPE_FILE_IMAGE = 401
+
+  def humanized
+    case self
+    in .dtype_string?          then "string field"
+    in .dtype_int?             then "integer field"
+    in .dtype_float?           then "float field"
+    in .dtype_date?            then "date field"
+    in .dtype_time?            then "time field"
+    in .dtype_datetime?        then "datetime field"
+    in .dtype_boolean?         then "boolean field"
+    in .dtype_text?            then "text field"
+    in .dtype_text_rich?       then "rich text field"
+    in .dtype_yesno?           then "yes/no field"
+    in .dtype_email?           then "email field"
+    in .dtype_phone?           then "phone field"
+    in .dtype_country?         then "country field"
+    in .dtype_locale?          then "locale field"
+    in .dtype_color?           then "color field"
+    in .dtype_money?           then "money field"
+    in .dtype_choice_dropdown? then "choice (dropdown) field"
+    in .dtype_choice_radio?    then "choice (radio) field"
+    in .dtype_choice_checkbox? then "choice (checkbox) field"
+    in .dtype_choice_toggle?   then "choice (toggle) field"
+    in .dtype_file_any?        then "file field"
+    in .dtype_file_image?      then "file (image) field"
+    end
+  end
 end

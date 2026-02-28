@@ -1,4 +1,5 @@
 require "yaml"
+require "json"
 
 module SystemFieldsMigrator
   extend self
@@ -20,7 +21,7 @@ module SystemFieldsMigrator
     property localized_name : LocalizedName?
     property nullable : Bool
     property uniqueness : FieldUniqueness
-    property metadata : JSON::Any?
+    property metadata : FieldMetadata::Base?
 
     def initialize(
       @name : String,
@@ -29,7 +30,7 @@ module SystemFieldsMigrator
       @localized_name : LocalizedName? = nil,
       @nullable : Bool = true,
       @uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
-      @metadata : JSON::Any? = nil,
+      @metadata : FieldMetadata::Base? = nil,
     )
     end
   end
@@ -224,7 +225,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
-    metadata : JSON::Any? = nil,
+    metadata : FieldMetadata::Base? = nil,
   )
     config = FieldDefinitionConfig.new(
       name: name,
@@ -245,7 +246,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
-    metadata : JSON::Any? = nil,
+    metadata : FieldMetadata::Base? = nil,
   )
     add_field!(
       name: name,
@@ -266,7 +267,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
-    metadata : JSON::Any? = nil,
+    metadata : FieldMetadata::Base? = nil,
   )
     add_field!(
       name: name,
@@ -285,7 +286,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
-    metadata : JSON::Any? = nil,
+    metadata : FieldMetadata::Base? = nil,
   )
     add_string_field!(
       name: name,
@@ -303,7 +304,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
-    metadata : JSON::Any? = nil,
+    metadata : FieldMetadata::Base? = nil,
   )
     add_field!(
       name: name,
@@ -322,7 +323,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
-    metadata : JSON::Any? = nil,
+    metadata : FieldMetadata::Base? = nil,
   )
     add_int_field!(
       name: name,
@@ -340,7 +341,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
-    metadata : JSON::Any? = nil,
+    metadata : FieldMetadata::Base? = nil,
   )
     add_field!(
       name: name,
@@ -359,7 +360,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
-    metadata : JSON::Any? = nil,
+    metadata : FieldMetadata::Base? = nil,
   )
     add_float_field!(
       name: name,
@@ -377,7 +378,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
-    metadata : JSON::Any? = nil,
+    metadata : FieldMetadata::Base? = nil,
   )
     add_field!(
       name: name,
@@ -396,7 +397,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
-    metadata : JSON::Any? = nil,
+    metadata : FieldMetadata::Base? = nil,
   )
     add_date_field!(
       name: name,
@@ -414,7 +415,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
-    metadata : JSON::Any? = nil,
+    metadata : FieldMetadata::Base? = nil,
   )
     add_field!(
       name: name,
@@ -433,7 +434,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
-    metadata : JSON::Any? = nil,
+    metadata : FieldMetadata::Base? = nil,
   )
     add_time_field!(
       name: name,
@@ -451,7 +452,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
-    metadata : JSON::Any? = nil,
+    metadata : FieldMetadata::Base? = nil,
   )
     add_field!(
       name: name,
@@ -470,7 +471,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
-    metadata : JSON::Any? = nil,
+    metadata : FieldMetadata::Base? = nil,
   )
     add_datetime_field!(
       name: name,
@@ -488,7 +489,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
-    metadata : JSON::Any? = nil,
+    metadata : FieldMetadata::Base? = nil,
   )
     add_field!(
       name: name,
@@ -507,7 +508,7 @@ module SystemFieldsMigrator
     localized_name : LocalizedName? = nil,
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
-    metadata : JSON::Any? = nil,
+    metadata : FieldMetadata::Base? = nil,
   )
     add_boolean_field!(
       name: name,
@@ -528,7 +529,14 @@ module SystemFieldsMigrator
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
   )
-    metadata = FieldDefinition.options_meta(options, default)
+    begin
+      metadata = FieldMetadata::Choice.from_json({
+        "options" => options,
+        "default" => default,
+      }.to_json)
+    rescue ex
+      raise ArgumentError.new("Failed to build choice metadata for field '#{name}': #{ex.message}")
+    end
     add_field!(
       name: name,
       to: resource_type,
@@ -549,7 +557,14 @@ module SystemFieldsMigrator
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
   )
-    metadata = FieldDefinition.options_meta(options, default)
+    begin
+      metadata = FieldMetadata::Choice.from_json({
+        "options" => options,
+        "default" => default,
+      }.to_json)
+    rescue ex
+      raise ArgumentError.new("Failed to build choice metadata for field '#{name}': #{ex.message}")
+    end
     add_field!(
       name: name,
       to: resource_type,
@@ -570,7 +585,14 @@ module SystemFieldsMigrator
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
   )
-    metadata = FieldDefinition.options_meta(options, default)
+    begin
+      metadata = FieldMetadata::Choice.from_json({
+        "options" => options,
+        "default" => default,
+      }.to_json)
+    rescue ex
+      raise ArgumentError.new("Failed to build choice metadata for field '#{name}': #{ex.message}")
+    end
     add_field!(
       name: name,
       to: resource_type,
@@ -591,7 +613,14 @@ module SystemFieldsMigrator
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
   )
-    metadata = FieldDefinition.options_meta(options, default)
+    begin
+      metadata = FieldMetadata::Choice.from_json({
+        "options" => options,
+        "default" => default,
+      }.to_json)
+    rescue ex
+      raise ArgumentError.new("Failed to build choice metadata for field '#{name}': #{ex.message}")
+    end
     add_field!(
       name: name,
       to: resource_type,
@@ -615,7 +644,15 @@ module SystemFieldsMigrator
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
   )
-    metadata = FieldDefinition.file_meta(many, max_mb, ok_mimes)
+    begin
+      metadata = FieldMetadata::File.from_json({
+        "many"     => many,
+        "max_mb"   => max_mb,
+        "ok_mimes" => ok_mimes,
+      }.to_json)
+    rescue ex
+      raise ArgumentError.new("Failed to build file metadata for field '#{name}': #{ex.message}")
+    end
     add_field!(
       name: name,
       to: resource_type,
@@ -637,7 +674,15 @@ module SystemFieldsMigrator
     nullable : Bool = true,
     uniqueness : FieldUniqueness = FieldUniqueness::UNIQUELESS,
   )
-    metadata = FieldDefinition.file_meta(many, max_mb, ok_mimes)
+    begin
+      metadata = FieldMetadata::File.from_json({
+        "many"     => many,
+        "max_mb"   => max_mb,
+        "ok_mimes" => ok_mimes,
+      }.to_json)
+    rescue ex
+      raise ArgumentError.new("Failed to build image metadata for field '#{name}': #{ex.message}")
+    end
     add_field!(
       name: name,
       to: resource_type,
@@ -673,6 +718,16 @@ module SystemFieldsMigrator
           else
             nil
           end
+        metadata =
+          if meta_any = config["metadata"]?
+            begin
+              parse_metadata(meta_any.as_h, data_type)
+            rescue ex
+              raise ArgumentError.new("Invalid metadata for field '#{field_name}': #{ex.message}")
+            end
+          else
+            nil
+          end
 
         add_field!(
           name: field_name,
@@ -680,7 +735,8 @@ module SystemFieldsMigrator
           data_type: data_type,
           localized_name: localized_name,
           nullable: nullable,
-          uniqueness: uniqueness
+          uniqueness: uniqueness,
+          metadata: metadata
         )
       end
     end
@@ -743,8 +799,13 @@ module SystemFieldsMigrator
               needs_update = true
             end
 
-            if config.metadata != existing_field.metadata
-              existing_field.metadata = config.metadata
+            if config.metadata
+              if !existing_field.metadata_equal_to?(config.metadata)
+                existing_field.metadata = config.metadata
+                needs_update = true
+              end
+            elsif existing_field.metadata != nil
+              existing_field.metadata = nil
               needs_update = true
             end
 
@@ -854,6 +915,14 @@ module SystemFieldsMigrator
       indonesian: indonesian,
       japanese: japanese
     )
+  end
+
+  private def parse_metadata(metadata_hash : Hash(YAML::Any, YAML::Any), data_type : FieldDataType) : FieldMetadata::Base
+    yam_key = YAML.parse("type")
+    unless metadata_hash.has_key?(yam_key)
+      metadata_hash[yam_key] = YAML.parse(FieldMetadata.to_metadata_type!(data_type))
+    end
+    FieldMetadata::Base.from_json(metadata_hash.to_json)
   end
 
   def clear!

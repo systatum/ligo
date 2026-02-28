@@ -392,38 +392,22 @@ describe FieldDefinition do
 
   describe "metadata" do
     context "with file types" do
-      it "validates file_meta arguments" do
-        expect_raises(ArgumentError) do
-          FieldDefinition.file_meta(false, 0.0, "*")
-        end
-
-        expect_raises(ArgumentError) do
-          FieldDefinition.file_meta(false, 2048.0, "*")
-        end
-
-        expect_raises(ArgumentError) do
-          FieldDefinition.file_meta(false, 3.0, "invalidtype")
-        end
-      end
-
       it "persists file metadata" do
-        meta = FieldDefinition.file_meta(true, 5, "image/png,image/jpeg")
-
         field = FieldDefinition.new(
           name: "attachments",
           resource_type: FieldResourceType::CANDIDATE,
           data_type: FieldDataType::DTYPE_FILE_ANY,
-          localized_name: LocalizedName.new(english: "Attachments")
+          localized_name: LocalizedName.new(english: "Attachments"),
+          metadata: FieldMetadata::File.new(many: true, max_mb: 5, ok_mimes: "image/png,image/jpeg")
         )
-        field.metadata = meta
         field.save!.should be_true
 
         fetched = FieldDefinition.find_by_name_and_resource_type("attachments", FieldResourceType::CANDIDATE).not_nil!
         fetched.metadata.should_not be_nil
-        h = fetched.metadata.as(JSON::Any).as_h
-        h["many"].as_bool.should be_true
-        h["max_mb"].as_f.should eq(5)
-        h["ok_mimes"].as_s.should eq("image/png,image/jpeg")
+        m = fetched.file_metadata!
+        m.many.should be_true
+        m.max_mb.should eq(5)
+        m.ok_mimes.should eq("image/png,image/jpeg")
 
         fetched.delete
       end
@@ -440,102 +424,79 @@ describe FieldDefinition do
         end
       end
 
-      it "rejects malformed metadata (invalid ok_mimes structure)" do
-        bad_meta = JSON.parse({"many" => true, "max_mb" => 3.0, "ok_mimes" => ["image/png"]}.to_json)
+      it "raises when metadata type is incompatible" do
+        # provide choice metadata for a file field
         field = FieldDefinition.new(
-          name: "bad_file_meta",
+          name: "bad_meta_file",
           resource_type: FieldResourceType::CANDIDATE,
-          data_type: FieldDataType::DTYPE_FILE_ANY,
-          localized_name: LocalizedName.new(english: "Bad File Meta")
+          data_type: FieldDataType::DTYPE_FILE_IMAGE,
+          localized_name: LocalizedName.new(english: "Bad Meta"),
+          metadata: FieldMetadata::Choice.new(options: [
+            FieldMetadata::Choice::Option.new(id: "x", caption: {"en" => "X"}),
+          ])
         )
-        field.metadata = bad_meta
+
         field.save.should be_false
-        expect_raises(Exception) do
-          field.save!
-        end
+        field.errors.any? { |error| error.message.includes?("incompatible with file (image) field") }.should be_true
       end
     end
 
     context "with choice types" do
       it "persists choice metadata and honors default" do
-        options = [
-          FieldDefinition.option("opt1", {"en" => "First"}),
-          FieldDefinition.option("opt2", {"en" => "Second"}),
-        ]
-        meta = FieldDefinition.options_meta(options, "opt2")
-
         field = FieldDefinition.new(
           name: "choice_test",
           resource_type: FieldResourceType::CANDIDATE,
           data_type: FieldDataType::DTYPE_CHOICE_RADIO,
-          localized_name: LocalizedName.new(english: "Choice Test")
+          localized_name: LocalizedName.new(english: "Choice Test"),
+          metadata: FieldMetadata::Choice.new(
+            options: [
+              FieldMetadata::Choice::Option.new(id: "opt1", caption: {"en" => "First"}),
+              FieldMetadata::Choice::Option.new(id: "opt2", caption: {"en" => "Second"}),
+            ],
+            default: "opt2",
+          )
         )
-        field.metadata = meta
         field.save!.should be_true
 
         fetched = FieldDefinition.find_by_name_and_resource_type("choice_test", FieldResourceType::CANDIDATE).not_nil!
         fetched.metadata.should_not be_nil
-        h = fetched.metadata.as(JSON::Any).as_h
-        h["options"].as_a.size.should eq(2)
-        h["default"].as_s.should eq("opt2")
+        m = fetched.choice_metadata!
+        m.options.size.should eq(2)
+        m.default.should eq("opt2")
 
         fetched.delete
       end
 
-      it "rejects malformed metadata (missing options)" do
-        bad_meta = JSON.parse({"default" => "a"}.to_json)
+      it "raises when metadata type is incompatible" do
+        # provide file metadata for a choice field
         field = FieldDefinition.new(
-          name: "bad_choice",
+          name: "bad_meta_choice",
           resource_type: FieldResourceType::CANDIDATE,
-          data_type: FieldDataType::DTYPE_CHOICE_DROPDOWN,
-          localized_name: LocalizedName.new(english: "Bad Choice")
+          data_type: FieldDataType::DTYPE_CHOICE_RADIO,
+          localized_name: LocalizedName.new(english: "Bad Meta Choice"),
+          metadata: FieldMetadata::File.new(many: false, max_mb: 1, ok_mimes: "image/png")
         )
-        field.metadata = bad_meta
+
         field.save.should be_false
-        expect_raises(Exception) do
-          field.save!
-        end
+        field.errors.any? { |error| error.message.includes?("incompatible with choice (radio) field") }.should be_true
       end
 
       it "clears metadata for non-meta types (metadata removed and save succeeds)" do
-        options = [
-          FieldDefinition.option("x", {"en" => "X"}),
-        ]
-        meta = FieldDefinition.options_meta(options)
-
         field = FieldDefinition.new(
           name: "should_not_have_meta",
           resource_type: FieldResourceType::CANDIDATE,
           data_type: FieldDataType::DTYPE_STRING,
-          localized_name: LocalizedName.new(english: "No Meta Allowed")
+          localized_name: LocalizedName.new(english: "No Meta Allowed"),
+          metadata: FieldMetadata::Choice.new(options: [
+            FieldMetadata::Choice::Option.new(id: "x", caption: {"en" => "X"}),
+          ])
         )
-        field.metadata = meta
-
         field.save.should be_true
 
         fetched = FieldDefinition.find_by_name_and_resource_type("should_not_have_meta", FieldResourceType::CANDIDATE).not_nil!
         fetched.metadata.should be_nil
 
         fetched.delete
-      end
-
-      it "rejects bad default" do
-        options = [
-          FieldDefinition.option("a", {"en" => "A"}),
-        ]
-
-        bad_meta = JSON.parse({"options" => options, "default" => "b"}.to_json)
-        field = FieldDefinition.new(
-          name: "salutation_bad_default",
-          resource_type: FieldResourceType::CANDIDATE,
-          data_type: FieldDataType::DTYPE_CHOICE_DROPDOWN,
-          localized_name: LocalizedName.new(english: "Salutation Bad"),
-        )
-        field.metadata = bad_meta
-        field.save.should be_false
-        expect_raises(Exception) do
-          field.save!
-        end
       end
     end
   end

@@ -1,21 +1,12 @@
 class FieldDefinitionSerializer
-  def self.dump(resource_type : FieldResourceType) : Array(Hash(String, JSON::Any))
-    fields = FieldDefinition.filter(resource_type: resource_type)
-
-    fields.map do |field|
-      {
-        "id"      => JSON::Any.new(field.hashed_id),
-        "native"  => JSON::Any.new(field.is_system_field),
-        "caption" => build_caption(field),
-        "type"    => JSON::Any.new(field.data_type_enum.to_s),
-      }
-    end
-  end
-
-  def self.dump(resource_type : Int32) : Array(Hash(String, JSON::Any))
-    rt = FieldResourceType.from_value?(resource_type)
-    raise ArgumentError.new("Invalid resource_type: #{resource_type}") unless rt
-    dump(rt)
+  # Soft serialize a single FieldDefinition instance
+  def self.dump(field : FieldDefinition) : Hash(String, JSON::Any)
+    {
+      "id"      => JSON::Any.new(field.hashed_id),
+      "native"  => JSON::Any.new(field.is_system_field),
+      "caption" => build_caption(field),
+      "type"    => JSON::Any.new(field.data_type_enum.to_s),
+    }
   end
 
   private def self.build_caption(field : FieldDefinition) : JSON::Any

@@ -38,14 +38,9 @@ module Workaty
       path "/template", template_routes
     end
 
-    fields_routes = Marten::Routing::Map.draw(:fields) do
-      path "/<resource_type:int>", FieldsShowHandler, name: "show"
-    end
-
     path "/api/candidate", candidate_routes
     path "/api/team_division", team_division_routes
     path "/api/employee", employee_routes
     path "/api/email", email_routes
-    path "/api/fields", fields_routes
   end
 end

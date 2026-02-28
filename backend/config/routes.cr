@@ -16,6 +16,15 @@ Marten.routes.draw do
   path "/api/products/<id:str>", ProductStateHandler, name: "api_product_update"
   path "/api/products/<id:str>", ProductStateHandler, name: "api_product_delete"
 
+  field_routes = Marten::Routing::Map.draw(:field) do
+    path "/", FieldCreateHandler, name: "create"
+    path "/<field_hashed_id:str>/update", FieldUpdateHandler, name: "update"
+    path "/<field_hashed_id:str>/delete", FieldDeleteHandler, name: "delete"
+    path "/rt/<resource_type:str>/index", FieldIndexHandler, name: "index"
+  end
+
+  path "/api/field", field_routes
+
   if Marten.env.development?
     path "#{Marten.settings.assets.url}<path:path>", Marten::Handlers::Defaults::Development::ServeAsset, name: "asset"
     path "#{Marten.settings.media_files.url}<path:path>", Marten::Handlers::Defaults::Development::ServeMediaFile, name: "media_file"

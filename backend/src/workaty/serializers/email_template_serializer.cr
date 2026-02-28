@@ -12,7 +12,9 @@ module Workaty
       records : Array(Workaty::EmailTemplate),
       resource_type : FieldResourceType,
     ) : String
-      fields_data = FieldDefinitionSerializer.dump(resource_type)
+      fields_data = FieldDefinition.filter(resource_type: resource_type).map do |f|
+        FieldDefinitionSerializer.dump(f)
+      end
 
       records_data = {} of String => Array(Hash(String, JSON::Any))
       records_data[resource_type.to_s] = records.map do |record|
