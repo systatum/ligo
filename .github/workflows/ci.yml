@@ -227,7 +227,7 @@ jobs:
           crystal build src/server.cr -o mybin/ligo-server --release
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ligo-binaries-${{ github.sha }}
           path: backend/mybin/
