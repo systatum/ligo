@@ -14,6 +14,7 @@ module Auth
     field :timezone_offset_seconds, :int, null: true, blank: true
     field :role, :int, null: false, blank: false, index: true, default: Auth::Role::GUEST
     field :password_updated_at, :date_time, null: false, blank: false
+    field :uploaded_profile_picture_file_id, :uuid, null: true, blank: true
 
     def set_password(password)
       super(password)

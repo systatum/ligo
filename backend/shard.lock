@@ -1,5 +1,13 @@
 version: 2.0
 shards:
+  awscr-s3:
+    git: https://github.com/taylorfinnell/awscr-s3.git
+    version: 0.10.0+git.commit.2e93fb9e8c74f11a24c5808fc4b1f8b304181830
+
+  awscr-signer:
+    git: https://github.com/taylorfinnell/awscr-signer.git
+    version: 0.9.0
+
   bindata:
     git: https://github.com/spider-gazelle/bindata.git
     version: 2.1.0
@@ -52,6 +60,10 @@ shards:
     git: https://github.com/martenframework/marten-auth.git
     version: 0.2.1
 
+  marten_s3:
+    git: https://github.com/martenframework/marten-s3.git
+    version: 0.2.0+git.commit.61a98a8196e8e7c5ca7191acf4c968a941f73421
+
   marten_smtp_emailing:
     git: https://github.com/martenframework/marten-smtp-emailing.git
     version: 0.1.1
@@ -99,4 +111,8 @@ shards:
   typed_env_config:
     git: https://github.com/systatum/typed_env_config.git
     version: 0.2.0
+
+  vips:
+    git: https://github.com/naqvis/crystal-vips.git
+    version: 0.1.6
 

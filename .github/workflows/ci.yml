@@ -149,6 +149,12 @@ jobs:
       LIGO_DB_USERNAME: root
       LIGO_DB_PASSWORD: root
       LIGO_DB_NAME: ligo_test
+      LIGO_S3_REGION: us-east-1
+      LIGO_S3_BUCKET: ligo-uploaded-files-test
+      LIGO_S3_ACCESS_KEY: test
+      LIGO_S3_SECRET_KEY: test
+      LIGO_S3_ENDPOINT: http://127.0.0.1:4566
+      LIGO_S3_FORCE_PATH_STYLE: "true"
 
     services:
       mysql:
@@ -168,6 +174,20 @@ jobs:
         ports:
           - 1025:1025
           - 1080:1080
+      localstack:
+        image: localstack/localstack:3.7
+        env:
+          SERVICES: s3
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
+        ports:
+          - 4566:4566
+        options: >-
+          --health-cmd="curl -f http://localhost:4566/_localstack/health"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=30
 
     strategy:
       matrix:
@@ -177,10 +197,14 @@ jobs:
       - name: Download source
         uses: actions/checkout@v6
 
-      - name: Install MySQL client
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y mysql-client
+          sudo apt-get install -y mysql-client pkg-config libvips-dev python3-pip
+          pip3 install --user awscli-local
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.local/bin:$PATH"
+          awslocal --version
 
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
@@ -209,16 +233,23 @@ jobs:
             "SHOW DATABASES;"
           mysql -h127.0.0.1 -P3306 -uroot -proot -e \
             "SELECT User, Host, plugin FROM mysql.user WHERE User='root';"
-          
+
           mysql -h127.0.0.1 -P3306 -uroot -proot -e \
             "ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'root';"
           mysql -h127.0.0.1 -P3306 -uroot -proot -e \
             "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';"
           mysql -h127.0.0.1 -P3306 -uroot -proot -e \
             "FLUSH PRIVILEGES;"
-          
+
           mysql -h127.0.0.1 -P3306 -uroot -proot -e \
             "SELECT User, Host, plugin FROM mysql.user WHERE User='root';"
+
+      - name: Ensure test S3 bucket exists
+        run: |
+          awslocal s3api create-bucket \
+            --bucket "$LIGO_S3_BUCKET" \
+            --region "$LIGO_S3_REGION" || true
+          awslocal s3 ls
 
       - name: Build app binaries
         run: |

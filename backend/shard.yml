@@ -21,6 +21,8 @@ dependencies:
     github: martenframework/marten-auth
   marten_smtp_emailing:
     github: martenframework/marten-smtp-emailing
+  marten_s3:
+    github: martenframework/marten-s3
   typed_env_config:
     github: systatum/typed_env_config
     version: 0.2.0
@@ -41,6 +43,8 @@ dependencies:
     github: spider-gazelle/qr-code
   stumpy_png:
     github: stumpycr/stumpy_png
+  vips:
+    github: naqvis/crystal-vips
 
 development_dependencies:
   spectator:

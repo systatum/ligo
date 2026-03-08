@@ -25,6 +25,14 @@ default: &default
         use_smtps: false # LIGO_MAILER_SMTP_USE_SMPTS
         use_starttls: false # LIGO_MAILER_SMTP_USE_STARTTLS
 
+    s3: &ligo_s3
+      region: "us-east-1"
+      bucket: "ligo-uploaded-files"
+      access_key: "my_access_key"
+      secret_key: "my_secret_key"
+      endpoint: "http://localhost:4566"
+      force_path_style: true
+
 # ------------------------------------------------------------------
 
 production:
@@ -48,6 +56,9 @@ production:
         password: "65465d34f00cef"
         use_starttls: true
 
+    s3:
+      <<: *ligo_s3
+
 # ------------------------------------------------------------------
 
 development: &development
@@ -66,6 +77,9 @@ development: &development
         <<: *mailer_smtp
         use_auth: false
 
+    s3:
+      <<: *ligo_s3
+
 
 test:
   <<: *development
@@ -82,3 +96,7 @@ test:
         <<: *mailer_smtp
         host: "localhost"
         use_auth: false
+
+    s3:
+      <<: *ligo_s3
+      bucket: "ligo-uploaded-files-test"

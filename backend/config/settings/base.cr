@@ -19,6 +19,7 @@ Marten.configure do |config|
     Auth::App,
     Antrikan::App,
     Workaty::App,
+    MartenS3::App,
   ] of Marten::Apps::Config.class
 
   # Application middlewares
@@ -57,5 +58,15 @@ Marten.configure do |config|
     use_tls: app_settings.ligo_mailer_smtp_use_starttls,
     username: app_settings.ligo_mailer_smtp_use_auth ? app_settings.ligo_mailer_smtp_username : nil,
     password: app_settings.ligo_mailer_smtp_use_auth ? app_settings.ligo_mailer_smtp_password : nil,
+  )
+
+  # configure the file system storage
+  config.media_files.storage = MartenS3::Store.new(
+    region: app_settings.ligo_s3_region,
+    bucket: app_settings.ligo_s3_bucket,
+    access_key: app_settings.ligo_s3_access_key,
+    secret_key: app_settings.ligo_s3_secret_key,
+    endpoint: app_settings.ligo_s3_endpoint.empty? ? nil : app_settings.ligo_s3_endpoint,
+    force_path_style: app_settings.ligo_s3_force_path_style,
   )
 end

@@ -28,6 +28,13 @@ class AppSettings
   field ligo_mailer_company_address : String, default: "Hakuraku Hills 15-34 Yokohama Japan"
   field ligo_mailer_company_image : String, default: "https://workaty.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fworkaty%20icon%20only_2048.664f571f.png&w=100&q=100"
 
+  field ligo_s3_region : String, default: "us-east-1"
+  field ligo_s3_bucket : String, default: ""
+  field ligo_s3_access_key : String, default: ""
+  field ligo_s3_secret_key : String, default: ""
+  field ligo_s3_endpoint : String, default: ""
+  field ligo_s3_force_path_style : Bool, default: false
+
   @@instance : AppSettings?
 
   def self.instance
