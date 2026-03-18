@@ -6,7 +6,7 @@ describe Antrikan::Space do
       it "sets default attributes" do
         user = create_user
         space = Antrikan::Space.new(
-          user: user,
+          owner: user,
           name: "Test Space"
         )
 
@@ -19,7 +19,7 @@ describe Antrikan::Space do
       it "generates a 5-character code" do
         user = create_user
         space = Antrikan::Space.new(
-          user: user,
+          owner: user,
           name: "Test Space"
         )
 
@@ -30,7 +30,7 @@ describe Antrikan::Space do
       it "generates code using alphanumeric characters" do
         user = create_user
         space = Antrikan::Space.new(
-          user: user,
+          owner: user,
           name: "Test Space"
         )
 
@@ -41,8 +41,8 @@ describe Antrikan::Space do
 
       it "generates unique codes for different spaces" do
         user = create_user
-        space1 = create_space(user: user, name: "Space 1")
-        space2 = create_space(user: user, name: "Space 2")
+        space1 = create_space(owner: user, name: "Space 1")
+        space2 = create_space(owner: user, name: "Space 2")
 
         space1.code.should_not eq space2.code
       end
@@ -79,7 +79,7 @@ describe Antrikan::Space do
       it "is invalid" do
         user = create_user
         space = Antrikan::Space.new(
-          user: user,
+          owner: user,
           name: ""
         )
 
@@ -91,7 +91,7 @@ describe Antrikan::Space do
     context "when name is nil" do
       it "is invalid" do
         user = create_user
-        space = Antrikan::Space.new(user: user)
+        space = Antrikan::Space.new(owner: user)
 
         space.valid?.should be_false
       end
@@ -101,7 +101,7 @@ describe Antrikan::Space do
       it "is valid" do
         user = create_user
         space = Antrikan::Space.new(
-          user: user,
+          owner: user,
           name: "Valid Space Name"
         )
 

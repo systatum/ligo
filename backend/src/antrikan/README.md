@@ -15,9 +15,23 @@ Represents a physical or virtual space where queuing/booking occurs.
 | `name`                 | String(255) | Space name (required)                                          |
 | `need_manual_approval` | Boolean     | Whether requests need manual approval (default: true)          |
 | `has_operating_hours`  | Boolean     | Whether space has operating hour restrictions (default: false) |
-| `user_id`              | FK          | Owner of the space                                             |
+| `owner_id`             | FK          | Owner of the space                                             |
 | `created_at`           | DateTime    | Auto-set on create                                             |
 | `updated_at`           | DateTime    | Auto-set on update                                             |
+
+Additional relation:
+
+- `members` (M2M to `Auth::User`) via `antrikan_space_members`
+
+### SpaceMember
+
+Join table for the Space-to-User membership relation.
+
+| Field      | Type   | Description                         |
+| ---------- | ------ | ----------------------------------- |
+| `id`       | BigInt | Primary key                         |
+| `space_id` | FK     | Referenced space (`antrikan_space`) |
+| `user_id`  | FK     | Referenced user (`auth_user`)       |
 
 ### OperatingHour
 
@@ -108,6 +122,26 @@ GET /antrikan/api/space/<hashed_id>
 }
 ```
 
+#### Get Space By Code
+
+```
+GET /antrikan/api/space/code/<space_code>
+```
+
+`space_code` is the 5-character space code (example: `X7K2Q`).
+
+**Response (200 OK):**
+
+```json
+{
+  "id": "abc123",
+  "code": "X7K2Q",
+  "name": "My Office",
+  "need_manual_approval": true,
+  "has_operating_hours": false
+}
+```
+
 #### Update Space
 
 ```
@@ -175,6 +209,76 @@ const img = document.createElement("img");
 img.src = `data:${data.content_type};base64,${data.qr_base64}`;
 document.body.appendChild(img);
 ```
+
+---
+
+### Space Membership By Code
+
+#### Join Space (Add Members)
+
+Adds users as members to a space looked up by code.
+
+```
+POST /antrikan/api/space/code/<space_code>/join
+Content-Type: application/json
+
+{
+  "users": [
+    { "user_id": "usrHashA" },
+    { "user_id": "usrHashB" }
+  ]
+}
+```
+
+`users` is optional. If omitted or empty, the endpoint returns empty `added` and `failed` arrays.
+
+**Response (201 Created):** at least one user was successfully added (or already existed as a member)
+
+```json
+{
+  "added": [
+    {
+      "id": "usrHashA",
+      "first_name": "Jane",
+      "last_name": "Doe",
+      "email": "jane@example.com",
+      "role": "member"
+    }
+  ],
+  "failed": [
+    {
+      "id": "unknown_user_hash"
+    }
+  ]
+}
+```
+
+**Response (200 OK):** no `users` provided or empty users payload
+
+```json
+{
+  "added": [],
+  "failed": []
+}
+```
+
+**Response (500 Internal Server Error):** all requested users failed to be added
+
+```json
+{
+  "added": [],
+  "failed": [
+    { "id": "invalid_id_1" },
+    { "id": "invalid_id_2" }
+  ]
+}
+```
+
+**Behavior Notes:**
+
+- Duplicate `user_id` entries in payload are de-duplicated/skipped.
+- Non-existing users are returned under `failed` with `{ "id": "<submitted_user_id>" }`.
+- Existing members are treated as successful entries and returned in `added`.
 
 ---
 
@@ -267,11 +371,13 @@ DELETE /antrikan/api/space/<space_hashed_id>/operating_hours/<operating_hour_has
 
 ## Error Responses
 
-| Status | Description                                  |
-| ------ | -------------------------------------------- |
-| 400    | Not authenticated                            |
-| 404    | Resource not found or doesn't belong to user |
-| 422    | Validation error                             |
+| Status | Description                                                     |
+| ------ | --------------------------------------------------------------- |
+| 400    | Not authenticated or malformed JSON body                        |
+| 403    | Not authorized (owner-only endpoints)                           |
+| 404    | Resource not found                                              |
+| 422    | Validation error                                                |
+| 500    | Join endpoint: all submitted users failed to be added           |
 
 **Validation Error Example:**
 
@@ -302,6 +408,9 @@ crystal spec spec/apps/antrikan/handlers/operating_hour/
 
 # Specific handler
 crystal spec spec/apps/antrikan/handlers/space/qr_handler_spec.cr
+
+# Join-by-code handler
+crystal spec spec/apps/antrikan/handlers/space/join_handler_spec.cr
 ```
 
 ---

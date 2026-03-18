@@ -7,7 +7,7 @@ class Antrikan::SpaceCreateHandler < RequestHandler
   def post
     if schema.valid?
       space = Antrikan::Space.new(schema.validated_data)
-      space.user = current_user!
+      space.owner = current_user!
       space.save!
       json Antrikan::SpaceSerializer.serialize(space), status: 201
     else

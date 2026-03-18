@@ -10,6 +10,8 @@ class Antrikan::OperatingHourUpdateHandler < RequestHandler
   end
 
   def patch
+    raise Marten::HTTP::Errors::PermissionDenied.new unless owner_of_space?
+
     normalize_duration_params!
 
     if op_hour_schema.valid?

@@ -8,8 +8,8 @@ class Migration::Antrikan::V20260123000001 < Marten::Migration
       column :id, :big_int, primary_key: true, auto: true
       column :space_id, :reference, to_table: :antrikan_space, to_column: :id
       column :day, :int
-      column :close_time, :duration, null: false
-      column :open_time, :duration, null: false
+      column :close_time, :big_int
+      column :open_time, :big_int
       column :created_at, :date_time
       column :updated_at, :date_time
       column :deleted_at, :date_time, null: true, index: true

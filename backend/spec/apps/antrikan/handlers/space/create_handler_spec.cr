@@ -17,7 +17,7 @@ describe Antrikan::SpaceCreateHandler do
           response.status.should eq 201
 
           space = Antrikan::Space.last!
-          space.user_id.should eq user.id
+          space.owner_id.should eq user.id
           space.name.should eq "My Queue Space"
           space.code!.size.should eq 5
 

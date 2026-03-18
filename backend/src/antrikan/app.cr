@@ -5,6 +5,7 @@ require "./models/**"
 require "./routes"
 require "./schemas/**"
 require "./serializers/**"
+require "./services/**"
 
 module Antrikan
   class App < Marten::App

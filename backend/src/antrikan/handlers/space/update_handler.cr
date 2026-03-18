@@ -9,6 +9,8 @@ class Antrikan::SpaceUpdateHandler < RequestHandler
   end
 
   def patch
+    raise Marten::HTTP::Errors::PermissionDenied.new unless owner_of_space?
+
     if schema.valid?
       space.update!(schema.validated_data)
       json Antrikan::SpaceSerializer.serialize(space), status: 200

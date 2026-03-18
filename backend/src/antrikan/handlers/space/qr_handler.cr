@@ -8,6 +8,8 @@ class Antrikan::SpaceQrHandler < RequestHandler
   http_method_names :get
 
   def get
+    raise Marten::HTTP::Errors::PermissionDenied.new unless owner_of_space?
+
     qr_code = QRCode.new(space.code!, size: 4, level: :h)
     png_bytes = qr_code.as_png(size: 256)
     base64_png = Base64.strict_encode(png_bytes)

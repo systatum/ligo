@@ -6,8 +6,8 @@ describe Antrikan::SpaceIndexHandler do
       context "with existing spaces" do
         it "returns all for current user" do
           user = create_user
-          space1 = create_space(user: user, name: "Space One")
-          space2 = create_space(user: user, name: "Space Two")
+          space1 = create_space(owner: user, name: "Space One")
+          space2 = create_space(owner: user, name: "Space Two")
 
           response = Marten::Spec.client.get(
             Marten.routes.reverse("antrikan:space:index"),
@@ -16,7 +16,7 @@ describe Antrikan::SpaceIndexHandler do
 
           response.status.should eq 200
 
-          spaces = Antrikan::Space.filter(user: user).map do |space|
+          spaces = Antrikan::Space.filter(owner: user).map do |space|
             Antrikan::SpaceSerializer.soft_serialize(space)
           end
 
@@ -30,8 +30,8 @@ describe Antrikan::SpaceIndexHandler do
           it "will not return it" do
             user1 = create_user
             user2 = create_user
-            space1 = create_space(user: user1, name: "User1 Space")
-            space2 = create_space(user: user2, name: "User2 Space")
+            space1 = create_space(owner: user1, name: "User1 Space")
+            space2 = create_space(owner: user2, name: "User2 Space")
 
             response = Marten::Spec.client.get(
               Marten.routes.reverse("antrikan:space:index"),
@@ -48,8 +48,8 @@ describe Antrikan::SpaceIndexHandler do
       context "with deleted spaces" do
         it "will not return them" do
           user = create_user
-          space1 = create_space(user: user, name: "Active Space")
-          space2 = create_space(user: user, name: "Deleted Space")
+          space1 = create_space(owner: user, name: "Active Space")
+          space2 = create_space(owner: user, name: "Deleted Space")
           space2.soft_delete!
 
           response = Marten::Spec.client.get(

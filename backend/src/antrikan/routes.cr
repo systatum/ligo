@@ -8,6 +8,12 @@ module Antrikan
       path "/<space_hashed_id:str>/delete", SpaceDeleteHandler, name: "delete"
       path "/<space_hashed_id:str>/qr", SpaceQrHandler, name: "qr"
 
+      code_routes = Marten::Routing::Map.draw(:code) do
+        path "/<space_code:str>", SpaceShowHandler, name: "show"
+        path "/<space_code:str>/join", SpaceJoinHandler, name: "join"
+      end
+      path "/code", code_routes
+
       operating_hour_routes = Marten::Routing::Map.draw(:operating_hour) do
         path "/", OperatingHourCreateHandler, name: "create"
         path "/index", OperatingHourIndexHandler, name: "index"

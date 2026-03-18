@@ -11,7 +11,8 @@ class Antrikan::Space < Marten::Model
   field :created_at, :date_time, null: false, auto_now_add: true
   field :updated_at, :date_time, null: false, auto_now: true
 
-  field :user, :many_to_one, to: Auth::User, related: :spaces
+  field :owner, :many_to_one, to: Auth::User, related: :spaces
+  field :members, :many_to_many, to: Auth::User, related: :joined_spaces
 
   after_initialize :generate_code
 

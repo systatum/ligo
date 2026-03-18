@@ -6,6 +6,8 @@ class Antrikan::OperatingHourIndexHandler < RequestHandler
   http_method_names :get
 
   def get
+    raise Marten::HTTP::Errors::PermissionDenied.new unless owner_of_space?
+
     op_hours = OperatingHour.filter(space_id: space.id, deleted_at: nil).map do |op_hour|
       OperatingHourSerializer.soft_serialize(op_hour)
     end

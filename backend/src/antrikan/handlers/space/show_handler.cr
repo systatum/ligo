@@ -5,6 +5,8 @@ class Antrikan::SpaceShowHandler < RequestHandler
   http_method_names :get
 
   def get
+    raise Marten::HTTP::Errors::PermissionDenied.new unless owner_of_space?
+
     json Antrikan::SpaceSerializer.serialize(space), status: 200
   end
 end

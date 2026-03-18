@@ -5,7 +5,7 @@ describe Antrikan::SpaceUpdateHandler do
     context "when the user is authorized" do
       it "updates the space" do
         user = create_user
-        space = create_space(user: user, name: "Original Name")
+        space = create_space(owner: user, name: "Original Name")
 
         response = Marten::Spec.client.patch(
           Marten.routes.reverse("antrikan:space:update", space_hashed_id: space.hashed_id),
@@ -24,7 +24,7 @@ describe Antrikan::SpaceUpdateHandler do
 
       it "updates optional fields" do
         user = create_user
-        space = create_space(user: user, need_manual_approval: false, has_operating_hours: false)
+        space = create_space(owner: user, need_manual_approval: false, has_operating_hours: false)
 
         response = Marten::Spec.client.patch(
           Marten.routes.reverse("antrikan:space:update", space_hashed_id: space.hashed_id),
@@ -46,7 +46,7 @@ describe Antrikan::SpaceUpdateHandler do
 
       it "does not change the code" do
         user = create_user
-        space = create_space(user: user)
+        space = create_space(owner: user)
         original_code = space.code!
 
         response = Marten::Spec.client.patch(
@@ -62,10 +62,10 @@ describe Antrikan::SpaceUpdateHandler do
         space.code!.should eq original_code
       end
 
-      it "returns 404 when space belongs to another user" do
+      it "returns 403 when space belongs to another user" do
         user1 = create_user
         user2 = create_user
-        space = create_space(user: user2)
+        space = create_space(owner: user2)
 
         response = Marten::Spec.client.patch(
           Marten.routes.reverse("antrikan:space:update", space_hashed_id: space.hashed_id),
@@ -74,14 +74,14 @@ describe Antrikan::SpaceUpdateHandler do
           content_type: "application/json"
         )
 
-        response.status.should eq 404
+        response.status.should eq 403
       end
     end
 
     context "when the user is not authorized" do
       it "returns 400" do
         user = create_user
-        space = create_space(user: user)
+        space = create_space(owner: user)
 
         response = Marten::Spec.client.patch(
           Marten.routes.reverse("antrikan:space:update", space_hashed_id: space.hashed_id),

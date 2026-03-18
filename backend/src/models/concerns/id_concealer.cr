@@ -32,7 +32,6 @@ module IdConcealer
   # return ID but hashed; the hashed ID is not persisted
   # in the database
   def hashed_id : String
-    raise "Record has not been persisted" unless persisted?
     IdConcealer.encode(id!)
   end
 
@@ -48,6 +47,18 @@ module IdConcealer
 
     def self.filter_by_hashed_id(hashed_id : String)
       filter(id: IdConcealer.decode(hashed_id))
+    end
+
+    def self.index_by_hashed_ids(hashed_ids : Set(String))
+      decoded_map = hashed_ids.each_with_object({} of Int64 => String) do |hashed_id, map|
+        next unless (decoded = IdConcealer.decode(hashed_id))
+        map[decoded.to_i64] = hashed_id
+      end
+
+      Auth::User.filter(id__in: decoded_map.keys).each_with_object({} of String => Auth::User) do |user, result|
+        next unless (hashed_id = decoded_map[user.id!.to_i64]?)
+        result[hashed_id] = user
+      end
     end
   end
 end

@@ -5,7 +5,7 @@ describe Antrikan::SpaceDeleteHandler do
     context "when the user is authorized" do
       it "soft deletes the space" do
         user = create_user
-        space = create_space(user: user)
+        space = create_space(owner: user)
         space_id = space.id!
 
         response = Marten::Spec.client.delete(
@@ -23,7 +23,7 @@ describe Antrikan::SpaceDeleteHandler do
 
       it "returns the deleted space" do
         user = create_user
-        space = create_space(user: user)
+        space = create_space(owner: user)
 
         response = Marten::Spec.client.delete(
           Marten.routes.reverse("antrikan:space:delete", space_hashed_id: space.hashed_id),
@@ -38,15 +38,15 @@ describe Antrikan::SpaceDeleteHandler do
         it "will not be deleted" do
           user1 = create_user
           user2 = create_user
-          space = create_space(user: user2)
+          space = create_space(owner: user2)
 
           response = Marten::Spec.client.delete(
             Marten.routes.reverse("antrikan:space:delete", space_hashed_id: space.hashed_id),
             headers: {authorization: "Bearer #{user1.jwt_token}"}
           )
 
-          response.status.should eq 404
-          response.content.should eq({error: {messages: ["Not found"]}}.to_json)
+          response.status.should eq 403
+          response.content.should eq({error: {messages: ["Not authorized"]}}.to_json)
 
           space.reload
           space.deleted_at.should be_nil
@@ -57,7 +57,7 @@ describe Antrikan::SpaceDeleteHandler do
     context "when the user is not authorized" do
       it "returns 400" do
         user = create_user
-        space = create_space(user: user)
+        space = create_space(owner: user)
 
         response = Marten::Spec.client.delete(
           Marten.routes.reverse("antrikan:space:delete", space_hashed_id: space.hashed_id)

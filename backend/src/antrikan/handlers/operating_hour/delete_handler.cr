@@ -6,6 +6,8 @@ class Antrikan::OperatingHourDeleteHandler < RequestHandler
   http_method_names :delete
 
   def delete
+    raise Marten::HTTP::Errors::PermissionDenied.new unless owner_of_space?
+
     op_hour.soft_delete!
     json OperatingHourSerializer.serialize(op_hour), status: 200
   end

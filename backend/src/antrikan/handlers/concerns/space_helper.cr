@@ -3,9 +3,19 @@ module Antrikan::SpaceHelper
   @schema : SpaceSchema?
 
   private def space
-    @space ||= Space
-      .filter_by_hashed_id(params["space_hashed_id"].to_s)
-      .get!(user_id: current_user!.id)
+    @space ||= filter_by_param.get!
+  end
+
+  private def filter_by_param
+    if params.has_key?("space_code")
+      Space.filter_by_code(params["space_code"].to_s)
+    else
+      Space.filter_by_hashed_id(params["space_hashed_id"].to_s)
+    end
+  end
+
+  private def owner_of_space?
+    space.owner == current_user!
   end
 
   private def schema
