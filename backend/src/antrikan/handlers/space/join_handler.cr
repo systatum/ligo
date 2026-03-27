@@ -7,7 +7,7 @@ class Antrikan::SpaceJoinHandler < RequestHandler
   def post
     current_user!
 
-    result = Antrikan::SpaceMemberJoinerService.new(space, request.data).run
+    result = Space::MemberRegisterService.new(space, request.data).run
 
     return render_invalid_payload(result.errors) if result.failure?
 

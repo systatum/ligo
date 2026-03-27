@@ -5,13 +5,12 @@ class Antrikan::SpaceCreateHandler < RequestHandler
   http_method_names :post
 
   def post
-    if schema.valid?
-      space = Antrikan::Space.new(schema.validated_data)
-      space.owner = current_user!
-      space.save!
-      json Antrikan::SpaceSerializer.serialize(space), status: 201
+    result = Space::CreatorService.new(current_user!, request.data).run
+
+    if result.success?
+      json Antrikan::SpaceSerializer.serialize(result.data.not_nil!), status: 201
     else
-      render_invalid_payload(schema)
+      render_invalid_payload(result.errors)
     end
   end
 end

@@ -150,7 +150,12 @@ Content-Type: application/json
 
 {
   "name": "Updated Office Name",
-  "need_manual_approval": false
+  "need_manual_approval": false,
+  "has_operating_hours": true,
+  "logo": {
+    base64_bytes: "iVBORw0KGgo...",
+    mimetype: "image/png"
+  }
 }
 ```
 

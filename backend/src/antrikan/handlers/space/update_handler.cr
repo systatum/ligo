@@ -11,11 +11,12 @@ class Antrikan::SpaceUpdateHandler < RequestHandler
   def patch
     raise Marten::HTTP::Errors::PermissionDenied.new unless owner_of_space?
 
-    if schema.valid?
-      space.update!(schema.validated_data)
-      json Antrikan::SpaceSerializer.serialize(space), status: 200
+    result = Space::UpdaterService.new(space, request.data).run
+
+    if result.success?
+      json Antrikan::SpaceSerializer.serialize(result.data.not_nil!), status: 200
     else
-      render_invalid_payload(schema)
+      render_invalid_payload result.errors
     end
   end
 end

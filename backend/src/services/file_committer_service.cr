@@ -1,4 +1,4 @@
-class FileCommitterService < BaseService
+class FileCommitterService < BaseService(UploadedFile)
   @storage : Marten::Core::Storage::Base
 
   def initialize(@tmpFile : Marten::HTTP::UploadedFile)
@@ -20,13 +20,11 @@ class FileCommitterService < BaseService
 
       uploaded.save!
 
-      ServiceResult(UploadedFile).success(uploaded)
+      success(uploaded)
     rescue e
       rollback_committed_file(key)
 
-      errors = Marten::Core::Validation::ErrorSet.new
-      errors.add("Failed committing file: #{e.message}")
-      ServiceResult(UploadedFile).failure(errors)
+      failure("Failed committing file: #{e.message}")
     end
   end
 

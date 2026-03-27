@@ -1,5 +1,5 @@
 module Auth
-  class User::BiodataUpdaterService < BaseService
+  class User::BiodataUpdaterService < BaseService(Auth::User)
     @schema : BiodataUpdateSchema?
 
     def initialize(@user : Auth::User, @payload : FormPayload)
@@ -7,17 +7,14 @@ module Auth
 
     def run : ServiceResult(Auth::User)
       unless schema.valid?
-        return ServiceResult(Auth::User).failure(schema.errors)
+        return failure(schema.errors)
       end
 
       begin
         update_fields
-        ServiceResult(Auth::User).success(@user)
+        success(@user)
       rescue ex : Marten::DB::Errors::InvalidRecord
-        ex.record.errors.each do |error|
-          schema.errors.add(error.field.not_nil!, error.message)
-        end
-        ServiceResult(Auth::User).failure(schema.errors)
+        failure(ex.record.errors)
       end
     end
 

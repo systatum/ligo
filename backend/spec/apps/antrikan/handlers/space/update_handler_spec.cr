@@ -62,6 +62,29 @@ describe Antrikan::SpaceUpdateHandler do
         space.code!.should eq original_code
       end
 
+      it "uploads a logo when provided" do
+        user = create_user
+        space = create_space(owner: user)
+
+        response = Marten::Spec.client.patch(
+          Marten.routes.reverse("antrikan:space:update", space_hashed_id: space.hashed_id),
+          data: {
+            name: space.name,
+            logo: {
+              base64_bytes: Base64.encode(PNG_1X1),
+              mimetype:     "image/png",
+            },
+          }.to_json,
+          headers: {authorization: "Bearer #{user.jwt_token}"},
+          content_type: "application/json"
+        )
+
+        response.status.should eq 200
+
+        space.reload
+        space.logo_file_id.should_not be_nil
+      end
+
       it "returns 403 when space belongs to another user" do
         user1 = create_user
         user2 = create_user

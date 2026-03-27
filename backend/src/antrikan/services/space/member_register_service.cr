@@ -1,5 +1,5 @@
 module Antrikan
-  class SpaceMemberJoinerService < BaseService
+  class Space::MemberRegisterService < BaseService(SpaceJoinResult)
     @schema : SpaceJoinSchema?
     @normalized_data : Marten::Schema::AnyDataHash?
 
@@ -7,10 +7,10 @@ module Antrikan
     end
 
     def run : ServiceResult(SpaceJoinResult)
-      return ServiceResult(SpaceJoinResult).failure(schema.errors) unless schema.valid?
+      return failure(schema.errors) unless schema.valid?
 
       users = schema.users
-      return ServiceResult(SpaceJoinResult).success(SpaceJoinResult.new) if users.nil?
+      return success(SpaceJoinResult.new) if users.nil?
 
       added = [] of Auth::User
       failed = [] of Auth::User
@@ -54,7 +54,7 @@ module Antrikan
         end
       end
 
-      ServiceResult(SpaceJoinResult).success(SpaceJoinResult.new(added, failed, invalid_ids))
+      success(SpaceJoinResult.new(added, failed, invalid_ids))
     end
 
     private def unique_hashed_user_ids_from(users) : Set(String)
