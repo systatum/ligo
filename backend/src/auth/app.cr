@@ -7,6 +7,7 @@ require "./models/**"
 require "./routes"
 require "./schemas/**"
 require "./services/**"
+require "./jobs/**"
 require "./emails/**"
 
 module Auth

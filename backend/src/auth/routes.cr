@@ -14,8 +14,5 @@ module Auth
       path "/<hashed_id:str>/delete", OrganizationDeleteHandler, name: "api_organization_delete"
     end
     path "/api/organizations", organization_routes
-
-    # this one is handled in the browser, not API
-    path "/reset-password/confirm/<uid:str>/<token:str>", PasswordResetHandler, name: "password_reset"
   end
 end

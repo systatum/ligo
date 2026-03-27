@@ -41,13 +41,11 @@
 
     <style type="text/css">
       @media only screen and (min-width:480px) {
-        .mj-column-per-21 { width:21% !important; max-width: 21%; }
-.mj-column-per-79 { width:79% !important; max-width: 79%; }
+        .mj-column-per-100 { width:100% !important; max-width: 100%; }
       }
     </style>
     <style media="screen and (min-width:480px)">
-      .moz-text-html .mj-column-per-21 { width:21% !important; max-width: 21%; }
-.moz-text-html .mj-column-per-79 { width:79% !important; max-width: 79%; }
+      .moz-text-html .mj-column-per-100 { width:100% !important; max-width: 100%; }
     </style>
 
 
@@ -70,7 +68,7 @@
 
 
       <div
-         aria-label="Welcome Email" aria-roledescription="email" style="" role="article" lang="und" dir="auto"
+         aria-roledescription="email" style="" role="article" lang="und" dir="auto"
       >
 
 
@@ -114,10 +112,10 @@
          style="height:30px;line-height:30px;"
       >&#8202;</div>
 
-          <!--[if mso | IE]></td><td class="" style="vertical-align:top;width:159.6px;" ><![endif]-->
+          <!--[if mso | IE]></td><td class="" style="vertical-align:top;width:760px;" ><![endif]-->
 
       <div
-         class="mj-column-per-21 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
+         class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
       >
 
       <table
@@ -127,43 +125,15 @@
 
               <tr>
                 <td
-                   align="start" style="font-size:0px;padding:10px 25px;word-break:break-word;"
+                   align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;"
                 >
 
-      <table
-         border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;border-spacing:0px;"
-      >
-        <tbody>
-          <tr>
-            <td  style="width:60px;">
-
-      <img
-        alt="Company logo" src="{{companyImage}}" style="border:0;display:block;outline:none;text-decoration:none;height:60px;width:100%;font-size:13px;" width="60" height="60"
-      />
-
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div
+        style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:24px;font-weight:700;line-height:1.2;text-align:left;color:#000000;"
+      >{{ app_name }}</div>
 
                 </td>
               </tr>
-
-        </tbody>
-      </table>
-
-      </div>
-
-          <!--[if mso | IE]></td><td class="" style="vertical-align:top;width:600.4px;" ><![endif]-->
-
-      <div
-         class="mj-column-per-79 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
-      >
-
-      <table
-         border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%"
-      >
-        <tbody>
 
               <tr>
                 <td
@@ -171,7 +141,7 @@
                 >
 
       <div
-         style="height:18px;line-height:18px;"
+         style="height:10px;line-height:10px;"
       >&#8202;</div>
 
                 </td>
@@ -183,35 +153,11 @@
                 >
 
       <div
-        style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:30px;font-weight:500;line-height:1;text-align:left;color:#000000;"
-      >{{ subject }}</div>
+        style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:14px;line-height:1.6;text-align:left;color:#2b2b2b;"
+      >{{ content_html|safe }}</div>
 
                 </td>
               </tr>
-
-                <tr>
-                 <td
-                   style="font-size:0px;word-break:break-word;"
-                 >
-
-          <div
-            style="height:20px;line-height:20px;"
-          >&#8202;</div>
-
-                 </td>
-                </tr>
-
-                <tr>
-                 <td
-                   align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;"
-                 >
-
-          <div
-            style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:14px;line-height:1.6;text-align:left;color:#2b2b2b;"
-          >{{ content_html|safe }}</div>
-
-                 </td>
-                </tr>
 
         </tbody>
       </table>
@@ -249,8 +195,8 @@
                 <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td align="center" class="" style="" ><![endif]-->
 
       <div
-         style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:center;color:#000000;"
-      >{{company}} | {{companyAddress}}</div>
+         style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1.4;text-align:center;color:#5b5b5b;"
+      >{{ app_description }}</div>
 
           <!--[if mso | IE]></td><td class="" style="" ><![endif]-->
 
@@ -262,7 +208,7 @@
 
       <div
          style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:center;color:#5b5b5b;"
-      ><a font-size="14px" style="color: #5b5b5b" href="https://your-link-here.com"> Unsubscribe</a> from our emails</div>
+      >&copy; {{ current_year }} {{ app_name }}</div>
 
           <!--[if mso | IE]></td></tr></table><![endif]-->
               </td>

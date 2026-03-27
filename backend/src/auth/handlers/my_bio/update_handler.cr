@@ -12,7 +12,7 @@ module Auth
 
       form = FormPayload.new(request.body)
 
-      result = Auth::User::UpdaterService.new(current_user!, form).run
+      result = Auth::User::BiodataUpdaterService.new(current_user!, form).run
 
       if result.success?
         json UserSerializer.serialize(result.data.not_nil!), status: 200

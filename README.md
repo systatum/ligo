@@ -84,10 +84,46 @@ marten migrate main <migration-date-to-unapply>
 marten serve -p 3003 # to run the server
 marten play -p 8080 -b 0.0.0.0 # to run playground
 
+# Sidekiq worker and dashboard
+crystal run src/cli/sidekiq.cr -- -e development -q default
+crystal run src/cli/sidekiq_dashboard.cr -- -p 3010 -b 0.0.0.0
+
 # running spec
 crystal spec [--fail-fast]
 crystal spec spec/handlers/product_state_handler_spec.cr
 ```
+
+For local Sidekiq usage, ensure Redis is running (for example with `docker compose up -d`).
+Sidekiq config is defined in `backend/app_settings.yml` under `ligo.sidekiq`.
+You can override values with env vars:
+
+```bash
+export LIGO_SIDEKIQ_REDIS_HOST=host
+export LIGO_SIDEKIQ_REDIS_PORT=6379
+export LIGO_SIDEKIQ_REDIS_PASSWORD=password
+export LIGO_SIDEKIQ_REDIS_DATABASE_NUMBER=0
+export LIGO_SIDEKIQ_DASHBOARD_SESSION_SECRET=replace-with-long-random-secret
+```
+
+In local development, docker-compose configures Redis with password `devredis`.
+
+## Application Mode (LIGO_APP_MODE)
+
+The application requires the environment variable `LIGO_APP_MODE` to be set before starting the server. This variable determines which app mode is active and must be one of:
+
+- `workaty`
+- `antrikan`
+
+If `LIGO_APP_MODE` is not set or is set to an invalid value, the server will fail to start with an error.
+
+Example usage:
+
+```bash
+export LIGO_APP_MODE=workaty
+marten serve -p 3003
+```
+
+This variable is required in all environments (development, test, production).
 
 ## Connecting to the development database
 

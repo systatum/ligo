@@ -6,6 +6,8 @@ Marten.configure :test do |config|
   # production environments.
   # If test database names are not explicitly set, your specs suite won't be allowed to run at all.
   DatabaseConfig.configure(config)
+  S3Config.configure(config)
+  SidekiqConfig.configure
 
   config.allowed_hosts = ["127.0.0.1"]
 

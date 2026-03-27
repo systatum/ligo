@@ -69,4 +69,9 @@ Marten.configure do |config|
     endpoint: app_settings.ligo_s3_endpoint.empty? ? nil : app_settings.ligo_s3_endpoint,
     force_path_style: app_settings.ligo_s3_force_path_style,
   )
+
+  # configure Sidekiq client, the redis settings are read from the environment
+  Sidekiq::Status.expiration = app_settings.ligo_sidekiq_job_status_expiry
+  Sidekiq::Client.default_context = Sidekiq::Client::Context.new(Sidekiq::RedisConfig.new)
+  Sidekiq::Client.middleware.add JobQueuedMarker.new
 end

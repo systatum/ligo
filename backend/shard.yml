@@ -45,6 +45,9 @@ dependencies:
     github: stumpycr/stumpy_png
   vips:
     github: naqvis/crystal-vips
+  sidekiq:
+    github: mperham/sidekiq.cr
+    version: ~> 0.7.3
 
 development_dependencies:
   spectator:

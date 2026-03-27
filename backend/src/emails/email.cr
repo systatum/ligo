@@ -24,9 +24,9 @@ class Email < Marten::Email
     content_html : String,
     from_email : String,
     from_name : String,
-    company : String,
-    company_address : String,
-    company_image : String,
+    app_name : String,
+    app_description : String,
+    current_year : String,
   )
     @receiver_signatures = to.map { |r| Marten::Emailing::Address.new(r[:email], r[:name]) }
     @sender_signature = Marten::Emailing::Address.new(from_email, from_name)
@@ -34,24 +34,23 @@ class Email < Marten::Email
 
     context[:subject] = subject
     context[:content_html] = content_html
-    context[:company] = company
-    context[:companyAddress] = company_address
-    context[:companyImage] = company_image
+    context[:app_name] = app_name
+    context[:app_description] = app_description
+    context[:current_year] = current_year
   end
 
   def self.build_email_from_content(
     to : Array(NamedTuple(name: String, email: String)),
     subject : String,
     content : String,
+    app_mode : String = AppSettings.app_mode,
+    locale : String = "en-US",
     from_email : String = default_sender_email,
     from_name : String = default_sender_name,
   ) : Email
     html = Markd.to_html(content)
 
-    app = AppSettings.instance
-    company = app.ligo_mailer_company_name
-    company_address = app.ligo_mailer_company_address
-    company_image = app.ligo_mailer_company_image
+    app_info = AppInfo.find(app_mode)
 
     self.new(
       to: to,
@@ -59,9 +58,9 @@ class Email < Marten::Email
       content_html: html,
       from_email: from_email,
       from_name: from_name,
-      company: company,
-      company_address: company_address,
-      company_image: company_image,
+      app_name: app_info.name,
+      app_description: app_info.description.localized(locale) || "",
+      current_year: Time.local.year.to_s,
     )
   end
 
@@ -69,11 +68,13 @@ class Email < Marten::Email
     to : Array(NamedTuple(name: String, email: String)),
     subject : String,
     content : String,
+    app_mode : String = AppSettings.app_mode,
+    locale : String = "en-US",
     from_email : String = default_sender_email,
     from_name : String = default_sender_name,
   ) : EmailDeliveryResult
     validate_smtp_configuration!
-    email = build_email_from_content(to, subject, content, from_email, from_name)
+    email = build_email_from_content(to, subject, content, app_mode, locale, from_email, from_name)
     begin
       email.deliver
       EmailDeliveryResult.new(email, true, nil)

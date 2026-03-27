@@ -8,8 +8,7 @@ Marten.routes.draw do
   path "/workaty", Workaty::ROUTES, name: "workaty"
 
   path "/ping", PingHandler, name: "ping"
-
-  path "/api/app_info", AppInfoHandler, name: "app_info"
+  path "/job/<id:str>", JobStatusHandler, name: "job_status"
 
   path "/api/products", ProductCreateHandler, name: "api_product_create"
   path "/api/products/<id:str>", ProductStateHandler, name: "api_product_show"

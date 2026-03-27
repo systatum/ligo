@@ -1,6 +1,6 @@
 module Auth
-  class User::UpdaterService < BaseService
-    @schema : MyBioUpdateSchema?
+  class User::BiodataUpdaterService < BaseService
+    @schema : BiodataUpdateSchema?
 
     def initialize(@user : Auth::User, @payload : FormPayload)
     end
@@ -31,7 +31,7 @@ module Auth
     end
 
     private def schema
-      @schema ||= MyBioUpdateSchema.new(@payload.to_validate)
+      @schema ||= BiodataUpdateSchema.new(@payload.to_validate)
     end
   end
 end

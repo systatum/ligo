@@ -1,0 +1,13 @@
+workaty:
+  name: Workaty
+  description:
+    english: Workaty is an HR and ATS System.
+    japanese: 人事・採用管理システム。
+    indonesian: Sistem HR dan ATS.
+
+antrikan:
+  name: Antrikan
+  description:
+    english: Antrikan is a queue management system for managing spaces and their operating hours.
+    japanese: スペースとその営業時間を管理するための順番待ち管理システム。
+    indonesian: Sistem manajemen antrian untuk mengelola ruang dan jam operasionalnya.

@@ -1,5 +1,6 @@
 class LocalizedName
   include JSON::Serializable
+  include YAML::Serializable
 
   property english : String?
   property indonesian : String?

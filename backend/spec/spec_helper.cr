@@ -1,9 +1,11 @@
+ENV["LIGO_APP_MODE"] ||= "workaty" # default/fallback top-level app mode
 ENV["MARTEN_ENV"] = "test"
 
 require "spectator"
 
 require "../src/project"
 require "marten/spec"
+require "sidekiq/api"
 require "./factories/**"
 require "../src/lib/**"
 require "../src/cli/migrate_system_fields"
@@ -69,12 +71,14 @@ Spectator.configure do |config|
   config.after_each do
     flush_db_for_specs!
     clear_media_storage_for_specs!
+    Sidekiq.redis { |conn| conn.flushdb }
   end
 end
 
 Spec.after_each do
   # No need to flush db here as it's already done automatically by Marten
   clear_media_storage_for_specs!
+  Sidekiq.redis { |conn| conn.flushdb }
 end
 
 def date_time_format
@@ -88,4 +92,23 @@ def create_field(name : String, data_type : FieldDataType) : FieldDefinition
     data_type: data_type,
     is_system_field: false
   ).tap(&.save!)
+end
+
+def expect_jobs(job_class, count = 1, queue = "default", &)
+  q = Sidekiq::Queue.new(queue)
+  initial_size = q.size
+  yield
+  final_size = q.size
+  (final_size - initial_size).should eq(count)
+
+  jobs = q.to_a.last(count)
+  jobs.each do |job|
+    job.klass.should eq(job_class.to_s)
+  end
+end
+
+def expect_no_jobs(job_class, queue = "default", &)
+  expect_jobs(job_class, 0, queue: queue) do
+    yield
+  end
 end

@@ -144,6 +144,7 @@ jobs:
     
     env:
       MARTEN_ENV: test
+      LIGO_APP_MODE: workaty
       LIGO_DB_HOST: 127.0.0.1
       LIGO_DB_PORT: 3306
       LIGO_DB_USERNAME: root
@@ -155,6 +156,10 @@ jobs:
       LIGO_S3_SECRET_KEY: test
       LIGO_S3_ENDPOINT: http://127.0.0.1:4566
       LIGO_S3_FORCE_PATH_STYLE: "true"
+      LIGO_SIDEKIQ_REDIS_HOST: 127.0.0.1
+      LIGO_SIDEKIQ_REDIS_PORT: 6379
+      LIGO_SIDEKIQ_REDIS_PASSWORD: ""
+      LIGO_SIDEKIQ_REDIS_DATABASE_NUMBER: 0
 
     services:
       mysql:
@@ -188,6 +193,15 @@ jobs:
           --health-interval=5s
           --health-timeout=5s
           --health-retries=30
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
 
     strategy:
       matrix:

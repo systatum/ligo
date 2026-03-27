@@ -119,3 +119,11 @@ en-US:
         uuid:
           errors:
             invalid: "Invalid UUID."
+  emails:
+    password_reset:
+      subject: "Reset your password"
+      intro: "Forgot your password? No worries."
+      instructions: "Click the button below to reset your password:"
+      cta: "Reset password"
+      or_visit: "Or visit the following link:"
+      notice: "This link is valid for 5 minutes. If you didn't request this password change, simply ignore this email."

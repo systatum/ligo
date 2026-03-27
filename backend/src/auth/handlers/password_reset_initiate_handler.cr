@@ -7,9 +7,7 @@ module Auth
 
     def post
       if schema.valid?
-        if user = User.get_by_natural_key(schema.email!)
-          PasswordResetEmail.new(user, request).deliver
-        end
+        User::PasswordResetInitiateJob.async.perform(schema.email!)
 
         # so that attacker doesn't know if email exists or not
         render_no_content

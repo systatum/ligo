@@ -33,6 +33,16 @@ default: &default
       endpoint: "http://localhost:4566"
       force_path_style: true
 
+    sidekiq: &ligo_sidekiq
+      redis:
+        host: "127.0.0.1"
+        port: 6379
+        password: ""
+        database_number: 0
+      dashboard:
+        session_secret: ""
+      job_status_expiry: 86400
+
 # ------------------------------------------------------------------
 
 production:
@@ -59,6 +69,9 @@ production:
     s3:
       <<: *ligo_s3
 
+    sidekiq:
+      <<: *ligo_sidekiq
+
 # ------------------------------------------------------------------
 
 development: &development
@@ -80,6 +93,14 @@ development: &development
     s3:
       <<: *ligo_s3
 
+    sidekiq: &ligo_sidekiq_development
+      <<: *ligo_sidekiq
+      redis:
+        host: "127.0.0.1"
+        port: 6380
+        password: "devredis"
+        database_number: 0
+
 
 test:
   <<: *development
@@ -100,3 +121,6 @@ test:
     s3:
       <<: *ligo_s3
       bucket: "ligo-uploaded-files-test"
+
+    sidekiq:
+      <<: *ligo_sidekiq_development

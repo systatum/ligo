@@ -1,0 +1,9 @@
+id-ID:
+  emails:
+    password_reset:
+      subject: "Atur ulang password"
+      intro: "Lupa password? Tenang saja."
+      instructions: "Klik tombol di bawah untuk mengatur ulang password Anda:"
+      cta: "Ubah password"
+      or_visit: "Atau kunjungi tautan berikut:"
+      notice: "Tautan tersebut berlaku selama 5 menit. Jika Anda tidak meminta proses pengubahan password ini, cukup abaikan email ini."

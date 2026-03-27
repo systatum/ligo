@@ -1,6 +1,6 @@
 module Auth
   class User::ProfilePictureUpdaterService < BaseService
-    @schema : MyPictureUploadSchema?
+    @schema : ProfilePictureUploadSchema?
 
     def initialize(@user : Auth::User, @data : Marten::HTTP::Params::Data)
     end
@@ -30,7 +30,7 @@ module Auth
     end
 
     private def schema
-      @schema ||= MyPictureUploadSchema.new(@data)
+      @schema ||= ProfilePictureUploadSchema.new(@data)
     end
   end
 end

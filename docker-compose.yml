@@ -37,6 +37,16 @@ services:
       - PERSIST_DEFAULT=0
       - PERSIST_S3=1
 
+  ligo_redis:
+    container_name: ligo_redis
+    image: redis:7-alpine
+    command: ["redis-server", "--requirepass", "devredis"]
+    ports:
+      - 6380:6379
+    volumes:
+      - ligo_redis_data:/data
+
 volumes:
   ligo_db_data:
+  ligo_redis_data:
   # bundle_data:

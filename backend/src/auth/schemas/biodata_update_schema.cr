@@ -1,5 +1,5 @@
 module Auth
-  class MyBioUpdateSchema < BaseSchema
+  class BiodataUpdateSchema < BaseSchema
     field :first_name, :string, max_size: 255, strip: true, required: false
     field :last_name, :string, max_size: 255, strip: true, required: false
     field :locale, :string, max_size: 7, strip: true, required: false

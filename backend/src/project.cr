@@ -16,6 +16,7 @@ require "email"
 require "jwt"
 require "rbacr"
 require "vips"
+require "sidekiq"
 
 # Require all middlewares
 require "./middlewares/**"
