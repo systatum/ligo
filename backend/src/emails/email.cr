@@ -25,8 +25,9 @@ class Email < Marten::Email
     from_email : String,
     from_name : String,
     app_name : String,
-    app_description : String,
+    app_description : LocalizedName,
     current_year : String,
+    locale : String,
   )
     @receiver_signatures = to.map { |r| Marten::Emailing::Address.new(r[:email], r[:name]) }
     @sender_signature = Marten::Emailing::Address.new(from_email, from_name)
@@ -35,8 +36,9 @@ class Email < Marten::Email
     context[:subject] = subject
     context[:content_html] = content_html
     context[:app_name] = app_name
-    context[:app_description] = app_description
+    context[:app_description] = app_description.localized(locale) || ""
     context[:current_year] = current_year
+    context[:locale] = locale
   end
 
   def self.build_email_from_content(
@@ -59,8 +61,9 @@ class Email < Marten::Email
       from_email: from_email,
       from_name: from_name,
       app_name: app_info.name,
-      app_description: app_info.description.localized(locale) || "",
+      app_description: app_info.description,
       current_year: Time.local.year.to_s,
+      locale: locale,
     )
   end
 

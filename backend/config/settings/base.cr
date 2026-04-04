@@ -2,7 +2,8 @@ Marten.configure do |config|
   app_settings = AppSettings.instance
 
   config.i18n.default_locale = "en-US"
-  config.i18n.available_locales = ["en-US"]
+  config.i18n.available_locales = ["en-US", "id-ID", "ja-JP"]
+  config.i18n.fallbacks = ["en-US"]
 
   config.auth.user_model = Auth::User
 
