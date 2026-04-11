@@ -2,6 +2,18 @@
 
 What is Ligo? Ligo is our "Everything Backend." It is a latin word, a related word of which is ligandus, or in chemistry: ligand, or in toys: lego.
 
+- [Setup MySQL database](#setup-mysql-database)
+- [Setup Crystal and Marten](#setup-crystal-and-marten)
+- [Sub-Apps](#sub-apps)
+- [Common commands](#common-commands)
+- [Connecting to the development database](#connecting-to-the-development-database)
+- [Email](#email)
+- [API Endpoints](#api-endpoints)
+- [Todo](#todo)
+- [Convention](#convention)
+- [Deployment](#deployment)
+
+
 ## Setup MySQL database
 
 If you want to remove your containers and their associated volumes, and setup anew, run the following commands:
@@ -69,6 +81,24 @@ Before moving forward, please install `asdf` and `asdf crystal`. Follow the foll
 
 You can then proceed with the common commands to run database migrations and the server.
 
+## Sub-Apps
+
+The application requires the environment variable `LIGO_APP_MODE` to be set before starting the server. This variable determines which app mode is active and must be one of:
+
+- `workaty`
+- `antrikan`
+
+If `LIGO_APP_MODE` is not set or is set to an invalid value, the server will fail to start with an error.
+
+Example usage:
+
+```bash
+export LIGO_APP_MODE=workaty
+marten serve -p 3003
+```
+
+This variable is required in all environments (development, test, production).
+
 ## Common commands:
 
 ```bash
@@ -107,24 +137,6 @@ export LIGO_SIDEKIQ_DASHBOARD_SESSION_SECRET=replace-with-long-random-secret
 
 In local development, docker-compose configures Redis with password `devredis`.
 
-## Application Mode (LIGO_APP_MODE)
-
-The application requires the environment variable `LIGO_APP_MODE` to be set before starting the server. This variable determines which app mode is active and must be one of:
-
-- `workaty`
-- `antrikan`
-
-If `LIGO_APP_MODE` is not set or is set to an invalid value, the server will fail to start with an error.
-
-Example usage:
-
-```bash
-export LIGO_APP_MODE=workaty
-marten serve -p 3003
-```
-
-This variable is required in all environments (development, test, production).
-
 ## Connecting to the development database
 
 To connect to the database from your host machine
@@ -134,6 +146,190 @@ To connect to the database from your host machine
 - On dev, you can inspect all mails sent during development at http://localhost:1080, the MailCatche'r UI.
 - On staging, please use mailtrap.
 - On production, please use postmark.
+
+## API Endpoints
+
+These are the shared/base endpoints available regardless of `LIGO_APP_MODE`. For mode-specific endpoints, see the respective subapp READMEs:
+
+- [Antrikan API](backend/src/antrikan/README.md)
+- [Workaty API](backend/src/workaty/README.md)
+
+All authenticated endpoints require the `Authorization: Bearer <jwt_token>` header.
+
+### Health & Utility
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/ping` | Health check — returns `"Pong!"` |
+| GET | `/job/<id>` | Get status of a background Sidekiq job |
+| GET | `/uploaded_file/<uuid>` | Download an uploaded file (cached) |
+
+### Authentication (`/auth`)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/auth/api/user/signup` | Register a new user |
+| POST | `/auth/api/user/signin` | Sign in and receive a JWT token |
+| POST | `/auth/api/user/update_password` | Change the current user's password (requires auth) |
+| POST | `/auth/api/user/request_password_reset` | Request a password reset email |
+| PATCH/POST | `/auth/api/user/my-bio` | Update current user's biodata (requires auth) |
+| PATCH/POST | `/auth/api/user/my-picture` | Upload current user's profile picture (requires auth) |
+| POST | `/auth/api/organizations` | Create a new organization |
+| PATCH/POST | `/auth/api/organizations/<hashed_id>` | Update an organization |
+| DELETE | `/auth/api/organizations/<hashed_id>/delete` | Delete an organization |
+
+#### Sign Up
+
+```
+POST /auth/api/user/signup
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "securepassword",
+  "first_name": "Jane",
+  "last_name": "Doe",
+  "organization_id": "hashedOrgId"
+}
+```
+
+Either `organization_id` (join existing) or `organization_name` (create new) must be provided.
+
+**Response (200 OK):**
+
+```json
+{
+  "id": "hashedUserId",
+  "first_name": "Jane",
+  "last_name": "Doe",
+  "email": "user@example.com",
+  "role": "FULL_TIME_STAFF"
+}
+```
+
+#### Sign In
+
+```
+POST /auth/api/user/signin
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "securepassword"
+}
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "id": "hashedUserId",
+  "email": "user@example.com",
+  "jwt_token": "<jwt>"
+}
+```
+
+#### Update Password
+
+```
+POST /auth/api/user/update_password
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "current_password": "oldpassword",
+  "new_password": "newpassword",
+  "new_password_confirm": "newpassword"
+}
+```
+
+**Response (200 OK):** Updated user object.
+
+#### Request Password Reset
+
+```
+POST /auth/api/user/request_password_reset
+Content-Type: application/json
+
+{
+  "email": "user@example.com"
+}
+```
+
+**Response (200 OK):** Sends a password reset email to the given address.
+
+#### Update Biodata
+
+```
+PATCH /auth/api/user/my-bio
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "first_name": "Jane",
+  "last_name": "Smith",
+  "locale": "en",
+  "timezone_offset_seconds": 25200
+}
+```
+
+All fields are optional.
+
+**Response (200 OK):** Updated user object.
+
+#### Upload Profile Picture
+
+```
+PATCH /auth/api/user/my-picture
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "base64_bytes": "iVBORw0KGgo...",
+  "mimetype": "image/png"
+}
+```
+
+**Response (200 OK):** Updated user object.
+
+### Products
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/products` | Create a product |
+| GET | `/api/products/<id>` | Get a product |
+| PATCH/POST | `/api/products/<id>` | Update a product (requires `bizdev+` role) |
+| DELETE | `/api/products/<id>` | Soft-delete a product |
+
+### Dynamic Fields
+
+Dynamic fields extend any resource type (e.g., `EMAIL_TEMPLATE`) with custom attributes.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/field/` | Create a field definition |
+| PATCH/POST | `/api/field/<field_hashed_id>/update` | Update a field definition |
+| DELETE | `/api/field/<field_hashed_id>/delete` | Delete a field definition |
+| GET | `/api/field/rt/<resource_type>/index` | List field definitions for a resource type |
+
+#### Create Field Definition
+
+```
+POST /api/field/
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "resource_type": "EMAIL_TEMPLATE",
+  "name": "campaign_id",
+  "data_type": "string",
+  "localized_name": "Campaign ID",
+  "nullable": true,
+  "uniqueness": false
+}
+```
+
+---
 
 ## Todo
 

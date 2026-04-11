@@ -1,53 +1,39 @@
 # Antrikan Subapp - API Documentation
 
-Queue management system for managing spaces and their operating hours.
+Queue management system for managing spaces, their operating hours, and channels.
 
-## Models
+- [Entities](#entities)
+  - [Space](#space)
+  - [Space Member](#space-member)
+  - [Operating Hour](#operating-hour)
+  - [Channel](#channel)
+- [API Endpoints](#api-endpoints)
+  - [Space CRUD](#space-crud)
+  - [Space QR Code](#space-qr-code)
+  - [Space Membership By Code](#space-membership-by-code)
+  - [Operating Hour CRUD](#operating-hour-crud)
+  - [Channel CRUD](#channel-crud)
+- [Error Responses](#error-responses)
+- [Running Tests](#running-tests)
+- [Dependencies](#dependencies)
+
+## Entities
 
 ### Space
 
-Represents a physical or virtual space where queuing/booking occurs.
+A physical or virtual location where queuing or booking occurs. Each space has a unique auto-generated 5-character code used for joining. Owned by a user and can have members, operating hours, and channels.
 
-| Field                  | Type        | Description                                                    |
-| ---------------------- | ----------- | -------------------------------------------------------------- |
-| `id`                   | BigInt      | Primary key (hashed in API responses)                          |
-| `code`                 | String(5)   | Unique auto-generated code [A-Z0-9]                            |
-| `name`                 | String(255) | Space name (required)                                          |
-| `need_manual_approval` | Boolean     | Whether requests need manual approval (default: true)          |
-| `has_operating_hours`  | Boolean     | Whether space has operating hour restrictions (default: false) |
-| `owner_id`             | FK          | Owner of the space                                             |
-| `created_at`           | DateTime    | Auto-set on create                                             |
-| `updated_at`           | DateTime    | Auto-set on update                                             |
+### Space Member
 
-Additional relation:
+Join table representing the membership of a user in a space. Created when a user joins a space via its code.
 
-- `members` (M2M to `Auth::User`) via `antrikan_space_members`
+### Operating Hour
 
-### SpaceMember
+Defines the opening and closing times for a space on a specific day of the week. A space can have at most one operating hour entry per day.
 
-Join table for the Space-to-User membership relation.
+### Channel
 
-| Field      | Type   | Description                         |
-| ---------- | ------ | ----------------------------------- |
-| `id`       | BigInt | Primary key                         |
-| `space_id` | FK     | Referenced space (`antrikan_space`) |
-| `user_id`  | FK     | Referenced user (`auth_user`)       |
-
-### OperatingHour
-
-Defines when a Space is open for business.
-
-| Field        | Type      | Description                                  |
-| ------------ | --------- | -------------------------------------------- |
-| `id`         | BigInt    | Primary key (hashed in API responses)        |
-| `space_id`   | FK        | Parent space                                 |
-| `day`        | Int       | Day of week: 0=Mon, 1=Tue, ..., 6=Sun        |
-| `open_time`  | BigInt    | Opening time in nanoseconds                  |
-| `close_time` | BigInt    | Closing time in nanoseconds                  |
-| `created_at` | DateTime  | Auto-set on create                           |
-| `updated_at` | DateTime  | Auto-set on update                           |
-
-Note: column `open_time` and `close_time` is interpreted as HH:MM on the application-layer (e.g., "09:00" or "17:00").
+A named sub-queue or category within a space (e.g. "General", "VIP"). Supports an optional description and logo. Can be soft-deleted and restored.
 
 ---
 
@@ -69,6 +55,12 @@ Content-Type: application/json
   "has_operating_hours": false
 }
 ```
+
+| Field                  | Required | Description                                                       |
+| ---------------------- | -------- | ----------------------------------------------------------------- |
+| `name`                 | yes      | Space name (max 255 chars)                                        |
+| `need_manual_approval` | no       | Whether join requests need manual approval (default: `true`)      |
+| `has_operating_hours`  | no       | Whether the space enforces operating hour restrictions (default: `false`) |
 
 **Response (201 Created):**
 
@@ -130,17 +122,7 @@ GET /antrikan/api/space/code/<space_code>
 
 `space_code` is the 5-character space code (example: `X7K2Q`).
 
-**Response (200 OK):**
-
-```json
-{
-  "id": "abc123",
-  "code": "X7K2Q",
-  "name": "My Office",
-  "need_manual_approval": true,
-  "has_operating_hours": false
-}
-```
+**Response (200 OK):** Space object (same shape as above).
 
 #### Update Space
 
@@ -153,8 +135,8 @@ Content-Type: application/json
   "need_manual_approval": false,
   "has_operating_hours": true,
   "logo": {
-    base64_bytes: "iVBORw0KGgo...",
-    mimetype: "image/png"
+    "base64_bytes": "iVBORw0KGgo...",
+    "mimetype": "image/png"
   }
 }
 ```
@@ -304,6 +286,12 @@ Content-Type: application/json
 }
 ```
 
+| Field        | Required | Description                                              |
+| ------------ | -------- | -------------------------------------------------------- |
+| `day`        | yes      | Day of the week: `0`=Mon, `1`=Tue, ..., `6`=Sun — unique per space |
+| `open_time`  | yes      | Opening time in `HH:MM` format                           |
+| `close_time` | yes      | Closing time in `HH:MM` format — must be after `open_time` |
+
 **Response (201 Created):**
 
 ```json
@@ -314,12 +302,6 @@ Content-Type: application/json
   "close_time": "17:00"
 }
 ```
-
-**Validation:**
-
-- `day`: 0-6 (Monday-Sunday), unique per space
-- `open_time`/`close_time`: HH:MM format
-- `close_time` must be after `open_time`
 
 #### List Operating Hours
 
@@ -371,6 +353,118 @@ DELETE /antrikan/api/space/<space_hashed_id>/operating_hours/<operating_hour_has
   "close_time": "17:00"
 }
 ```
+
+---
+
+### Channel CRUD
+
+Channels belong to a Space. Creating, deleting, and restoring channels requires the `admin` role.
+
+#### Create Channel
+
+```
+POST /antrikan/api/space/<space_hashed_id>/channels
+Content-Type: application/json
+
+{
+  "name": "General",
+  "description": "General announcements",
+  "logo": {
+    "base64_bytes": "iVBORw0KGgo...",
+    "mimetype": "image/png"
+  }
+}
+```
+
+| Field         | Required | Description                                  |
+| ------------- | -------- | -------------------------------------------- |
+| `name`        | yes      | Channel name (max 255 chars)                 |
+| `description` | no       | Short description of the channel             |
+| `logo`        | no       | Image payload with `base64_bytes` and `mimetype` |
+
+**Response (201 Created):**
+
+```json
+{
+  "id": "hashedChannelId",
+  "name": "General",
+  "description": "General announcements",
+  "logo": "/uploaded_file/<uuid>"
+}
+```
+
+`logo` is `null` when no logo has been uploaded.
+
+#### List Channels
+
+```
+GET /antrikan/api/space/<space_hashed_id>/channels/index
+```
+
+Accepts optional query parameter `with_deleted=true` to include soft-deleted channels.
+
+**Response (200 OK):**
+
+```json
+{
+  "channels": [
+    {
+      "id": "hashedChannelId",
+      "name": "General",
+      "description": "General announcements",
+      "logo": null
+    }
+  ]
+}
+```
+
+#### Get Channel
+
+```
+GET /antrikan/api/channel/<channel_hashed_id>
+```
+
+**Response (200 OK):** Channel object (same shape as create response).
+
+#### Update Channel
+
+```
+PATCH /antrikan/api/channel/<channel_hashed_id>/update
+Content-Type: application/json
+
+{
+  "name": "Announcements",
+  "description": "Official announcements only",
+  "logo": {
+    "base64_bytes": "iVBORw0KGgo...",
+    "mimetype": "image/png"
+  }
+}
+```
+
+All fields are optional. **Supported Methods:** `PATCH`, `POST`
+
+**Response (200 OK):** Updated channel object.
+
+#### Delete Channel (Soft Delete)
+
+Requires `admin` role.
+
+```
+DELETE /antrikan/api/channel/<channel_hashed_id>/delete
+```
+
+**Response (200 OK):** Deleted channel object.
+
+#### Restore Channel
+
+Restores a soft-deleted channel. Requires `admin` role.
+
+```
+POST /antrikan/api/channel/<channel_hashed_id>/undelete
+```
+
+**Response (200 OK):** Restored channel object.
 
 ---
 
