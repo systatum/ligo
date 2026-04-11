@@ -3,6 +3,8 @@ class RequestHandler < Marten::Handler
   include HandlerResponders
   include ExceptionsHandler
   include RequestAuthorizer
+  include RequestCacher
+  include FileUploader
 
   before_dispatch :set_locale
 

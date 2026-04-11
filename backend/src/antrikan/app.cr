@@ -6,7 +6,6 @@ require "./models/**"
 require "./routes"
 require "./schemas/**"
 require "./serializers/**"
-require "./services/space/concerns/**"
 require "./services/**"
 
 module Antrikan

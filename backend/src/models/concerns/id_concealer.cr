@@ -45,8 +45,9 @@ module IdConcealer
       get!(id: IdConcealer.decode(hashed_id))
     end
 
-    def self.filter_by_hashed_id(hashed_id : String)
-      filter(id: IdConcealer.decode(hashed_id))
+    def self.filter_by_hashed_id(hashed_id : String, unscoped : Bool = false)
+      query = unscoped ? self.unscoped : self.all
+      query.filter(id: IdConcealer.decode(hashed_id))
     end
 
     def self.index_by_hashed_ids(hashed_ids : Set(String))

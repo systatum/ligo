@@ -7,7 +7,7 @@ class UploadedFileSerializer < ModelSerializer
       original_name: record.original_name,
       content_type:  record.content_type,
       byte_size:     record.byte_size,
-      url:           Marten.media_files_storage.url(record.id.to_s),
+      url:           Marten.routes.reverse("uploaded_file_show", id: record.id.to_s),
     }
   end
 end

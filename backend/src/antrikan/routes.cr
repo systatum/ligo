@@ -21,8 +21,22 @@ module Antrikan
         path "/<operating_hour_hashed_id:str>/delete", OperatingHourDeleteHandler, name: "delete"
       end
       path "/<space_hashed_id:str>/operating_hours", operating_hour_routes
+
+      channel_routes = Marten::Routing::Map.draw(:channel) do
+        path "/", ChannelCreateHandler, name: "create"
+        path "/index", ChannelIndexHandler, name: "index"
+      end
+      path "/<space_hashed_id:str>/channels", channel_routes
+    end
+
+    channel_routes = Marten::Routing::Map.draw(:channel) do
+      path "/<channel_hashed_id:str>", ChannelShowHandler, name: "show"
+      path "/<channel_hashed_id:str>/update", ChannelUpdateHandler, name: "update"
+      path "/<channel_hashed_id:str>/delete", ChannelDeleteHandler, name: "delete"
+      path "/<channel_hashed_id:str>/undelete", ChannelUndeleteHandler, name: "undelete"
     end
 
     path "/api/space", space_routes
+    path "/api/channel", channel_routes
   end
 end

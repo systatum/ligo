@@ -21,8 +21,8 @@ require "sidekiq"
 # Require all middlewares
 require "./middlewares/**"
 
-# Project-specific extensions (e.g. request helpers)
-require "./extensions/**"
+# Project-specific patches (e.g. monkey-patching helpers)
+require "./patches/**"
 
 # Project-specific libraries
 require "./lib/**"

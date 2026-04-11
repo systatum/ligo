@@ -1,6 +1,6 @@
 module Antrikan
   class Space::UpdaterService < BaseService(Space)
-    include Space::LogoUploader
+    include FileUploader
 
     def initialize(@space : Space, @data : Marten::HTTP::Params::Data)
     end
@@ -9,12 +9,16 @@ module Antrikan
       return failure(schema.errors) unless schema.valid?
 
       begin
-        handle_logo_upload
+        logo_file_id = upload_image(schema.logo) if @data.has_key?("logo")
 
-        @space.update!(schema.validated_data)
+        data = schema.validated_data
+        data.delete("logo")
+        data["logo_file_id"] = logo_file_id if @data.has_key?("logo") && logo_file_id
+
+        @space.update!(data)
 
         success(@space)
-      rescue ex : LogoUploadException
+      rescue ex : ::Errors::LogoUploadException
         failure(ex.errors)
       rescue ex : Marten::DB::Errors::InvalidRecord
         failure(ex.record.errors)

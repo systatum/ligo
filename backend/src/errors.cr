@@ -17,4 +17,7 @@ module Errors
       @errors = e
     end
   end
+
+  class LogoUploadException < ServiceException
+  end
 end

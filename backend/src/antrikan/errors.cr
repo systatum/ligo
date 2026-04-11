@@ -1,4 +1,3 @@
 module Antrikan
-  class LogoUploadException < ::Errors::ServiceException
-  end
+  # add exception classes here
 end

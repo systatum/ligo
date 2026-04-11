@@ -9,6 +9,7 @@ Marten.routes.draw do
 
   path "/ping", PingHandler, name: "ping"
   path "/job/<id:str>", JobStatusHandler, name: "job_status"
+  path "/uploaded_file/<id:uuid>", UploadedFileShowHandler, name: "uploaded_file_show"
 
   path "/api/products", ProductCreateHandler, name: "api_product_create"
   path "/api/products/<id:str>", ProductStateHandler, name: "api_product_show"

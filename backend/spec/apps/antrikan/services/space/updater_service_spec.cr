@@ -84,8 +84,7 @@ describe Antrikan::Space::UpdaterService do
 
           result.success?.should be_false
           result.errors.should_not be_nil
-          result.errors.not_nil![0].field.should eq "logo"
-          result.errors.not_nil![0].message.should eq "must be of 'image' mimetype"
+          result.errors.not_nil![0].message.should eq "must be an image (image/*)"
         end
       end
 
