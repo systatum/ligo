@@ -46,7 +46,7 @@ module Workaty
       result["title"] = JSON::Any.new(record.title)
       result["content"] = JSON::Any.new(record.content)
 
-      field_values = FieldValue.for_resource(resource_type, record.id.as(Int64))
+      field_values = FieldValue.for_resource(record.id.as(Int64), resource_type)
       field_values.each do |fv|
         field_def = fv.field_def
         next unless field_def

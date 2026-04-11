@@ -33,9 +33,9 @@ describe FieldValueConcerns::Updater do
         FieldValue.update!(template, form, FieldResourceType::EMAIL_TEMPLATE).should be_true
 
         field_value = FieldValue.for_resource_field(
-          FieldResourceType::EMAIL_TEMPLATE,
+          "title",
           template.id.as(Int64),
-          "title"
+          FieldResourceType::EMAIL_TEMPLATE
         )
 
         field_value.should_not be_nil

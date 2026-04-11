@@ -33,7 +33,7 @@ module FieldValueConcerns::Updater
 
   private def values_of(resource_type : FieldResourceType, resource_id : Int64)
     FieldValue
-      .filter(resource_type: resource_type, resource_id: resource_id)
+      .filter(resource_id: resource_id, resource_type: resource_type)
       .to_h { |fv| {Int64.new(fv.field_def.not_nil!.id!), fv} }
   end
 

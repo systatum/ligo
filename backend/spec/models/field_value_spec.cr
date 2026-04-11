@@ -291,15 +291,15 @@ describe FieldValue do
     end
 
     it "gets all field values for a specific resource" do
-      values = FieldValue.for_resource(FieldResourceType::CANDIDATE, 1)
+      values = FieldValue.for_resource(1, FieldResourceType::CANDIDATE)
       values.count.should eq 2
     end
 
     it "gets field value by field name for a specific resource" do
       value = FieldValue.for_resource_field(
-        FieldResourceType::CANDIDATE,
+        "first_name",
         1,
-        "first_name"
+        FieldResourceType::CANDIDATE
       )
       value.should_not be_nil
       value.try(&.string_value).should eq "John Doe"
@@ -307,9 +307,9 @@ describe FieldValue do
 
     it "returns nil for non-existent field name" do
       value = FieldValue.for_resource_field(
-        FieldResourceType::CANDIDATE,
+        "non_existent",
         1,
-        "non_existent"
+        FieldResourceType::CANDIDATE
       )
       value.should be_nil
     end

@@ -64,17 +64,17 @@ Spectator.describe Workaty::EmailTemplateCreateHandler do
           template = Workaty::EmailTemplate.last!
 
           category_value = FieldValue.filter(
-            resource_type: FieldResourceType::EMAIL_TEMPLATE,
+            field: category_field,
             resource_id: template.id,
-            field: category_field
+            resource_type: FieldResourceType::EMAIL_TEMPLATE
           ).first?
           expect(category_value).not_to be_nil
           expect(category_value.not_nil!.string_value).to eq("Hiring")
 
           is_reviewed_value = FieldValue.filter(
-            resource_type: FieldResourceType::EMAIL_TEMPLATE,
+            field: is_reviewed_field,
             resource_id: template.id,
-            field: is_reviewed_field
+            resource_type: FieldResourceType::EMAIL_TEMPLATE
           ).first?
           expect(is_reviewed_value).not_to be_nil
           expect(is_reviewed_value.not_nil!.boolean_value).to be_true

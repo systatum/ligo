@@ -3,6 +3,8 @@ module FieldValueConcerns::ValueManipulator
     case field_def.not_nil!.data_type_enum
     when FieldDataType::DTYPE_STRING
       string_value
+    when FieldDataType::DTYPE_TEXT
+      text_value
     when FieldDataType::DTYPE_INT
       integer_value
     when FieldDataType::DTYPE_FLOAT
@@ -22,6 +24,7 @@ module FieldValueConcerns::ValueManipulator
 
   def actual_value
     string_value ||
+      text_value ||
       integer_value ||
       float_value ||
       date_value ||
@@ -38,8 +41,10 @@ module FieldValueConcerns::ValueManipulator
     clear_all_values
 
     case field_def.not_nil!.data_type_enum
-    when FieldDataType::DTYPE_STRING, FieldDataType::DTYPE_TEXT, FieldDataType::DTYPE_TEXT_RICH
+    when FieldDataType::DTYPE_STRING, FieldDataType::DTYPE_TEXT_RICH
       self.string_value = val.try(&.to_s)
+    when FieldDataType::DTYPE_TEXT
+      self.text_value = val.try(&.to_s)
     when FieldDataType::DTYPE_INT
       self.integer_value =
         if val.is_a?(Int64)
@@ -83,6 +88,7 @@ module FieldValueConcerns::ValueManipulator
 
   private def clear_all_values
     self.string_value = nil
+    self.text_value = nil
     self.integer_value = nil
     self.float_value = nil
     self.date_value = nil

@@ -56,12 +56,14 @@ module SystemFieldsMigrator
   end
 
   SAFE_TRANSITIONS = {
-    FieldDataType::DTYPE_INT      => [FieldDataType::DTYPE_FLOAT, FieldDataType::DTYPE_STRING],
-    FieldDataType::DTYPE_FLOAT    => [FieldDataType::DTYPE_STRING],
-    FieldDataType::DTYPE_DATE     => [FieldDataType::DTYPE_DATETIME, FieldDataType::DTYPE_STRING],
-    FieldDataType::DTYPE_TIME     => [FieldDataType::DTYPE_STRING],
-    FieldDataType::DTYPE_DATETIME => [FieldDataType::DTYPE_STRING],
-    FieldDataType::DTYPE_BOOLEAN  => [FieldDataType::DTYPE_STRING],
+    FieldDataType::DTYPE_INT      => [FieldDataType::DTYPE_FLOAT, FieldDataType::DTYPE_STRING, FieldDataType::DTYPE_TEXT],
+    FieldDataType::DTYPE_FLOAT    => [FieldDataType::DTYPE_STRING, FieldDataType::DTYPE_TEXT],
+    FieldDataType::DTYPE_DATE     => [FieldDataType::DTYPE_DATETIME, FieldDataType::DTYPE_STRING, FieldDataType::DTYPE_TEXT],
+    FieldDataType::DTYPE_TIME     => [FieldDataType::DTYPE_STRING, FieldDataType::DTYPE_TEXT],
+    FieldDataType::DTYPE_DATETIME => [FieldDataType::DTYPE_STRING, FieldDataType::DTYPE_TEXT],
+    FieldDataType::DTYPE_BOOLEAN  => [FieldDataType::DTYPE_STRING, FieldDataType::DTYPE_TEXT],
+    FieldDataType::DTYPE_STRING   => [FieldDataType::DTYPE_TEXT],
+    FieldDataType::DTYPE_TEXT     => [FieldDataType::DTYPE_STRING],
   }
 
   private def safe_transition?(from : FieldDataType, to : FieldDataType) : Bool
@@ -118,7 +120,7 @@ module SystemFieldsMigrator
     to : FieldDataType,
   ) : String | Int64 | Float64 | Bool | Time
     case to
-    when FieldDataType::DTYPE_STRING
+    when FieldDataType::DTYPE_STRING, FieldDataType::DTYPE_TEXT
       value.to_s
     when FieldDataType::DTYPE_INT
       case value
@@ -190,6 +192,7 @@ module SystemFieldsMigrator
   private def clear_value_columns(fv : FieldValue)
     FieldValue.filter(id: fv.id).update(
       string_value: nil,
+      text_value: nil,
       integer_value: nil,
       float_value: nil,
       boolean_value: nil,
@@ -203,6 +206,8 @@ module SystemFieldsMigrator
     case data_type
     when FieldDataType::DTYPE_STRING
       FieldValue.filter(id: fv.id).update(string_value: value.as(String))
+    when FieldDataType::DTYPE_TEXT
+      FieldValue.filter(id: fv.id).update(text_value: value.as(String))
     when FieldDataType::DTYPE_INT
       FieldValue.filter(id: fv.id).update(integer_value: value.as(Int64))
     when FieldDataType::DTYPE_FLOAT

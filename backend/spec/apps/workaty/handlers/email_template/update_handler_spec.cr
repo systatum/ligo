@@ -66,17 +66,17 @@ Spectator.describe Workaty::EmailTemplateUpdateHandler do
           expect(response.status).to eq(200)
 
           first_name_value = FieldValue.filter(
-            resource_type: FieldResourceType::EMAIL_TEMPLATE,
+            field: first_name_field,
             resource_id: template.id,
-            field: first_name_field
+            resource_type: FieldResourceType::EMAIL_TEMPLATE
           ).first?
           expect(first_name_value).not_to be_nil
           expect(first_name_value.not_nil!.string_value).to eq("John")
 
           city_value = FieldValue.filter(
-            resource_type: FieldResourceType::EMAIL_TEMPLATE,
+            field: city_field,
             resource_id: template.id,
-            field: city_field
+            resource_type: FieldResourceType::EMAIL_TEMPLATE
           ).first?
           expect(city_value).not_to be_nil
           expect(city_value.not_nil!.string_value).to eq("San Francisco")
@@ -107,17 +107,17 @@ Spectator.describe Workaty::EmailTemplateUpdateHandler do
           expect(response.status).to eq(200)
 
           age_value = FieldValue.filter(
-            resource_type: FieldResourceType::EMAIL_TEMPLATE,
+            field: age_field,
             resource_id: template.id,
-            field: age_field
+            resource_type: FieldResourceType::EMAIL_TEMPLATE
           ).first?
           expect(age_value).not_to be_nil
           expect(age_value.not_nil!.integer_value).to eq(35)
 
           score_value = FieldValue.filter(
-            resource_type: FieldResourceType::EMAIL_TEMPLATE,
+            field: score_field,
             resource_id: template.id,
-            field: score_field
+            resource_type: FieldResourceType::EMAIL_TEMPLATE
           ).first?
           expect(score_value).not_to be_nil
           expect(score_value.not_nil!.float_value).to eq(98.5)
@@ -147,9 +147,9 @@ Spectator.describe Workaty::EmailTemplateUpdateHandler do
           expect(response.status).to eq(200)
 
           verified_value = FieldValue.filter(
-            resource_type: FieldResourceType::EMAIL_TEMPLATE,
+            field: verified_field,
             resource_id: template.id,
-            field: verified_field
+            resource_type: FieldResourceType::EMAIL_TEMPLATE
           ).first?
           expect(verified_value).not_to be_nil
           expect(verified_value.not_nil!.boolean_value).to be_true
