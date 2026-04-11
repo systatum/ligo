@@ -56,12 +56,12 @@ Before moving forward, please install `asdf` and `asdf crystal`. Follow the foll
 - Install the same Crystal version as in the `.tool-versions`:
 
   ```bash
-  asdf install crystal 1.16.3
+  asdf install crystal 1.19.1
   ```
 - Then configure to use that version of Crystal on the local directory:
 
   ```bash
-  asdf set crystal 1.16.3
+  asdf set crystal 1.19.1
   ```
 - To check if Crystal has been installed successfully:
 
