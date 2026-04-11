@@ -11,13 +11,13 @@ Marten.routes.draw do
   path "/job/<id:str>", JobStatusHandler, name: "job_status"
   path "/uploaded_file/<id:uuid>", UploadedFileShowHandler, name: "uploaded_file_show"
 
-  path "/api/products", ProductCreateHandler, name: "api_product_create"
+  path "/api/products/create", ProductCreateHandler, name: "api_product_create"
   path "/api/products/<id:str>", ProductStateHandler, name: "api_product_show"
   path "/api/products/<id:str>", ProductStateHandler, name: "api_product_update"
   path "/api/products/<id:str>", ProductStateHandler, name: "api_product_delete"
 
   field_routes = Marten::Routing::Map.draw(:field) do
-    path "/", FieldCreateHandler, name: "create"
+    path "/create", FieldCreateHandler, name: "create"
     path "/<field_hashed_id:str>/update", FieldUpdateHandler, name: "update"
     path "/<field_hashed_id:str>/delete", FieldDeleteHandler, name: "delete"
     path "/rt/<resource_type:str>/index", FieldIndexHandler, name: "index"

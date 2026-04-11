@@ -1,7 +1,7 @@
 module Antrikan
   ROUTES = Marten::Routing::Map.draw do
     space_routes = Marten::Routing::Map.draw(:space) do
-      path "/", SpaceCreateHandler, name: "create"
+      path "/create", SpaceCreateHandler, name: "create"
       path "/index", SpaceIndexHandler, name: "index"
       path "/<space_hashed_id:str>", SpaceShowHandler, name: "show"
       path "/<space_hashed_id:str>/update", SpaceUpdateHandler, name: "update"
@@ -15,7 +15,7 @@ module Antrikan
       path "/code", code_routes
 
       operating_hour_routes = Marten::Routing::Map.draw(:operating_hour) do
-        path "/", OperatingHourCreateHandler, name: "create"
+        path "/create", OperatingHourCreateHandler, name: "create"
         path "/index", OperatingHourIndexHandler, name: "index"
         path "/<operating_hour_hashed_id:str>/update", OperatingHourUpdateHandler, name: "update"
         path "/<operating_hour_hashed_id:str>/delete", OperatingHourDeleteHandler, name: "delete"
@@ -23,7 +23,7 @@ module Antrikan
       path "/<space_hashed_id:str>/operating_hours", operating_hour_routes
 
       channel_routes = Marten::Routing::Map.draw(:channel) do
-        path "/", ChannelCreateHandler, name: "create"
+        path "/create", ChannelCreateHandler, name: "create"
         path "/index", ChannelIndexHandler, name: "index"
       end
       path "/<space_hashed_id:str>/channels", channel_routes

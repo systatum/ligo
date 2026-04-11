@@ -9,7 +9,7 @@ module Auth
     path "/api/user/my-picture", MyPictureUploadHandler, name: "api_my_picture_upload"
 
     organization_routes = Marten::Routing::Map.draw do
-      path "", OrganizationCreateHandler, name: "api_organization_create"
+      path "/create", OrganizationCreateHandler, name: "api_organization_create"
       path "/<hashed_id:str>", OrganizationUpdateHandler, name: "api_organization_update"
       path "/<hashed_id:str>/delete", OrganizationDeleteHandler, name: "api_organization_delete"
     end
