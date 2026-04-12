@@ -28,9 +28,9 @@ require "./patches/**"
 require "./lib/**"
 
 # Configuration requirements.
+require "../config/initializers/**"
 require "../config/settings/base"
 require "../config/settings/**"
-require "../config/initializers/**"
 require "../config/routes"
 
 # Project requirements.

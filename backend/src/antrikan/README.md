@@ -46,7 +46,7 @@ All endpoints require authentication via `Authorization: Bearer <jwt_token>` hea
 #### Create Space
 
 ```
-POST /antrikan/api/space/
+POST /antrikan/api/space/create
 Content-Type: application/json
 
 {
@@ -276,7 +276,7 @@ Operating hours are nested under spaces.
 #### Create Operating Hour
 
 ```
-POST /antrikan/api/space/<space_hashed_id>/operating_hours/
+POST /antrikan/api/space/<space_hashed_id>/operating_hours/create
 Content-Type: application/json
 
 {
@@ -363,7 +363,7 @@ Channels belong to a Space. Creating, deleting, and restoring channels requires 
 #### Create Channel
 
 ```
-POST /antrikan/api/space/<space_hashed_id>/channels
+POST /antrikan/api/space/<space_hashed_id>/channels/create
 Content-Type: application/json
 
 {

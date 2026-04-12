@@ -24,10 +24,6 @@ shards:
     git: https://github.com/crystal-lang/crystal-db.git
     version: 0.14.0
 
-  dotenv:
-    git: https://github.com/gdotdesign/cr-dotenv.git
-    version: 1.0.0
-
   ed25519:
     git: https://github.com/spider-gazelle/ed25519.git
     version: 1.1.0
@@ -154,7 +150,7 @@ shards:
 
   typed_env_config:
     git: https://github.com/systatum/typed_env_config.git
-    version: 0.2.0
+    version: 0.3.0
 
   vips:
     git: https://github.com/naqvis/crystal-vips.git

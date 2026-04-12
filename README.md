@@ -12,6 +12,7 @@ What is Ligo? Ligo is our "Everything Backend." It is a latin word, a related wo
 - [Todo](#todo)
 - [Convention](#convention)
 - [Deployment](#deployment)
+- [Reference](#reference)
 
 
 ## Setup MySQL database
@@ -174,7 +175,7 @@ All authenticated endpoints require the `Authorization: Bearer <jwt_token>` head
 | POST | `/auth/api/user/request_password_reset` | Request a password reset email |
 | PATCH/POST | `/auth/api/user/my-bio` | Update current user's biodata (requires auth) |
 | PATCH/POST | `/auth/api/user/my-picture` | Upload current user's profile picture (requires auth) |
-| POST | `/auth/api/organizations` | Create a new organization |
+| POST | `/auth/api/organizations/create` | Create a new organization |
 | PATCH/POST | `/auth/api/organizations/<hashed_id>` | Update an organization |
 | DELETE | `/auth/api/organizations/<hashed_id>/delete` | Delete an organization |
 
@@ -296,7 +297,7 @@ Content-Type: application/json
 
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/api/products` | Create a product |
+| POST | `/api/products/create` | Create a product |
 | GET | `/api/products/<id>` | Get a product |
 | PATCH/POST | `/api/products/<id>` | Update a product (requires `bizdev+` role) |
 | DELETE | `/api/products/<id>` | Soft-delete a product |
@@ -307,7 +308,7 @@ Dynamic fields extend any resource type (e.g., `EMAIL_TEMPLATE`) with custom att
 
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/api/field/` | Create a field definition |
+| POST | `/api/field/create` | Create a field definition |
 | PATCH/POST | `/api/field/<field_hashed_id>/update` | Update a field definition |
 | DELETE | `/api/field/<field_hashed_id>/delete` | Delete a field definition |
 | GET | `/api/field/rt/<resource_type>/index` | List field definitions for a resource type |
@@ -315,7 +316,7 @@ Dynamic fields extend any resource type (e.g., `EMAIL_TEMPLATE`) with custom att
 #### Create Field Definition
 
 ```
-POST /api/field/
+POST /api/field/create
 Authorization: Bearer <jwt_token>
 Content-Type: application/json
 
@@ -352,14 +353,18 @@ Next release (for hospital):
 - Unlike in Rails or most other frameworks where actions are put into the same controller, in Marten each action has its own handler.
 - Routing convention:
 
-  | path                                | handler       | description                     |
-  |-------------------------------------|---------------|---------------------------------|
-  | `""`                                | CreateHandler | Route to create a new record    |
-  | `"/<resource_id:some_type>"`        | ShowHandler   | Route to retrieve/show a record |
-  | `"/<resource_id:some_type>/update"` | UpdateHandler | Update a record                 |
-  | `"/<resource_id:some_type>/delete"` | DeleteHandler | Delete a record                 |\
+  | path                                | handler       | description                                |
+  |-------------------------------------|---------------|--------------------------------------------|
+  | `"/list"`                           | ListHandler   | Route to list existing records (unbounded) |
+  | `"/index"`                          | IndexHandler  | Route to index existing records (bounded)  |
+  | `"/create"`                         | CreateHandler | Route to create a new record               |
+  | `"/<resource_id:some_type>"`        | ShowHandler   | Route to retrieve/show a record            |
+  | `"/<resource_id:some_type>/update"` | UpdateHandler | Update a record                            |
+  | `"/<resource_id:some_type>/delete"` | DeleteHandler | Delete a record                            |\
 
   If the resource is a `Candidate` then it would be `<candidate_hashed_id:str>` or `<candidate_slug:str>`, for example.
+
+  Path `index` is bounded or scoped (i.e it should be dependent on the user doing the request, etc) to a subset of records, whereby `list` is unbounded (i.e for admin, superuser/superadmin) meaning it lists the entire set of records.
 
 - Scope model with proper app, ie `Workaty::Candidate`.
 - The class veriable `@@` should be at the very top, followed by `includes` and any other macro.

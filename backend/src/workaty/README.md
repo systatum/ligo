@@ -61,7 +61,7 @@ All paths are prefixed with `/workaty` (e.g., `POST /workaty/api/candidate`).
 #### Create Candidate
 
 ```
-POST /workaty/api/candidate
+POST /workaty/api/candidate/create
 Content-Type: application/json
 
 {
@@ -138,7 +138,7 @@ Degrees are nested under candidates.
 #### Create Degree
 
 ```
-POST /workaty/api/candidate/<candidate_slug>/degrees
+POST /workaty/api/candidate/<candidate_slug>/degrees/create
 Content-Type: application/json
 
 {
@@ -201,7 +201,7 @@ DELETE /workaty/api/candidate/<candidate_slug>/degrees/<degree_hashed_id>/delete
 #### Create Team Division
 
 ```
-POST /workaty/api/team_division/
+POST /workaty/api/team_division/create
 Content-Type: application/json
 
 {
@@ -255,7 +255,7 @@ DELETE /workaty/api/team_division/<team_division_hashed_id>/delete
 #### Create Employee
 
 ```
-POST /workaty/api/employee/
+POST /workaty/api/employee/create
 Content-Type: application/json
 
 {
@@ -353,7 +353,7 @@ Email Template endpoints accept native fields (`title`, `content`) alongside any
 #### Create Email Template
 
 ```
-POST /workaty/api/email/template/
+POST /workaty/api/email/template/create
 Content-Type: application/json
 
 {

@@ -25,7 +25,7 @@ dependencies:
     github: martenframework/marten-s3
   typed_env_config:
     github: systatum/typed_env_config
-    version: 0.2.0
+    version: 0.3.0
   halite:
     github: icyleaf/halite
   hashids:
@@ -35,8 +35,6 @@ dependencies:
     github: systatum/rbacr
   email:
     github: arcage/crystal-email
-  dotenv:
-    github: gdotdesign/cr-dotenv
   markd:
     github: icyleaf/markd
   qr-code:

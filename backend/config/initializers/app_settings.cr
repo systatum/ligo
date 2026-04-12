@@ -10,12 +10,13 @@ class AppSettings
   field ligo_app_salt_for_id_concealer : String, default: ""
   field ligo_app_base_url : String, default: "http://localhost:8000"
   field ligo_app_password_reset_token_expiry_minutes : Int32, default: 5
+  field ligo_app_mode : String, default: ""
 
-  field ligo_database_host : String, default: ""
-  field ligo_database_port : Int32, default: 0
-  field ligo_database_name : String, default: ""
-  field ligo_database_user : String, default: ""
-  field ligo_database_password : String, default: ""
+  field ligo_database_host : String, default: "", envvar: "LIGO_DB_HOST"
+  field ligo_database_port : Int32, default: 0, envvar: "LIGO_DB_PORT"
+  field ligo_database_name : String, default: "", envvar: "LIGO_DB_NAME"
+  field ligo_database_user : String, default: "", envvar: "LIGO_DB_USERNAME"
+  field ligo_database_password : String, default: "", envvar: "LIGO_DB_PASSWORD"
 
   field ligo_mailer_smtp_host : String, default: ""
   field ligo_mailer_smtp_port : Int32, default: 0
@@ -48,25 +49,22 @@ class AppSettings
 
   @@instance : AppSettings?
 
-  @@app_mode : String? = nil
-
   def self.instance
-    @@instance ||= AppSettings.load_from_yaml_file!("./app_settings.yml", Marten.env.id)
+    @@instance ||= begin
+      config = AppSettings.load_from_yaml_file!("./app_settings.yml", Marten.env.id)
+      config.load_from_env_file
+      config.load_from_env!
+      config
+    end
   end
 
   def self.app_mode : String
-    return @@app_mode.not_nil! if @@app_mode
-    mode = ENV["LIGO_APP_MODE"]?
+    mode = self.instance.ligo_app_mode
     valid_modes = AppInfo.all.keys
     unless mode && valid_modes.includes?(mode)
       raise Exception.new("LIGO_APP_MODE must be set to one of: #{valid_modes.join(", ")}. Current: #{mode.inspect}")
     end
-    @@app_mode = mode
-    mode.not_nil!
-  end
-
-  def app_mode : String
-    self.class.app_mode
+    mode
   end
 end
 
