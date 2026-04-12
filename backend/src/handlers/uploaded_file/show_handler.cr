@@ -22,11 +22,16 @@ class UploadedFileShowHandler < RequestHandler
     resp.headers["Content-Length"] = file.byte_size.not_nil!.to_s
 
     resp
-  rescue IO::Error | Marten::Core::Storage::Errors::FileNotFound
-    head 404
-  rescue XML::Error
+  rescue ex : IO::Error | Marten::Core::Storage::Errors::FileNotFound
+    handle_error ex
+  rescue ex : XML::Error
     # Missing binary from storage could raise an XML parse error
     # from the S3 client path (empty error body)
+    handle_error ex
+  end
+
+  private def handle_error(ex)
+    Logger.error("Failed to get uploaded file", ex)
     head 404
   end
 
@@ -55,8 +60,10 @@ class UploadedFileShowHandler < RequestHandler
   end
 
   private def uploaded_file : UploadedFile?
-    @uploaded_file ||= UploadedFile.get(id: params["id"])
-  rescue
+    id = params["id"]
+    @uploaded_file ||= UploadedFile.get(id: id)
+  rescue ex
+    Logger.error("Failed to find file metadata (id=#{id})", ex)
     nil
   end
 end

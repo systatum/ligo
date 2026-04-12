@@ -1,4 +1,4 @@
-require "../spec_helper"
+require "./spec_helper"
 
 describe Current do
   it "isolates performer_id across concurrent fibers with middleware" do

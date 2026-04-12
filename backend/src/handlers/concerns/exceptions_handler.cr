@@ -39,18 +39,6 @@ module ExceptionsHandler
   end
 
   private def debug_exception(e)
-    if ENV["MARTEN_ENV"] == "test"
-      puts e.message
-      e.backtrace.each do |line|
-        # skip noise lines
-        next if line.includes?("lib/marten") || line.includes?("marten/src/") ||
-                line.includes?("crystal/src") || line.includes?("crystal/core/") ||
-                line.includes?("??")
-
-        puts "#{line}\n"
-      end
-
-      puts "\n"
-    end
+    Logger.error("#{e.class}: #{e.message}", e)
   end
 end

@@ -1,4 +1,4 @@
-require "../spec_helper"
+require "./spec_helper"
 
 describe SystemFieldsMigrator do
   original_fields = [] of SystemFieldsMigrator::FieldDefinitionConfig

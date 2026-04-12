@@ -1,4 +1,4 @@
-require "../spec_helper"
+require "./spec_helper"
 
 describe IPDetector do
   describe "#client_ip" do
