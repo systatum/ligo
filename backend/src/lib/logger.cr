@@ -23,9 +23,14 @@ class Logger
     file = open_log_file
 
     broadcast = Log::BroadcastBackend.new
+
+    unless Marten.env.test?
+      broadcast.append(Log::IOBackend.new(file, formatter: LoggerMessageOnlyFormatter), Log::Severity::Trace)
+      broadcast.append(Log::IOBackend.new(STDERR, formatter: LoggerMessageOnlyFormatter), Log::Severity::Error)
+    end
+
+    # always write to the file (helpful for debugging test failures later)
     broadcast.append(Log::IOBackend.new(formatter: LoggerMessageOnlyFormatter), Log::Severity::Trace)
-    broadcast.append(Log::IOBackend.new(file, formatter: LoggerMessageOnlyFormatter), Log::Severity::Trace)
-    broadcast.append(Log::IOBackend.new(STDERR, formatter: LoggerMessageOnlyFormatter), Log::Severity::Error)
 
     Log.setup_from_env(backend: broadcast)
   end
@@ -108,15 +113,16 @@ class Logger
   private def open_log_file : IO
     Dir.mkdir_p(LOG_FILE_DIR)
 
-    if Marten.env.development?
+    if Marten.env.development? || Marten.env.test?
       # just use a single file
-      path = LOG_FILE_DIR / Path.new("development.log")
-      file = File.open(path, "w")
+      filename = "#{Marten.env.id}.log"
     else
       timestamp = Time.utc.to_s("%Y%m%d_%H%M%S")
-      path = LOG_FILE_DIR / Path.new("#{Marten.env.id}_#{timestamp}.log")
-      file = File.open(path, "a")
+      filename = "#{Marten.env.id}_#{timestamp}.log"
     end
+
+    path = LOG_FILE_DIR / Path.new(filename)
+    file = File.open(path, "w")
 
     puts "Log file: #{path.expand}"
     file

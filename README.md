@@ -44,32 +44,35 @@ Then, you can use your database admin app of choice (ie TablePlus or BeeKeeper S
 - User: ligo_db_user
 - Password: ligo_db_password
 
-## Setup Crystal and Marten
+## Setup
 
-Before moving forward, please install `asdf` and `asdf crystal`. Follow the following steps:
+Before moving forward, please install `asdf` and `asdf crystal` or `vfox` as sdk manager. Then call the following script to install the Crystal and Marten binaries. You will be asked to enter password for permission upgrade.
 
-- Install the [asdf package manager](https://asdf-vm.com/)
-- Add [asdf-crystal](https://github.com/asdf-community/asdf-crystal).
+```bash
+./install_crystal_marten.sh
+```
 
-  ```bash
-  asdf plugin-add crystal https://github.com/asdf-community/asdf-crystal.git
-  ```
-- Install the same Crystal version as in the `.tool-versions`:
+Then run `shards install` within the `backend` folder. Always, for local development, rename `.env.sample` to `.env` and fill up the environment accordingly. You can then proceed with the common commands to run database migrations and the server.
+
+If, you like to install Crystal manually, follow this, assuming using _asdf_ as the SDK manager:
 
   ```bash
   asdf install crystal 1.19.1
   ```
-- Then configure to use that version of Crystal on the local directory:
+
+Then configure to use that version of Crystal on the local directory:
 
   ```bash
   asdf set crystal 1.19.1
   ```
-- To check if Crystal has been installed successfully:
+
+To check if Crystal has been installed successfully:
 
   ```bash
   crystal -v
   ```
-- Install the Marten framework:
+
+Install the Marten framework:
 
   ```bash
   cd backend
@@ -78,9 +81,7 @@ Before moving forward, please install `asdf` and `asdf crystal`. Follow the foll
   brew install marten
   ```
 
-  It's possible that the install `marten` framework is of the newer version, in which case please upgrade our Marten shard as well.
-
-You can then proceed with the common commands to run database migrations and the server.
+It's possible that the install `marten` framework is of the newer version, in which case please upgrade our Marten shard as well.
 
 ## Sub-Apps
 

@@ -1,22 +1,14 @@
 require "./spec_helper"
 
 describe Logger do
-  describe ".setup" do
+  describe ".instance" do
     it "creates the log directory and a log file relative to the working directory" do
-      tmpdir = File.join(Dir.tempdir, "logger_spec_#{Random::Secure.hex(6)}")
-      Dir.mkdir_p(tmpdir)
-      original_dir = Dir.current
-      Dir.cd(tmpdir)
+      Logger.reset_instance
 
-      begin
-        Logger.setup
+      Logger.instance
 
-        Dir.exists?(File.join(tmpdir, "log")).should be_true
-        Dir.glob(File.join(tmpdir, "log", "*.log")).should_not be_empty
-      ensure
-        Dir.cd(original_dir)
-        FileUtils.rm_rf(tmpdir)
-      end
+      Dir.exists?(File.join(Dir.current, "log")).should be_true
+      Dir.glob(File.join(Dir.current, "log", "test.log")).should_not be_empty
     end
   end
 
@@ -33,7 +25,7 @@ describe Logger do
       entry.source.should eq "ligo"
 
       body = JSON.parse(entry.message)
-      body["severity"].as_s.should eq "debug"
+      body["severity"].as_s.should eq "DEBUG"
       body["message"].as_s.should eq "hello from debug"
       body["stacktrace"].raw.should be_nil
       body["when"].as_s.ends_with?("+07:00").should be_true
@@ -62,7 +54,7 @@ describe Logger do
       entry.source.should eq "ligo"
 
       body = JSON.parse(entry.message)
-      body["severity"].as_s.should eq "info"
+      body["severity"].as_s.should eq "INFO"
       body["message"].as_s.should eq "hello from info"
       body["stacktrace"].raw.should be_nil
     end
@@ -90,7 +82,7 @@ describe Logger do
       entry.source.should eq "ligo"
 
       body = JSON.parse(entry.message)
-      body["severity"].as_s.should eq "error"
+      body["severity"].as_s.should eq "ERROR"
       body["message"].as_s.should eq "something went wrong"
     end
 
