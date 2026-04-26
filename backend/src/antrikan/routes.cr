@@ -27,6 +27,13 @@ module Antrikan
         path "/index", ChannelIndexHandler, name: "index"
       end
       path "/<space_hashed_id:str>/channels", channel_routes
+
+      queuer_space_routes = Marten::Routing::Map.draw(:queuer) do
+        path "/create", QueuerCreateHandler, name: "create"
+        path "/index", QueuerIndexHandler, name: "index"
+        path "/update", QueuerUpdateHandler, name: "update"
+      end
+      path "/<space_hashed_id:str>/queuer", queuer_space_routes
     end
 
     channel_routes = Marten::Routing::Map.draw(:channel) do
@@ -36,7 +43,14 @@ module Antrikan
       path "/<channel_hashed_id:str>/undelete", ChannelUndeleteHandler, name: "undelete"
     end
 
+    queuer_routes = Marten::Routing::Map.draw(:queuer) do
+      path "/<queuer_hashed_id:str>", QueuerShowHandler, name: "show"
+      path "/<queuer_hashed_id:str>/delete", QueuerDeleteHandler, name: "delete"
+      path "/<queuer_hashed_id:str>/undelete", QueuerUndeleteHandler, name: "undelete"
+    end
+
     path "/api/space", space_routes
     path "/api/channel", channel_routes
+    path "/api/queuer", queuer_routes
   end
 end

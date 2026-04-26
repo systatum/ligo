@@ -8,6 +8,7 @@ class Antrikan::Space < Marten::Model
   field :name, :string, max_size: 255, null: false, blank: false
   field :need_manual_approval, :bool, null: false, default: true
   field :has_operating_hours, :bool, null: false, default: false
+  field :require_registered_queuer, :bool, null: false, default: false
   field :logo_file_id, :uuid, null: true, blank: true
   field :created_at, :date_time, null: false, auto_now_add: true
   field :updated_at, :date_time, null: false, auto_now: true

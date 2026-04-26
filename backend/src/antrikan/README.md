@@ -7,12 +7,14 @@ Queue management system for managing spaces, their operating hours, and channels
   - [Space Member](#space-member)
   - [Operating Hour](#operating-hour)
   - [Channel](#channel)
+  - [Queuer](#queuer)
 - [API Endpoints](#api-endpoints)
   - [Space CRUD](#space-crud)
   - [Space QR Code](#space-qr-code)
   - [Space Membership By Code](#space-membership-by-code)
   - [Operating Hour CRUD](#operating-hour-crud)
   - [Channel CRUD](#channel-crud)
+  - [Queuer CRUD](#queuer-crud)
 - [Error Responses](#error-responses)
 - [Running Tests](#running-tests)
 - [Dependencies](#dependencies)
@@ -34,6 +36,10 @@ Defines the opening and closing times for a space on a specific day of the week.
 ### Channel
 
 A named sub-queue or category within a space (e.g. "General", "VIP"). Supports an optional description and logo. Can be soft-deleted and restored.
+
+### Queuer
+
+Represents a queueing identity inside a space. A queuer has a name, an auto-generated password (returned once at creation), and can optionally be associated with a registered user.
 
 ---
 
@@ -468,14 +474,148 @@ POST /antrikan/api/channel/<channel_hashed_id>/undelete
 
 ---
 
+### Queuer CRUD
+
+Queuers can be managed within a space and referenced individually by their hashed ID.
+
+#### Create Queuer
+
+Creates a queuer in the specified space and returns a generated plain password.
+
+```
+POST /antrikan/api/space/<space_hashed_id>/queuer/create
+Content-Type: application/json
+
+{
+  "name": "Table 1",
+  "user_id": "optionalUserHashedId"
+}
+```
+
+| Field     | Required | Description                                                                 |
+| --------- | -------- | --------------------------------------------------------------------------- |
+| `name`    | yes      | Queuer display name (max 255 chars)                                        |
+| `user_id` | no       | Optional associated user hashed ID                                          |
+
+If the space is configured with `require_registered_queuer = true`, `user_id` is required.
+
+**Response (201 Created):**
+
+```json
+{
+  "queuer": {
+    "id": "hashedQueuerId",
+    "space_id": "hashedSpaceId",
+    "user_id": "optionalUserHashedId",
+    "name": "Table 1"
+  },
+  "password": "generated_plain_password"
+}
+```
+
+`password_hash` is never returned in the response.
+
+#### List Queuers
+
+```
+GET /antrikan/api/space/<space_hashed_id>/queuer/index
+```
+
+Accepts optional query parameter `with_deleted=true` to include soft-deleted queuers.
+
+**Response (200 OK):**
+
+```json
+{
+  "queuers": [
+    {
+      "id": "hashedQueuerId",
+      "space_id": "hashedSpaceId",
+      "user_id": null,
+      "name": "Table 1"
+    }
+  ]
+}
+```
+
+#### Get Queuer
+
+```
+GET /antrikan/api/queuer/<queuer_hashed_id>
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "id": "hashedQueuerId",
+  "space_id": "hashedSpaceId",
+  "user_id": null,
+  "name": "Table 1"
+}
+```
+
+Soft-deleted queuers return `404` on this endpoint.
+
+#### Update Queuer
+
+```
+PATCH /antrikan/api/space/<space_hashed_id>/queuer/update
+Content-Type: application/json
+
+{
+  "queuer_id": "hashedQueuerId",
+  "password": "current_plain_password",
+  "name": "Table 1 - Updated",
+  "user_id": "optionalUserHashedId"
+}
+```
+
+**Supported Methods:** `PATCH`, `POST`
+
+| Field       | Required | Description                                                                      |
+| ----------- | -------- | -------------------------------------------------------------------------------- |
+| `queuer_id` | yes      | Target queuer hashed ID (must belong to the space in path)                      |
+| `password`  | yes      | Current plain password for verification                                          |
+| `name`      | no       | New queuer name                                                                  |
+| `user_id`   | no       | Set association to a user; pass `null` to clear it (if allowed by space policy) |
+
+If the space requires a registered queuer, setting `user_id` to `null` returns `422`.
+
+**Response (200 OK):** Updated queuer object.
+
+#### Delete Queuer (Soft Delete)
+
+Requires `admin` role and the authenticated user must own the queuer's space.
+
+```
+DELETE /antrikan/api/queuer/<queuer_hashed_id>/delete
+```
+
+**Response (200 OK):** Soft-deleted queuer object.
+
+#### Restore Queuer
+
+Restores a soft-deleted queuer. Requires `admin` role and space ownership.
+
+```
+PATCH /antrikan/api/queuer/<queuer_hashed_id>/undelete
+```
+
+**Supported Methods:** `PATCH`, `POST`
+
+**Response (200 OK):** Restored queuer object.
+
+---
+
 ## Error Responses
 
 | Status | Description                                                     |
 | ------ | --------------------------------------------------------------- |
 | 400    | Not authenticated or malformed JSON body                        |
-| 403    | Not authorized (owner-only endpoints)                           |
+| 403    | Not authorized (for queuer delete/restore: must be `admin` and owner of the queuer's space) |
 | 404    | Resource not found                                              |
-| 422    | Validation error                                                |
+| 422    | Validation error (for queuer update: invalid payload, wrong password, or disallowed `user_id` changes) |
 | 500    | Join endpoint: all submitted users failed to be added           |
 
 **Validation Error Example:**
@@ -504,6 +644,9 @@ crystal spec spec/apps/antrikan/handlers/space/
 
 # Operating hour handlers only
 crystal spec spec/apps/antrikan/handlers/operating_hour/
+
+# Queuer handlers only
+crystal spec spec/apps/antrikan/handlers/queuer/
 
 # Specific handler
 crystal spec spec/apps/antrikan/handlers/space/qr_handler_spec.cr
