@@ -33,8 +33,12 @@ module SlugGenerator
     after_initialize :generate_slug
 
     # find record by the slug field
-    def self.filter_by_slug(slug : String)
-      filter(slug: slug)
+    def self.filter_by_slug(slug : String, unscoped : Bool = false)
+      if unscoped
+        self.unscoped.filter(slug: slug)
+      else
+        filter(slug: slug)
+      end
     end
   end
 end

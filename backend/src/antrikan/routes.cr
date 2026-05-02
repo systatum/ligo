@@ -41,6 +41,12 @@ module Antrikan
       path "/<channel_hashed_id:str>/update", ChannelUpdateHandler, name: "update"
       path "/<channel_hashed_id:str>/delete", ChannelDeleteHandler, name: "delete"
       path "/<channel_hashed_id:str>/undelete", ChannelUndeleteHandler, name: "undelete"
+
+      item_routes = Marten::Routing::Map.draw(:item) do
+        path "/create", ItemCreateHandler, name: "create"
+        path "/index", ItemIndexHandler, name: "index"
+      end
+      path "/<channel_hashed_id:str>/items", item_routes
     end
 
     queuer_routes = Marten::Routing::Map.draw(:queuer) do
@@ -49,8 +55,16 @@ module Antrikan
       path "/<queuer_hashed_id:str>/undelete", QueuerUndeleteHandler, name: "undelete"
     end
 
+    item_routes = Marten::Routing::Map.draw(:item) do
+      path "/<slug:str>", ItemShowHandler, name: "show"
+      path "/<slug:str>/update", ItemUpdateHandler, name: "update"
+      path "/<slug:str>/delete", ItemDeleteHandler, name: "delete"
+      path "/<slug:str>/undelete", ItemUndeleteHandler, name: "undelete"
+    end
+
     path "/api/space", space_routes
     path "/api/channel", channel_routes
     path "/api/queuer", queuer_routes
+    path "/api/item", item_routes
   end
 end

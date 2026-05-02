@@ -8,6 +8,7 @@ Queue management system for managing spaces, their operating hours, and channels
   - [Operating Hour](#operating-hour)
   - [Channel](#channel)
   - [Queuer](#queuer)
+  - [Item](#item)
 - [API Endpoints](#api-endpoints)
   - [Space CRUD](#space-crud)
   - [Space QR Code](#space-qr-code)
@@ -15,6 +16,7 @@ Queue management system for managing spaces, their operating hours, and channels
   - [Operating Hour CRUD](#operating-hour-crud)
   - [Channel CRUD](#channel-crud)
   - [Queuer CRUD](#queuer-crud)
+  - [Item CRUD](#item-crud)
 - [Error Responses](#error-responses)
 - [Running Tests](#running-tests)
 - [Dependencies](#dependencies)
@@ -40,6 +42,10 @@ A named sub-queue or category within a space (e.g. "General", "VIP"). Supports a
 ### Queuer
 
 Represents a queueing identity inside a space. A queuer has a name, an auto-generated password (returned once at creation), and can optionally be associated with a registered user.
+
+### Item
+
+A bookable slot or entry within a channel (e.g. "8AM", "Slot A"). Each item has a unique auto-generated 6-character slug, an order, a daily cap, and an optional description and main image. Can be soft-deleted and restored.
 
 ---
 
@@ -605,6 +611,139 @@ PATCH /antrikan/api/queuer/<queuer_hashed_id>/undelete
 **Supported Methods:** `PATCH`, `POST`
 
 **Response (200 OK):** Restored queuer object.
+
+### Item CRUD
+
+Items belong to a Channel. Creating, updating, deleting, and restoring items requires the `admin` role.
+
+#### Create Item
+
+```
+POST /antrikan/api/channel/<channel_hashed_id>/items/create
+Content-Type: application/json
+
+{
+  "name": "8AM",
+  "order": 0,
+  "daily_cap": 10,
+  "is_monitored": false,
+  "description": "Morning slot",
+  "main_image": {
+    "base64_bytes": "iVBORw0KGgo...",
+    "mimetype": "image/png"
+  }
+}
+```
+
+| Field         | Required | Description                                              |
+| ------------- | -------- | -------------------------------------------------------- |
+| `name`        | yes      | Item name (max 255 chars)                                |
+| `order`       | no       | Display order (default: `0`)                             |
+| `daily_cap`   | no       | Maximum bookings per day (default: `0` = unlimited)      |
+| `is_monitored`| no       | Whether the item is actively monitored (default: `false`)|
+| `description` | no       | Free-form description                                    |
+| `main_image`  | no       | Image payload with `base64_bytes` and `mimetype`         |
+
+**Response (201 Created):**
+
+```json
+{
+  "id": "abc123",
+  "channel_id": "hashedChannelId",
+  "name": "8AM",
+  "order": 0,
+  "daily_cap": 10,
+  "is_monitored": false,
+  "description": "Morning slot",
+  "main_image": "/uploaded_file/<uuid>"
+}
+```
+
+`main_image` is `null` when no image has been uploaded.
+
+#### List Items
+
+```
+GET /antrikan/api/channel/<channel_hashed_id>/items/index
+```
+
+Accepts optional query parameter `with_deleted=true` to include soft-deleted items.
+
+**Response (200 OK):**
+
+```json
+{
+  "items": [
+    {
+      "id": "abc123",
+      "channel_id": "hashedChannelId",
+      "name": "8AM",
+      "order": 0,
+      "daily_cap": 10,
+      "is_monitored": false,
+      "description": "Morning slot",
+      "main_image": null
+    }
+  ]
+}
+```
+
+Items are returned ordered by `order` ascending.
+
+#### Get Item
+
+```
+GET /antrikan/api/item/<slug>
+```
+
+`slug` is the 6-character auto-generated identifier for the item.
+
+**Response (200 OK):** Item object (same shape as create response).
+
+#### Update Item
+
+```
+PATCH /antrikan/api/item/<slug>/update
+Content-Type: application/json
+
+{
+  "name": "9AM",
+  "order": 1,
+  "daily_cap": 5,
+  "is_monitored": true,
+  "description": "Updated slot",
+  "main_image": {
+    "base64_bytes": "iVBORw0KGgo...",
+    "mimetype": "image/png"
+  }
+}
+```
+
+All fields are optional. **Supported Methods:** `PATCH`, `POST`
+
+**Response (200 OK):** Updated item object.
+
+#### Delete Item (Soft Delete)
+
+Requires `admin` role.
+
+```
+DELETE /antrikan/api/item/<slug>/delete
+```
+
+**Response (200 OK):** Deleted item object.
+
+#### Restore Item
+
+Restores a soft-deleted item. Requires `admin` role.
+
+```
+PATCH /antrikan/api/item/<slug>/undelete
+```
+
+**Supported Methods:** `PATCH`, `POST`
+
+**Response (200 OK):** Restored item object.
 
 ---
 
