@@ -1,4 +1,6 @@
 class BaseSchema < Marten::Schema
+  include SchemaDefiner
+
   property :user
 
   @user : Auth::User?

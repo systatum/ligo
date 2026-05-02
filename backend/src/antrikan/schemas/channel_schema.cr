@@ -1,7 +1,13 @@
 module Antrikan
-  class ChannelSchema < BaseSchema
-    field :name, :string, max_size: 255, required: true, strip: true
-    field :description, :string, required: false
-    field :logo, :json, required: false, serializable: FilePayload
-  end
+  BaseSchema.with_fields(
+    fields: {
+      name:        {type: :string, max_size: 255, strip: true},
+      description: {type: :string},
+      logo:        {type: :json, serializable: FilePayload},
+    },
+    variants: {
+      ChannelSchema:       {required: [:name]},
+      ChannelUpdateSchema: nil,
+    }
+  )
 end
