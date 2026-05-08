@@ -8,33 +8,38 @@ module Antrikan
     def run : ServiceResult(QueuerCreationResult)
       return failure(schema.errors) unless schema.valid?
 
+      if !schema.user_id? && @space.require_registered_queuer!
+        return failure(:user_id, "A registered user is required to queue in this space")
+      end
+
       begin
-        data = schema.validated_data
-
         plain_password = Random::Secure.hex(16)
+        queuer = create_queuer(plain_password)
 
-        queuer = Queuer.new
-        queuer.space = @space
-        queuer.name = data["name"].as(String)
-        queuer.password = plain_password
-
-        user_id_str = data["user_id"]?.as?(String)
-
-        if @space.require_registered_queuer! && (user_id_str.nil? || user_id_str.empty?)
-          return failure(:user_id, "A registered user is required to queue in this space")
-        end
-
-        if user_id_str && !user_id_str.empty?
-          user = Auth::User.filter_by_hashed_id(user_id_str).get!
-          queuer.user = user
-        end
-
-        queuer.save!
-
-        success(QueuerCreationResult.new(queuer, plain_password))
+        result = QueuerCreationResult.new(queuer, plain_password)
+        success(result)
       rescue ex : Marten::DB::Errors::InvalidRecord
         failure(ex.record.errors)
       end
+    end
+
+    private def create_queuer(password : String)
+      queuer = Queuer.new
+      queuer.space = @space
+      queuer.name = schema.name!
+      queuer.home_address = schema.home_address if schema.home_address?
+      queuer.mobile_phone = schema.mobile_phone if schema.mobile_phone?
+      queuer.note = schema.note if schema.note?
+      queuer.password = password
+
+      if schema.user_id?
+        user = Auth::User.filter_by_hashed_id(schema.user_id!).get!
+        queuer.user = user
+      end
+
+      queuer.save!
+
+      queuer
     end
 
     private def schema

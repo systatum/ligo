@@ -6,7 +6,12 @@ describe Antrikan::QueuerCreateHandler do
 
     response = Marten::Spec.client.post(
       Marten.routes.reverse("antrikan:space:queuer:create", space_hashed_id: space.hashed_id),
-      data: {name: "Table 1"}.to_json,
+      data: {
+        name:         "Table 1",
+        home_address: "Jl. Melati No. 1",
+        mobile_phone: "08123456789",
+        note:         "Near the front gate",
+      }.to_json,
       content_type: "application/json"
     )
 
@@ -16,6 +21,9 @@ describe Antrikan::QueuerCreateHandler do
     queuer.name.should eq "Table 1"
     queuer.space_id.should eq space.id
     queuer.user_id.should be_nil
+    queuer.home_address.should eq "Jl. Melati No. 1"
+    queuer.mobile_phone.should eq "08123456789"
+    queuer.note.should eq "Near the front gate"
     queuer.password_hash.should_not be_nil
 
     parsed = JSON.parse(response.content)
@@ -34,6 +42,23 @@ describe Antrikan::QueuerCreateHandler do
 
     response.status.should eq 201
     response.content.should_not contain "password_hash"
+  end
+
+  it "leaves optional fields unset when omitted" do
+    space = create_space
+
+    response = Marten::Spec.client.post(
+      Marten.routes.reverse("antrikan:space:queuer:create", space_hashed_id: space.hashed_id),
+      data: {name: "Table 2A"}.to_json,
+      content_type: "application/json"
+    )
+
+    response.status.should eq 201
+
+    queuer = Antrikan::Queuer.last!
+    queuer.home_address.should be_nil
+    queuer.mobile_phone.should be_nil
+    queuer.note.should be_nil
   end
 
   it "stores a bcrypt-hashed password that verifies against the returned plain password" do

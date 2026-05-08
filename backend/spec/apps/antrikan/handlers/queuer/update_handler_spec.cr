@@ -18,6 +18,60 @@ describe Antrikan::QueuerUpdateHandler do
     response.content.should eq Antrikan::QueuerSerializer.serialize(queuer)
   end
 
+  it "updates the optional profile fields when present" do
+    space = create_space
+    queuer = create_queuer(space: space, password: "secret123")
+
+    response = Marten::Spec.client.patch(
+      Marten.routes.reverse("antrikan:space:queuer:update", space_hashed_id: space.hashed_id),
+      data: {
+        queuer_id:    queuer.hashed_id,
+        password:     "secret123",
+        home_address: "Jl. Kenanga No. 2",
+        mobile_phone: "08999888777",
+        note:         "Allergic to peanuts",
+      }.to_json,
+      content_type: "application/json"
+    )
+
+    response.status.should eq 200
+
+    queuer.reload
+    queuer.home_address.should eq "Jl. Kenanga No. 2"
+    queuer.mobile_phone.should eq "08999888777"
+    queuer.note.should eq "Allergic to peanuts"
+  end
+
+  it "clears optional profile fields when sent as null" do
+    space = create_space
+    queuer = create_queuer(
+      space: space,
+      home_address: "Jl. Lama No. 9",
+      mobile_phone: "08000000000",
+      note: "Existing note",
+      password: "secret123"
+    )
+
+    response = Marten::Spec.client.patch(
+      Marten.routes.reverse("antrikan:space:queuer:update", space_hashed_id: space.hashed_id),
+      data: {
+        queuer_id:    queuer.hashed_id,
+        password:     "secret123",
+        home_address: nil,
+        mobile_phone: nil,
+        note:         nil,
+      }.to_json,
+      content_type: "application/json"
+    )
+
+    response.status.should eq 200
+
+    queuer.reload
+    queuer.home_address.should be_nil
+    queuer.mobile_phone.should be_nil
+    queuer.note.should be_nil
+  end
+
   it "associates a user when user_id is provided" do
     space = create_space
     queuer = create_queuer(space: space, password: "secret123")

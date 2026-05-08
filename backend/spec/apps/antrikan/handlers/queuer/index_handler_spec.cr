@@ -3,7 +3,13 @@ require "./spec_helper"
 describe Antrikan::QueuerIndexHandler do
   it "returns all active queuers of a space" do
     space = create_space
-    q1 = create_queuer(space: space, name: "Q1")
+    q1 = create_queuer(
+      space: space,
+      name: "Q1",
+      home_address: "Jl. Anggrek No. 10",
+      mobile_phone: "0811111111",
+      note: "Window seat",
+    )
     q2 = create_queuer(space: space, name: "Q2")
     other = create_queuer(name: "Other Space Queuer")
 
@@ -21,11 +27,17 @@ describe Antrikan::QueuerIndexHandler do
     records[0]["space_id"].should eq space.hashed_id
     records[0]["user_id"].should eq nil
     records[0]["name"].should eq q1.name
+    records[0]["home_address"].should eq q1.home_address
+    records[0]["mobile_phone"].should eq q1.mobile_phone
+    records[0]["note"].should eq q1.note
 
     records[1]["id"].should eq q2.hashed_id
     records[1]["space_id"].should eq space.hashed_id
     records[1]["user_id"].should eq nil
     records[1]["name"].should eq q2.name
+    records[1]["home_address"].should eq nil
+    records[1]["mobile_phone"].should eq nil
+    records[1]["note"].should eq nil
   end
 
   it "excludes soft-deleted queuers by default" do

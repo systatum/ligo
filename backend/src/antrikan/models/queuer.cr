@@ -8,6 +8,9 @@ module Antrikan
     field :space, :many_to_one, to: Antrikan::Space, related: :queuers
     field :user, :many_to_one, to: Auth::User, related: :queuers, null: true, blank: true
     field :name, :string, max_size: 255, null: false, blank: false
+    field :home_address, :string, max_size: 255, null: true, blank: true
+    field :mobile_phone, :string, max_size: 20, null: true, blank: true
+    field :note, :string, max_size: 255, null: true, blank: true
     field :password_hash, :string, max_size: 255, null: false, blank: false
     field :created_at, :date_time, null: false, auto_now_add: true
     field :updated_at, :date_time, null: false, auto_now: true

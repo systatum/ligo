@@ -3,7 +3,11 @@ require "./spec_helper"
 describe Antrikan::QueuerShowHandler do
   context "when the queuer exists" do
     it "returns queuer info" do
-      queuer = create_queuer
+      queuer = create_queuer(
+        home_address: "Jl. Mawar No. 5",
+        mobile_phone: "081122334455",
+        note: "Ring the bell",
+      )
 
       response = Marten::Spec.client.get(
         Marten.routes.reverse("antrikan:queuer:show", queuer_hashed_id: queuer.hashed_id)
