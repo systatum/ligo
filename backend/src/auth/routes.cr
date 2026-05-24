@@ -8,6 +8,11 @@ module Auth
     path "/api/user/my-bio", MyBioUpdateHandler, name: "api_my_bio_update"
     path "/api/user/my-picture", MyPictureUploadHandler, name: "api_my_picture_upload"
 
+    path "/api/oauth/<provider:string>", OAuthInitiateHandler, name: "api_oauth_initiate"
+    path "/api/oauth/<provider:string>/callback", OAuthCallbackHandler, name: "api_oauth_callback"
+
+    path "/api/request_state", RequestStateHandler, name: "api_request_state"
+
     organization_routes = Marten::Routing::Map.draw do
       path "/create", OrganizationCreateHandler, name: "api_organization_create"
       path "/<hashed_id:str>", OrganizationUpdateHandler, name: "api_organization_update"

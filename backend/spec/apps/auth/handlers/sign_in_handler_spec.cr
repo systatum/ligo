@@ -1,6 +1,26 @@
 require "./spec_helper"
 
 describe Auth::SignInHandler do
+  original_app_mode = ENV["LIGO_APP_MODE"]
+
+  after_each do
+    ENV["LIGO_APP_MODE"] = original_app_mode
+  end
+
+  context "when app mode is not iam" do
+    it "returns 404" do
+      ENV["LIGO_APP_MODE"] = "workaty"
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("auth:api_sign_in"),
+        data: {email: "user@example.com", password: "Password01"}.to_json,
+        content_type: "application/json"
+      )
+
+      response.status.should eq 404
+    end
+  end
+
   context "when the email address can't be found" do
     it "complains of invalid credentials" do
       email = "me-not-found@systatum.com"

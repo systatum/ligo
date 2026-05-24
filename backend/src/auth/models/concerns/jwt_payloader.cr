@@ -14,7 +14,16 @@ module JwtPayloader
     puat : Float64,
 
     # versioning of the token structure
-    ver : Int32 do
+    ver : Int32,
+
+    # mirrored cross-realm lookup key assigned by IAM
+    iam_identifier_primary : String,
+
+    # identity claims
+    given_name : String?,
+    family_name : String?,
+    email : String?,
+    role : Int32 | Int64 do
     include JSON::Serializable
   end
 
@@ -31,7 +40,11 @@ module JwtPayloader
 
     def self.find_by_jwt_token(jwt_token)
       payload = decode_jwt_token(jwt_token)
-      User.get!(id: payload["id"].as_i64)
+
+      Auth::User.find_or_create_by_iam_identifier(
+        iam_identifier_primary: payload["iam_identifier_primary"].as_s,
+        user_info: Auth::IamIdentifiable::UserInfo.from_json(payload.to_json)
+      )
     end
   end
 
@@ -39,15 +52,22 @@ module JwtPayloader
   def jwt_token
     reload
 
+    ensure_iam_identifier!
+
     payload = JWTPayload.new(
       id: id!,
       iat: Time.utc.to_unix,
       exp: Time.utc.to_unix + (365 * 24 * 60 * 60), # set to expire in a year!
       puat: password_updated_at!.to_unix_f,
-      ver: 1,
+      ver: 2,
+      iam_identifier_primary: iam_identifier_primary!,
+      given_name: first_name,
+      family_name: last_name,
+      email: email,
+      role: role!
     )
 
-    return JWT.encode(
+    JWT.encode(
       payload,
       Marten.settings.secret_key,
       JWT::Algorithm::HS256

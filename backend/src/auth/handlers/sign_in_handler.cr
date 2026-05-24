@@ -1,5 +1,7 @@
 module Auth
   class SignInHandler < RequestHandler
+    include IamOnly
+
     protect_from_forgery false
     http_method_names :post
 

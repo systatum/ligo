@@ -9,7 +9,7 @@ Marten.configure :test do |config|
   S3Config.configure(config)
   SidekiqConfig.configure
 
-  config.allowed_hosts = ["127.0.0.1"]
+  config.allowed_hosts = [".localhost", "127.0.0.1", "[::1]"]
 
   # Sets the global cache store to a "null store" to disable caching while still going through the caching interface.
   # https://martenframework.com/docs/caching/introduction#configuration-and-cache-stores

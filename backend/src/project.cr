@@ -17,6 +17,7 @@ require "jwt"
 require "rbacr"
 require "vips"
 require "sidekiq"
+require "multi_auth"
 
 # Require all middlewares
 require "./middlewares/**"

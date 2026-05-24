@@ -11,6 +11,7 @@ module AppInfo
   end
 
   @@all : Hash(String, AppDetail)?
+  @@iam : AppDetail?
   @@workaty : AppDetail?
   @@antrikan : AppDetail?
 
@@ -24,6 +25,10 @@ module AppInfo
 
   def self.find(app_name : String)
     all[app_name]
+  end
+
+  def self.iam
+    @@iam ||= find?("iam")
   end
 
   def self.workaty

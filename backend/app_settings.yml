@@ -124,3 +124,7 @@ test:
 
     sidekiq:
       <<: *ligo_sidekiq_development
+
+    facebook:
+      app_id: "3223462327837934"
+      app_secret: "cbd73b02fcc321379b582891d40ae935"

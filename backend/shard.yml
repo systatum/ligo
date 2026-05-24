@@ -46,6 +46,8 @@ dependencies:
   sidekiq:
     github: mperham/sidekiq.cr
     version: ~> 0.7.3
+  multi_auth:
+    github: msa7/multi_auth
 
 development_dependencies:
   spectator:

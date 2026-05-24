@@ -8,7 +8,7 @@ class AppSettings
   field ligo_app_cors_whitelist : String, default: ""
   field ligo_app_cors_ok_headers : String, default: ""
   field ligo_app_salt_for_id_concealer : String, default: ""
-  field ligo_app_base_url : String, default: "http://localhost:8000"
+  field ligo_app_base_url : String, default: "http://localhost:8000" # The url for a ligo app (e.g https://workaty.com)
   field ligo_app_password_reset_token_expiry_minutes : Int32, default: 5
   field ligo_app_mode : String, default: ""
 
@@ -47,6 +47,9 @@ class AppSettings
   field ligo_sidekiq_dashboard_session_secret : String, default: "" # A secret key used to secure the Sidekiq dashboard session
   field ligo_sidekiq_job_status_expiry : Int32, default: 86_400     # The expiration time in seconds for the job status
 
+  field ligo_facebook_app_id : String, default: ""
+  field ligo_facebook_app_secret : String, default: ""
+
   @@instance : AppSettings?
 
   def self.instance
@@ -59,7 +62,7 @@ class AppSettings
   end
 
   def self.app_mode : String
-    mode = self.instance.ligo_app_mode
+    mode = ENV["LIGO_APP_MODE"]?.presence || self.instance.ligo_app_mode
     valid_modes = AppInfo.all.keys
     unless mode && valid_modes.includes?(mode)
       raise Exception.new("LIGO_APP_MODE must be set to one of: #{valid_modes.join(", ")}. Current: #{mode.inspect}")
