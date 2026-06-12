@@ -9,6 +9,7 @@ module Antrikan
         name:         record.name,
         order:        record.order,
         daily_cap:    record.daily_cap,
+        unit_price:   record.unit_price,
         is_monitored: record.is_monitored,
         description:  record.description,
         main_image:   fetch_main_image_url,

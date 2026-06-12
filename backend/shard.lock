@@ -1,5 +1,9 @@
 version: 2.0
 shards:
+  aasm:
+    git: https://github.com/veelenga/aasm.cr.git
+    version: 0.1.1
+
   awscr-s3:
     git: https://github.com/taylorfinnell/awscr-s3.git
     version: 0.10.0+git.commit.2e93fb9e8c74f11a24c5808fc4b1f8b304181830
@@ -115,6 +119,10 @@ shards:
   pool:
     git: https://github.com/ysbaddaden/pool.git
     version: 0.2.4
+
+  prorate:
+    git: https://github.com/wjwh/prorate-cr.git
+    version: 0.1.0+git.commit.1bd50585aa5dc65fd80be9d30248d5674e990cbf
 
   qr-code:
     git: https://github.com/spider-gazelle/qr-code.git

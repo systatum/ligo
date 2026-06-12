@@ -2,6 +2,7 @@ class RequestHandler < Marten::Handler
   include CurrentUserDetector
   include HandlerResponders
   include ExceptionsHandler
+  include RateLimiter
   include RequestAuthorizer
   include RequestCacher
   include FileUploader

@@ -30,7 +30,7 @@ module ChangeTracker
   private def track_record_event(action_type : Changelog::ActionType)
     changelog = Changelog.new(action_type: action_type)
     changelog.record_class = self.class.to_s
-    changelog.record_id = self.id
+    changelog.record_identifier = self.id.not_nil!
     changelog.changes = changed_record_values
     changelog.performer_id = Current.performer_id
 

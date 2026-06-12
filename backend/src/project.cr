@@ -18,6 +18,8 @@ require "rbacr"
 require "vips"
 require "sidekiq"
 require "multi_auth"
+require "aasm"
+require "prorate"
 
 # Require all middlewares
 require "./middlewares/**"

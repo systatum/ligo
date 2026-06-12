@@ -13,6 +13,10 @@ module ExceptionsHandler
       handle_json_parse_error(error)
     end
 
+    rescue_from Prorate::Throttled do
+      handle_throttled(error)
+    end
+
     rescue_from Exception do
       handle_generic_error(error)
     end
@@ -31,6 +35,13 @@ module ExceptionsHandler
   private def handle_json_parse_error(e)
     debug_exception(e)
     render_error 400, ["Invalid JSON format"]
+  end
+
+  private def handle_throttled(e : Prorate::Throttled)
+    debug_exception(e)
+    response = render_error 429, [e.message]
+    response.headers["Retry-After"] = e.retry_in_seconds.to_s
+    response
   end
 
   private def handle_generic_error(e)

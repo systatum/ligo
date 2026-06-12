@@ -47,12 +47,29 @@ module Antrikan
         path "/index", ItemIndexHandler, name: "index"
       end
       path "/<channel_hashed_id:str>/items", item_routes
+
+      queue_routes = Marten::Routing::Map.draw(:queue) do
+        path "/create", QueueCreateHandler, name: "create"
+        path "/index", QueueIndexHandler, name: "index"
+      end
+      path "/<channel_hashed_id:str>/queue", queue_routes
     end
 
     queuer_routes = Marten::Routing::Map.draw(:queuer) do
       path "/<queuer_hashed_id:str>", QueuerShowHandler, name: "show"
       path "/<queuer_hashed_id:str>/delete", QueuerDeleteHandler, name: "delete"
       path "/<queuer_hashed_id:str>/undelete", QueuerUndeleteHandler, name: "undelete"
+    end
+
+    queue_routes = Marten::Routing::Map.draw(:queue) do
+      path "/<queue_slug:str>", QueueShowHandler, name: "show"
+      path "/<queue_slug:str>/update", QueueUpdateHandler, name: "update"
+
+      item_routes = Marten::Routing::Map.draw(:item) do
+        path "/create", QueuedItemCreateHandler, name: "create"
+        path "/<queued_item_slug:str>/update", QueuedItemUpdateHandler, name: "update"
+      end
+      path "/<queue_slug:str>/item", item_routes
     end
 
     item_routes = Marten::Routing::Map.draw(:item) do
@@ -65,6 +82,7 @@ module Antrikan
     path "/api/space", space_routes
     path "/api/channel", channel_routes
     path "/api/queuer", queuer_routes
+    path "/api/queue", queue_routes
     path "/api/item", item_routes
   end
 end

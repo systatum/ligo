@@ -1,3 +1,4 @@
+require "./enums/**"
 require "./errors.cr"
 require "./handlers/concerns/**"
 require "./handlers/**"

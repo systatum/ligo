@@ -9,7 +9,8 @@ module Antrikan
     field :slug, :string, max_size: 6, null: false, index: true, unique: true
     field :name, :string, max_size: 255, null: false, blank: false
     field :order, :int, null: false, default: 0
-    field :daily_cap, :int, null: false, default: 0         # daily capacity since the channel's operating hour, if negative means no cap
+    field :daily_cap, :int, null: false, default: 0 # daily capacity since the channel's operating hour, if negative means no cap
+    field :unit_price, :big_int, null: false, default: 0
     field :is_monitored, :bool, null: false, default: false # if true, then new user purchasing this needs to be specifically acknowledged before being confirmed
     field :description, :text, null: true, blank: true
     field :main_image_file_id, :uuid, null: true, blank: true

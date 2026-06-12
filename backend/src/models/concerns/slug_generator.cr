@@ -40,5 +40,9 @@ module SlugGenerator
         filter(slug: slug)
       end
     end
+
+    def self.get_by_slug!(slug : String)
+      get!(slug: slug)
+    end
   end
 end

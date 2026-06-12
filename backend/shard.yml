@@ -48,6 +48,10 @@ dependencies:
     version: ~> 0.7.3
   multi_auth:
     github: msa7/multi_auth
+  aasm:
+    github: veelenga/aasm.cr
+  prorate:
+    github: WJWH/prorate-cr
 
 development_dependencies:
   spectator:

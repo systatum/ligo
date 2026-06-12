@@ -1,0 +1,15 @@
+module Antrikan
+  BaseSchema.with_fields(
+    fields: {
+      item_slug:  {type: :string, strip: true},
+      handler_id: {type: :string, strip: true},
+      status:     {type: :enum, values: QueueStatus},
+      note:       {type: :string, max_size: 255, strip: true},
+      quantity:   {type: :int},
+    },
+    variants: {
+      QueuedItemSchema:       {required: [:item_slug]},
+      QueuedItemUpdateSchema: {disallowed: [:item_slug, :quantity]},
+    }
+  )
+end
