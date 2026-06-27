@@ -81,6 +81,17 @@ if [[ -z "$version" ]]; then
 fi
 
 ############################################
+# Detect platform
+############################################
+is_macos() {
+  [[ "$(uname -s)" == "Darwin" ]]
+}
+
+is_linux() {
+  [[ "$(uname -s)" == "Linux" ]]
+}
+
+############################################
 # asdf version detection
 # Determines which CLI syntax to use:
 #   ASDF_LEGACY=1 -> pre-0.16 (hyphenated, asdf global/local)
@@ -171,10 +182,6 @@ asdf_has_version() {
   asdf list crystal 2>/dev/null | grep -E "${version}" >/dev/null 2>&1
 }
 
-############################################
-# Extract Marten version from shard.lock
-# Uses Python if available, fallback to grep
-############################################
 ############################################
 # Resolve shard files location
 # Supports:
@@ -281,8 +288,12 @@ install_marten() {
   crystal build src/marten_cli.cr -o bin/marten
 
   # move to global path (requires permission)
-  # mv bin/marten /usr/local/bin/marten
-  sudo install -m 0755 bin/marten /usr/local/bin/marten
+  if is_macos; then
+    install -m 0755 bin/marten "$(brew --prefix)/bin/marten"
+  else
+    # mv bin/marten /usr/local/bin/marten
+    sudo install -m 0755 bin/marten /usr/local/bin/marten
+  fi
 
   cd - >/dev/null
   rm -rf "$tmp_dir"
@@ -365,8 +376,10 @@ activate_sdk() {
 }
 
 ############################################
-# Ensure required system dependencies (APT only)
-# Dependency list scoped locally for encapsulation
+# Ensure required system dependencies
+# Supports:
+#   - Ubuntu/Debian (APT)
+#   - macOS (Homebrew)
 ############################################
 
 # Sanitize APT sources: disable broken PPAs, remove duplicate ubuntu.sources
@@ -385,6 +398,37 @@ sanitize_apt() {
 }
 
 ensure_system_deps() {
+
+  ############################################
+  # macOS support
+  ############################################
+  if is_macos; then
+
+    if ! command -v brew >/dev/null 2>&1; then
+      echo "Homebrew is required on macOS"
+      return 1
+    fi
+
+    local packages=(
+      openssl
+      pcre2
+      gc
+      vips
+      gmp
+      sqlite
+      libxml2
+      libyaml
+    )
+
+    brew update
+    brew install "${packages[@]}"
+
+    return 0
+  fi
+
+  ############################################
+  # Linux support (APT)
+  ############################################
   if ! command -v apt-get >/dev/null 2>&1; then
     echo "Cannot ensure system dependencies: apt-get not available"
     return 1
@@ -438,7 +482,7 @@ ensure_system_deps() {
 # 1. Ensure Crystal
 # 2. Activate SDK
 # 3. Re-verify environment
-# 4. Ensure system deps (APT only)
+# 4. Ensure system deps
 # 5. Install Marten
 ############################################
 if ensure_crystal; then
