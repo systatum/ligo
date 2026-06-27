@@ -49,6 +49,7 @@ class AppSettings
 
   field ligo_facebook_app_id : String, default: ""
   field ligo_facebook_app_secret : String, default: ""
+  field ligo_webhook_secret : String, default: ""
 
   @@instance : AppSettings?
 

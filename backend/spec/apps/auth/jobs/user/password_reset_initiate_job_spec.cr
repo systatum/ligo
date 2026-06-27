@@ -1,4 +1,4 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 describe Auth::User::PasswordResetInitiateJob do
   context "when user is found" do

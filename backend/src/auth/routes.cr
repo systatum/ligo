@@ -8,8 +8,15 @@ module Auth
     path "/api/user/my-bio", MyBioUpdateHandler, name: "api_my_bio_update"
     path "/api/user/my-picture", MyPictureUploadHandler, name: "api_my_picture_upload"
 
-    path "/api/oauth/<provider:string>", OAuthInitiateHandler, name: "api_oauth_initiate"
-    path "/api/oauth/<provider:string>/callback", OAuthCallbackHandler, name: "api_oauth_callback"
+    realm_routes = Marten::Routing::Map.draw(:realm) do
+      path "/create", RealmCreateHandler, name: "create"
+
+      oauth_routes = Marten::Routing::Map.draw(:oauth) do
+        path "/<provider:str>", OAuthInitiateHandler, name: "initiate"
+        path "/<provider:str>/callback", OAuthCallbackHandler, name: "callback"
+      end
+      path "/<realm_id:str>/oauth", oauth_routes
+    end
 
     path "/api/request_state", RequestStateHandler, name: "api_request_state"
 
@@ -18,6 +25,10 @@ module Auth
       path "/<hashed_id:str>", OrganizationUpdateHandler, name: "api_organization_update"
       path "/<hashed_id:str>/delete", OrganizationDeleteHandler, name: "api_organization_delete"
     end
+
+    path "/api/webhooks/iam", Auth::IamWebhookHandler, name: "api_iam_webhook"
+
+    path "/api/realm", realm_routes
     path "/api/organizations", organization_routes
   end
 end

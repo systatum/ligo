@@ -6,6 +6,7 @@ What is Ligo? Ligo is our "Everything Backend." It is a latin word, a related wo
 - [Setup Crystal and Marten](#setup-crystal-and-marten)
 - [Sub-Apps](#sub-apps)
 - [Common commands](#common-commands)
+- [Webhook Delivery](#webhook-delivery)
 - [Connecting to the development database](#connecting-to-the-development-database)
 - [Email](#email)
 - [API Endpoints](#api-endpoints)
@@ -138,6 +139,47 @@ export LIGO_SIDEKIQ_DASHBOARD_SESSION_SECRET=replace-with-long-random-secret
 ```
 
 In local development, docker-compose configures Redis with password `devredis`.
+
+## Webhook Delivery
+
+Webhooks notify target apps when an event happens.
+
+### WebhookDeliveryWorker
+
+```
+WebhookDeliveryWorker.perform(content_id, uri, webhook_secret, body, ack_semantic)
+```
+
+The `AcknowledgeSemantic` enum (`backend/src/enums/ack_semantic.cr`) controls retry:
+- **NONE**: no delivery attempted
+- **OPTIONAL**: deliver once, silent on failure
+- **MUTUAL**: deliver, raise on failure → Sidekiq's `RetryJobs` middleware retries
+
+#### Signed Payload
+
+| Header | Value |
+|--------|-------|
+| `Content-Type` | `application/json` |
+| `X-Systatum-Timestamp` | Unix epoch seconds |
+| `X-Systatum-Signature` | `HMAC-SHA256(body + timestamp, webhook_secret)` |
+
+```json
+// Example payload for a "registration" event
+{
+  "event": "registration",
+  "user_id": "<iam_identifier>",
+  "email": "...",
+  "given_name": "...",
+  "family_name": "..."
+}
+```
+
+> [!WARNING]
+> **Configuration:** Target apps must set `LIGO_WEBHOOK_SECRET` in their environment. This must match the `webhook_secret` stored in the corresponding `Auth::Realm` record that IAM uses to sign the webhook.
+
+#### WebhookDelivery Model
+
+`backend/src/models/webhook_delivery.cr`: attempt log, one row per attempt, same `content_id` across retries. `succeeded` only `true` on final successful attempt.
 
 ## Connecting to the development database
 

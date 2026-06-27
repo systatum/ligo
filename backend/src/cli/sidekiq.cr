@@ -1,6 +1,8 @@
 require "../project"
 require "sidekiq/cli"
 
+Marten.setup
+
 SidekiqConfig.configure
 
 cli = Sidekiq::CLI.new

@@ -1,3 +1,4 @@
+require "../project"
 require "random/secure"
 require "sidekiq/web"
 
