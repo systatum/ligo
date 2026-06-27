@@ -67,7 +67,6 @@ module Antrikan
 
       item_routes = Marten::Routing::Map.draw(:item) do
         path "/create", QueuedItemCreateHandler, name: "create"
-        path "/<queued_item_slug:str>/update", QueuedItemUpdateHandler, name: "update"
       end
       path "/<queue_slug:str>/item", item_routes
     end
@@ -79,10 +78,16 @@ module Antrikan
       path "/<slug:str>/undelete", ItemUndeleteHandler, name: "undelete"
     end
 
+    queued_item_routes = Marten::Routing::Map.draw(:queued_item) do
+      path "/update", QueuedItemUpdateHandler, name: "update"
+      path "/<queued_item_id:str>/history", QueuedItemHistoryHandler, name: "history"
+    end
+
     path "/api/space", space_routes
     path "/api/channel", channel_routes
     path "/api/queuer", queuer_routes
     path "/api/queue", queue_routes
     path "/api/item", item_routes
+    path "/api/queued_item", queued_item_routes
   end
 end

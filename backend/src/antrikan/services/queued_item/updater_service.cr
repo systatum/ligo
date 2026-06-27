@@ -1,33 +1,64 @@
 module Antrikan
-  class QueuedItem::UpdaterService < BaseService(QueuedItem)
-    def initialize(@queued_item : QueuedItem, @data : Marten::HTTP::Params::Data)
+  class QueuedItem::UpdaterService < BaseService(Array(QueuedItem))
+    def initialize(@organization_id : String, @data : Marten::HTTP::Params::Data)
     end
 
-    def run : ServiceResult(QueuedItem)
+    def run : ServiceResult(Array(QueuedItem))
       return failure(schema.errors) unless schema.valid?
 
-      begin
-        update_fields
-        success(@queued_item)
-      rescue ex : AASM::AASMException
-        failure(:status, ex.message || "Invalid status transition")
-      rescue ex : Marten::DB::Errors::InvalidRecord
-        failure(ex.record.errors)
+      items_payload = Array(QueuedItemUpdatePayload).from_json(schema.items!.to_json)
+      return failure(:items, "must be a non-empty array") if items_payload.empty?
+
+      queue_items = QueuedItem.unscoped.filter(id__in: items_payload.map(&.id)).to_a
+      unless queue_items.size == items_payload.size
+        return failure(:items, "Some items not found")
       end
+
+      authorize_items!(queue_items)
+
+      id_to_item = items_payload.index_by(&.id)
+      updated = [] of QueuedItem
+
+      queue_items.each do |qi|
+        payload = id_to_item[qi.id.to_s]
+        update_fields(qi, payload)
+        updated << qi
+      end
+
+      success(updated)
+    rescue ex : AASM::AASMException
+      failure(:status, ex.message || "Invalid status transition")
+    rescue ex : Marten::DB::Errors::InvalidRecord
+      failure(ex.record.errors)
+    rescue ex : JSON::SerializableError
+      failure(:items, ex.message || "Invalid items format")
     end
 
-    private def update_fields
-      handler = schema.handler_id? ? Auth::User.get_by_hashed_id!(schema.handler_id!) : nil
+    private def update_fields(qi : QueuedItem, payload : QueuedItemUpdatePayload)
+      if handler_id = payload.handler_id
+        qi.handler = Auth::User.get!(handler_id)
+      end
+      if note = payload.note
+        qi.note = note
+      end
+      if status = payload.status
+        qi.change_status!(status.to_state)
+      end
 
-      @queued_item.handler = handler if schema.handler_id?
-      @queued_item.note = schema.note if schema.note?
-      @queued_item.change_status!(schema.status!.to_state) if schema.status?
-
-      @queued_item.save!
+      qi.save!
     end
 
     private def schema
       @schema ||= QueuedItemUpdateSchema.new(@data)
+    end
+
+    # each items in the payload must belong to the same
+    # organization as the current user
+    private def authorize_items!(queue_items)
+      queue_items.each do |qi|
+        queue_org_id = qi.queue!.channel!.space!.owner!.organization_id
+        raise Auth::AuthorizationError.new unless @organization_id == queue_org_id
+      end
     end
   end
 end

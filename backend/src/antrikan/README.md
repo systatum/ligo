@@ -21,6 +21,7 @@ Queue management system for managing spaces, their operating hours, and channels
   - [Item CRUD](#item-crud)
   - [Queue CRUD](#queue-crud)
   - [Queued Item CRUD](#queued-item-crud)
+  - [Queued Item History](#queued-item-history)
 - [Error Responses](#error-responses)
 - [Running Tests](#running-tests)
 - [Dependencies](#dependencies)
@@ -983,30 +984,34 @@ Content-Type: application/json
 }
 ```
 
-#### Update Queued Item
+#### Update Queued Items (Bulk)
 
-A protected endpoint.
+Update multiple queued items in a single request. All items must belong to queues the authenticated user's organization owns.
 
 ```
-PATCH /antrikan/api/queue/<queue_slug>/item/<queued_item_id>/update
+PATCH /antrikan/api/queued_item/update
 Content-Type: application/json
 ```
 
+**Supported Methods:** `PATCH`, `POST`
+
 ```json
-{
-  "handler_id": "newHashedHandlerId",
-  "status": "done",
-  "note": "Updated note"
-}
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "handler_id": "stringUserId",
+    "status": "done",
+    "note": "Updated note"
+  }
+]
 ```
 
-Only the following fields may be updated. All are optional.
-
-| Field        | Description                                                                                  |
-| ------------ | -------------------------------------------------------------------------------------------- |
-| `handler_id` | Assign or reassign a handler for this individual item                                        |
-| `status`     | Advance the item's state (see [Queue Status](#queue-status) and parent queue behavior below) |
-| `note`       | Free-form note (max 255 chars)                                                               |
+| Field        | Required | Description                                    |
+| ------------ | -------- | ---------------------------------------------- |
+| `id`         | yes      | Queued item UUID                               |
+| `handler_id` | no       | Assign or reassign a handler for this item     |
+| `status`     | no       | Advance the item's state (see [Queue Status](#queue-status)) |
+| `note`       | no       | Free-form note (max 255 chars)                 |
 
 > [!IMPORTANT]
 > `item_slug` and `quantity` cannot be modified after creation.
@@ -1019,9 +1024,57 @@ Only the following fields may be updated. All are optional.
 | All items are `done`                                             | Parent transitions to `ready`    |
 | Some items are `canceled`, all remaining items are `done`        | Parent transitions to `ready`    |
 
-The corresponding timestamp field is set on the parent queue for each automatic transition (e.g. `ready_at` when transitioning to `ready`).
+**Response (200 OK):**
 
-**Response (200 OK):** Updated queued item object (same shape as create response).
+```json
+{
+  "items": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "queue_id": "26xK9mQp",
+      "channel_id": "hashedChannelId",
+      "item_id": "abc123",
+      "handler_id": "stringUserId",
+      "status": "done",
+      "note": "Updated note",
+      "unit_price": 15000,
+      "quantity": 2
+    }
+  ]
+}
+```
+
+---
+
+### Queued Item History
+
+#### Get State History
+
+Retrieves a timeline of state transitions for a queued item, with time taken between each state.
+
+```
+GET /antrikan/api/queued_item/<queued_item_id>/history
+```
+
+Requires authentication and org membership. Canceled (soft-deleted) items are accessible.
+
+**Response (200 OK):** Array of state entries ordered chronologically.
+
+```json
+[
+  {"state": "QUEUED", "timestamp": "2026-05-31T12:00:00Z", "time_taken_seconds": 0},
+  {"state": "ATTENDED", "timestamp": "2026-05-31T12:03:00Z", "time_taken_seconds": 180},
+  {"state": "READY", "timestamp": "2026-05-31T12:10:00Z", "time_taken_seconds": 420}
+]
+```
+
+| Field                | Description                                          |
+| -------------------- | ---------------------------------------------------- |
+| `state`              | State name (matches [Queue Status](#queue-status))   |
+| `timestamp`          | ISO 8601 timestamp when the state was entered        |
+| `time_taken_seconds` | Seconds elapsed from the previous state (0 for first) |
+
+States are only included when their corresponding timestamp is set (e.g. `attended_at` is non-null). Intermediate states may be skipped if a transition jumped over them. Total elapsed time can be calculated by summing all `time_taken_seconds` values from `QUEUED` through to the final state.
 
 ---
 

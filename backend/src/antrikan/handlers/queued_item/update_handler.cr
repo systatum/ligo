@@ -1,21 +1,34 @@
 module Antrikan
   class QueuedItemUpdateHandler < RequestHandler
-    include QueueHelper
     include QueuedItemHelper
 
     protect_from_forgery false
-    http_method_names :patch
+    http_method_names :patch, :post
 
-    def patch : Marten::HTTP::Response
-      authorize_queued_item_manipulation_request! queue
+    before_dispatch :require_authentication
 
-      result = QueuedItem::UpdaterService.new(queued_item_by_queue(queue), request.data).run
+    def patch
+      post
+    end
+
+    def post : Marten::HTTP::Response
+      result = QueuedItem::UpdaterService.new(
+        current_user!.organization_id!.to_s,
+        request.data
+      ).run
 
       if result.success?
-        json QueuedItemSerializer.serialize(result.data.not_nil!), status: 200
+        serialized = result.data.not_nil!.map { |qi|
+          QueuedItemSerializer.soft_serialize(qi)
+        }
+        json({items: serialized}, status: 200)
       else
         render_invalid_payload(result.errors)
       end
+    end
+
+    private def require_authentication
+      raise Auth::AuthorizationError.new unless current_user
     end
   end
 end

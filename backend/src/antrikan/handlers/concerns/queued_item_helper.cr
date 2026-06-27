@@ -2,6 +2,7 @@ module Antrikan
   module QueuedItemHelper
     @queued_item : QueuedItem?
     @scoped_queued_item : QueuedItem?
+    @queued_item_by_id : QueuedItem?
     @schema : QueuedItemSchema?
     @update_schema : QueuedItemUpdateSchema?
 
@@ -9,7 +10,16 @@ module Antrikan
       raise Auth::AuthorizationError.new unless current_user
 
       queue_org_id = queue.channel!.space!.owner!.organization_id
-      raise Auth::AuthorizationError.new unless current_user!.organization_id == queue_org_id
+      unless current_user!.organization_id == queue_org_id
+        raise Auth::AuthorizationError.new
+      end
+    end
+
+    def authorize_queued_item_access!(queued_item : QueuedItem)
+      raise Auth::AuthorizationError.new unless current_user
+
+      org_id = queued_item.queue!.channel!.space!.owner!.organization_id
+      raise Auth::AuthorizationError.new unless current_user!.organization_id == org_id
     end
 
     private def queued_item
@@ -20,6 +30,10 @@ module Antrikan
       @scoped_queued_item ||= queue.queued_items
         .filter(slug: params["queued_item_slug"].to_s)
         .get!
+    end
+
+    private def queued_item_by_id
+      @queued_item_by_id ||= QueuedItem.unscoped.get!(params["queued_item_id"].to_s)
     end
 
     private def schema

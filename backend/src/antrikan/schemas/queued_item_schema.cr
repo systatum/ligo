@@ -8,8 +8,12 @@ module Antrikan
       quantity:   {type: :int},
     },
     variants: {
-      QueuedItemSchema:       {required: [:item_slug]},
-      QueuedItemUpdateSchema: {disallowed: [:item_slug, :quantity]},
+      QueuedItemSchema: {required: [:item_slug]},
+      # update variant is separate to support bulk update
     }
   )
+
+  class QueuedItemUpdateSchema < BaseSchema
+    field :items, :json, required: true
+  end
 end
