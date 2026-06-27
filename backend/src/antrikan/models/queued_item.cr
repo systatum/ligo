@@ -10,6 +10,11 @@ module Antrikan
     field :note, :string, max_size: 255, null: true, blank: true
     field :unit_price, :big_int, null: false, default: 0
     field :quantity, :int, null: false, default: 1
+    # The logical ordering of the item in a queue.
+    # To be used for front-end purposes
+    field :rank, :int, null: true, blank: true
+    # The timestamp of the last time the order was changed
+    field :reranked_at, :date_time, null: true, blank: true
     field :updated_at, :date_time, null: false, auto_now: true
 
     field :queue, :many_to_one, to: Antrikan::Queue, related: :queued_items, null: false
