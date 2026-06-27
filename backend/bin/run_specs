@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."   # run from backend/
+
+# ── group discovery ──────────────────────────────────────────────────────────
+#
+# A "group" is a directory passed to `crystal spec`. Groups are determined by:
+#   1. Take each immediate subdirectory of spec/ (excluding spec/factories).
+#   2. If any spec_helper.cr inside that directory force-assigns LIGO_APP_MODE
+#      (plain = not ||=), the directory contains apps with different modes and
+#      must be split: replace it with its own immediate subdirectories.
+#   3. After discovery, verify every *_spec.cr file is covered. Fail loudly if not.
+
+discover_groups() {
+  local found=()
+
+  for dir in spec/*/; do
+    dir="${dir%/}"
+    [[ "$dir" == "spec/factories" ]] && continue
+
+    # Match `ENV["LIGO_APP_MODE"] = "..."` but not `||= "..."` (the root fallback)
+    if grep -rq 'LIGO_APP_MODE"\] =' "$dir" --include="spec_helper.cr" 2>/dev/null; then
+      # Go one level deeper — each subdir is its own group
+      for subdir in "$dir"/*/; do
+        [[ -d "$subdir" ]] && found+=("${subdir%/}")
+      done
+    else
+      found+=("$dir")
+    fi
+  done
+
+  printf '%s\n' "${found[@]}" | sort
+}
+
+check_completeness() {
+  local -a spec_groups=("$@")
+
+  local all_files
+  all_files=$(find spec -name "*_spec.cr" | sort)
+
+  local covered_files
+  covered_files=$(
+    for g in "${spec_groups[@]}"; do
+      find "$g" -name "*_spec.cr" 2>/dev/null || true
+    done | sort
+  )
+
+  local missed
+  missed=$(comm -23 <(echo "$all_files") <(echo "$covered_files"))
+
+  if [[ -n "$missed" ]]; then
+    echo ""
+    echo "ERROR: These spec files were not included in any group:"
+    echo "$missed"
+    echo "If you added a new spec directory, check the discovery logic in bin/run_specs."
+    exit 1
+  fi
+}
+
+# ── run groups ───────────────────────────────────────────────────────────────
+
+# When called with --list, print discovered groups as a JSON array and exit.
+# Used by CI to generate the parallel test matrix dynamically.
+if [[ "${1:-}" == "--list" ]]; then
+  json="["
+  first=1
+  while IFS= read -r g; do
+    [[ $first -eq 0 ]] && json+=","
+    json+="\"$g\""
+    first=0
+  done < <(discover_groups)
+  json+="]"
+  echo "$json"
+  exit 0
+fi
+
+SPEC_GROUPS=()
+while IFS= read -r g; do SPEC_GROUPS+=("$g"); done < <(discover_groups)
+
+echo "Discovered ${#SPEC_GROUPS[@]} spec groups:"
+printf '  %s\n' "${SPEC_GROUPS[@]}"
+echo ""
+
+check_completeness "${SPEC_GROUPS[@]}"
+
+TIMING_FILE=$(mktemp)
+trap 'rm -f "$TIMING_FILE"' EXIT
+
+FAILED=0
+
+for group in "${SPEC_GROUPS[@]}"; do
+  # Skip if the group contains no spec files
+  spec_count=$(find "$group" -name "*_spec.cr" 2>/dev/null | wc -l | tr -d ' ')
+  [[ "$spec_count" -eq 0 ]] && continue
+
+  echo "━━━ $group ($spec_count files) ━━━"
+  start=$(date +%s)
+
+  crystal spec "$group" || FAILED=1
+
+  elapsed=$(( $(date +%s) - start ))
+  echo "⏱  ${elapsed}s"
+  echo ""
+
+  printf '%d\t%s\n' "$elapsed" "$group" >> "$TIMING_FILE"
+done
+
+# ── timing summary ───────────────────────────────────────────────────────────
+
+echo "━━━ Timing Summary ━━━"
+printf "%-52s %s\n" "Group" "Duration"
+printf "%-52s %s\n" "-----" "--------"
+sort -rn "$TIMING_FILE" | while IFS=$'\t' read -r elapsed group; do
+  printf "%-52s %ds\n" "$group" "$elapsed"
+done
+
+# Write markdown table to GitHub Actions job summary if available
+if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+  {
+    echo "## Spec Timing"
+    echo "| Group | Duration |"
+    echo "|-------|----------|"
+    sort -rn "$TIMING_FILE" | while IFS=$'\t' read -r elapsed group; do
+      echo "| \`$group\` | ${elapsed}s |"
+    done
+  } >> "$GITHUB_STEP_SUMMARY"
+fi
+
+exit $FAILED

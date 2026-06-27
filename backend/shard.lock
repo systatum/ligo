@@ -78,7 +78,7 @@ shards:
 
   markd:
     git: https://github.com/icyleaf/markd.git
-    version: 0.5.0
+    version: 0.6.0+git.commit.6163869970fbab48c081106543591deb6630bcde
 
   marten:
     git: https://github.com/martenframework/marten.git

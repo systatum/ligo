@@ -410,18 +410,26 @@ ensure_system_deps() {
     fi
 
     local packages=(
-      openssl
-      pcre2
-      gc
       vips
-      gmp
       sqlite
       libxml2
       libyaml
     )
 
     brew update
-    brew install "${packages[@]}"
+    for pkg in "${packages[@]}"; do
+      brew install -y "$pkg"
+    done
+
+    # Export pkg-config/linker paths for homebrew libraries so crystal can find
+    # vips etc. when building Marten. We intentionally avoid eval "$(brew shellenv)"
+    # because that prepends /opt/homebrew/bin to PATH, which would shadow the
+    # vfox/asdf-managed crystal with Homebrew's own (older) crystal binary.
+    local brew_prefix
+    brew_prefix="$(brew --prefix)"
+    export PKG_CONFIG_PATH="${brew_prefix}/lib/pkgconfig:${brew_prefix}/share/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}"
+    export LIBRARY_PATH="${brew_prefix}/lib${LIBRARY_PATH:+:${LIBRARY_PATH}}"
+    export CPATH="${brew_prefix}/include${CPATH:+:${CPATH}}"
 
     return 0
   fi
