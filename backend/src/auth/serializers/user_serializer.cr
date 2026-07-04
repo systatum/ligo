@@ -3,11 +3,12 @@ class Auth::UserSerializer < ModelSerializer
     record = @record.as(Auth::User)
 
     {
-      id:         record.hashed_id,
-      first_name: record.first_name,
-      last_name:  record.last_name,
-      email:      record.email,
-      role:       record.role,
+      id:                        record.hashed_id,
+      first_name:                record.first_name,
+      last_name:                 record.last_name,
+      email:                     record.email,
+      role:                      record.role,
+      is_email_address_verified: record.is_email_address_verified,
     }
   end
 end

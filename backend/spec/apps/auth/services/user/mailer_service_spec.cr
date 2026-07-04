@@ -50,4 +50,42 @@ describe Auth::User::MailerService do
       html.should contain(url)
     end
   end
+
+  describe ".send_verification_email" do
+    it "builds an english email verification email" do
+      user = create_user(email: "adam@example.com")
+
+      result = Auth::User::MailerService.send_verification_email(
+        user,
+        "workaty",
+        "https://frontend.com/callback"
+      )
+
+      result.success.should be_true
+      result.email.to.first.address.should eq "adam@example.com"
+      result.email.to.first.name.should eq "Adam"
+      result.email.subject.should eq I18n.t("emails.email_verification.subject", locale: "en-US")
+
+      html = result.email.context[:content_html].raw.as(String)
+      html.should contain("verify")
+
+      intro = I18n.t("emails.email_verification.intro", locale: "en-US")
+      instructions = I18n.t("emails.email_verification.instructions", locale: "en-US")
+      cta = I18n.t("emails.email_verification.cta", locale: "en-US")
+      code_intro = I18n.t("emails.email_verification.code_intro", locale: "en-US")
+      alternative_link = I18n.t("emails.email_verification.alternative_link", locale: "en-US")
+      notice = I18n.t("emails.email_verification.notice", locale: "en-US")
+
+      html.should contain(intro)
+      html.should contain(instructions)
+      html.should contain(cta)
+      html.should contain(code_intro)
+      html.should contain(alternative_link)
+      html.should contain(notice)
+
+      # urls
+      html.should contain("auth/api/user/verify-email/confirm?code=workaty&amp;user=#{user.hashed_id}&amp;redirectionUri=https%3A%2F%2Ffrontend.com%2Fcallback")
+      html.should contain("auth/api/user/verify-email/form?user=#{user.hashed_id}&amp;redirectionUri=https%3A%2F%2Ffrontend.com%2Fcallback")
+    end
+  end
 end

@@ -65,6 +65,7 @@ describe Auth::SignInHandler do
     it "logs the user in" do
       password = "Password01"
       user = create_user(password: password)
+      user.update!(is_email_address_verified: true)
       user.email.should_not be nil
       Auth::User.filter(email__iexact: user.email).count.should eq 1
 

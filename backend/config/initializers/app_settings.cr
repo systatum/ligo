@@ -10,6 +10,7 @@ class AppSettings
   field ligo_app_salt_for_id_concealer : String, default: ""
   field ligo_app_base_url : String, default: "http://localhost:8000" # The url for a ligo app (e.g https://workaty.com)
   field ligo_app_password_reset_token_expiry_minutes : Int32, default: 5
+  field ligo_app_email_verification_token_expiry_minutes : Int32, default: 60
   field ligo_app_mode : String, default: ""
 
   field ligo_database_host : String, default: "", envvar: "LIGO_DB_HOST"

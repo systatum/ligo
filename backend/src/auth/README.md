@@ -223,3 +223,16 @@ Unsupported providers return a `400` error from `OAuthFacility` (which raises on
 1. Adding an entry to `Auth::OAuthFacility::EXPLICIT_PROVIDER_SCOPES`
 2. Adding a `MultiAuth.config(...)` call for the provider credentials
 3. Adding the provider enum value to `Auth::ProviderType`
+
+## Email Verification
+
+When a user signs up via the `api/user/signup` endpoint, their email address is marked as unverified (`is_email_address_verified: false`). The user must verify their email before they can retrieve a JWT token (sign-in is blocked for unverified users). The following endpoints facilitate this flow:
+
+| Route | Method | Purpose |
+|--------|--------|--------|
+| `/api/user/request-email-verification` | GET | Requests a verification email. Query params: `email` (required), `redirectionUri` (optional, embedded in all downstream verification URLs), `expiredAt` (optional ISO 8601 timestamp, default `null` = never expires). Sends an email with a verification link (one-click) and a 6-character alphanumeric code. |
+| `/api/user/verify-email/confirm` | GET | Verifies the email address. Query params: `code` (required, 6-char code), `user` (optional, `hashed_id` to scope the lookup), `redirectionUri` (optional). If already verified: redirects to `redirectionUri` or shows "Email address verified" page. If the link is valid: marks the user as verified, then redirects or shows success page. |
+| `/api/user/verify-email/form` | GET | Renders an HTML form for manual code entry. Query params: `user` (required, hashed_id), `redirectionUri` (optional). If the verification link has expired (per `expiredAt`): shows an expiry message and automatically sends a new verification email. |
+
+> [!NOTE]
+> Facebook OAuth users are automatically marked as verified since Facebook provides verified email addresses. You can't even perform Facebook Login otherwise (Facebook requires verified public email address).

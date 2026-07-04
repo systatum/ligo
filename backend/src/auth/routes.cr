@@ -18,6 +18,10 @@ module Auth
       path "/<realm_id:str>/oauth", oauth_routes
     end
 
+    path "/api/user/request-email-verification", RequestEmailVerificationHandler, name: "api_request_email_verification"
+    path "/api/user/verify-email/confirm", EmailVerifyHandler, name: "api_verify_email"
+    path "/api/user/verify-email/form", EmailVerificationFormHandler, name: "api_verify_email_form"
+
     path "/api/request_state", RequestStateHandler, name: "api_request_state"
 
     organization_routes = Marten::Routing::Map.draw do
