@@ -133,80 +133,9 @@ jobs:
             core.setOutput('approved', String(approved));
             core.setOutput('denied', String(denied));
 
-  discover:
-    name: Discover Spec Groups
-    runs-on: ubuntu-24.04
-
-    defaults:
-      run:
-        shell: bash
-        working-directory: ${{ github.workspace }}/backend
-
-    outputs:
-      spec_groups: ${{ steps.discover.outputs.spec_groups }}
-
-    steps:
-      - name: Download source
-        uses: actions/checkout@v6
-
-      - name: Discover spec groups
-        id: discover
-        run: |
-          groups=$(bash bin/run_specs --list)
-          echo "spec_groups=$groups" >> "$GITHUB_OUTPUT"
-
-  build:
-    name: Build & Lint
-    runs-on: ubuntu-24.04
-
-    defaults:
-      run:
-        shell: bash
-        working-directory: ${{ github.workspace }}/backend
-
-    steps:
-      - name: Download source
-        uses: actions/checkout@v6
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y pkg-config libvips-dev
-
-      - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1
-        with:
-          crystal: "1.20.2"
-
-      - name: Cache shards
-        uses: actions/cache@v6
-        with:
-          path: "**/lib"
-          key: ${{ runner.os }}-shards-${{ hashFiles('**/shard.lock') }}
-
-      - name: Update and install shards
-        run: shards update && shards check || shards install
-
-      - name: Lint
-        run: crystal tool format --check
-
-      - name: Build app binaries
-        run: |
-          mkdir -p mybin
-          crystal build manage.cr -o mybin/manage
-          crystal build src/server.cr -o mybin/ligo-server --release
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: ligo-binaries-${{ github.sha }}
-          path: backend/mybin/
-          retention-days: 1
-
   test:
-    name: Test (${{ matrix.spec_group }})
+    name: Build & Test
     runs-on: ubuntu-24.04
-    needs: [build, discover]
 
     defaults:
       run:
@@ -274,11 +203,6 @@ jobs:
           --health-timeout=5s
           --health-retries=3
 
-    strategy:
-      fail-fast: false
-      matrix:
-        spec_group: ${{ fromJson(needs.discover.outputs.spec_groups) }}
-
     steps:
       - name: Download source
         uses: actions/checkout@v6
@@ -303,17 +227,32 @@ jobs:
           path: "**/lib"
           key: ${{ runner.os }}-shards-${{ hashFiles('**/shard.lock') }}
 
-      - name: Update and install shards
-        run: shards update && shards check || shards install
+      - name: Cache Crystal build cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/crystal
+          key: ${{ runner.os }}-crystal-build-1.20.2-${{ hashFiles('**/shard.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-crystal-build-1.20.2-
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v8
+      - name: Install shards
+        run: shards install
+
+      - name: Lint
+        run: crystal tool format --check
+
+      - name: Build app binaries
+        run: |
+          mkdir -p mybin
+          crystal build manage.cr -o mybin/manage
+          crystal build src/server.cr -o mybin/ligo-server --release
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v7
         with:
           name: ligo-binaries-${{ github.sha }}
           path: backend/mybin/
-
-      - name: Make manage binary executable
-        run: chmod +x mybin/manage
+          retention-days: 1
 
       - name: Wait for MySQL
         run: |
@@ -352,7 +291,7 @@ jobs:
           mybin/manage migrate_system_fields
 
       - name: Run Spec
-        run: crystal spec ${{ matrix.spec_group }}
+        run: bash bin/run_specs --parallel
 
   deploy:
     name: Ligo Deployment

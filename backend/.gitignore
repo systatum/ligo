@@ -14,3 +14,4 @@
 /mybin/
 /log/*.log
 .spectator-failures
+/.spec_runner_*/
