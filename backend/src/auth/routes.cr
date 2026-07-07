@@ -5,7 +5,8 @@ module Auth
     path "/api/user/update_password", PasswordUpdateHandler, name: "api_update_password"
     path "/api/user/request_password_reset", PasswordResetInitiateHandler, name: "api_request_password_reset"
 
-    path "/api/user/my-bio", MyBioUpdateHandler, name: "api_my_bio_update"
+    path "/api/user/my-bio", MyBioShowHandler, name: "api_my_bio_show"
+    path "/api/user/my-bio/update", MyBioUpdateHandler, name: "api_my_bio_update"
     path "/api/user/my-picture", MyPictureUploadHandler, name: "api_my_picture_upload"
 
     realm_routes = Marten::Routing::Map.draw(:realm) do

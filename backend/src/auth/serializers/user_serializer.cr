@@ -9,6 +9,8 @@ class Auth::UserSerializer < ModelSerializer
       email:                     record.email,
       role:                      record.role,
       is_email_address_verified: record.is_email_address_verified,
+      locale:                    record.locale,
+      timezone_offset_seconds:   record.timezone_offset_seconds,
     }
   end
 end

@@ -17,20 +17,23 @@ Our platform uses a multi-realm, multi-database architecture. Each realm (app) o
 
 All routes are prefixed under `/auth` (registered in the root route map):
 
-| Scope | Route | Handler |
-|-------|-------|---------|
-| User | `/api/user/signup` | `SignUpHandler` |
-| User | `/api/user/signin` | `SignInHandler` |
-| User | `/api/user/update_password` | `PasswordUpdateHandler` |
-| User | `/api/user/request_password_reset` | `PasswordResetInitiateHandler` |
-| User | `/api/user/my-bio` | `MyBioUpdateHandler` |
-| User | `/api/user/my-picture` | `MyPictureUploadHandler` |
-| Realm | `/api/realm/create` | `RealmCreateHandler` |
-| Realm | `/api/realm/<realm_id>/oauth/<provider>` | `OAuthInitiateHandler` |
-| Realm | `/api/realm/<realm_id>/oauth/<provider>/callback` | `OAuthCallbackHandler` |
-| Generic | `/api/request_state` | `RequestStateHandler` |
-| Org | `/api/organizations/create` | `OrganizationCreateHandler` |
-| Org | `/api/organizations/<id>/...` | CRUD handlers |
+| Scope | Route | Method | Handler |
+|-------|-------|--------|---------|
+| User | `/api/user/signup` | POST | `SignUpHandler` |
+| User | `/api/user/signin` | POST | `SignInHandler` |
+| User | `/api/user/update_password` | POST | `PasswordUpdateHandler` |
+| User | `/api/user/request_password_reset` | POST | `PasswordResetInitiateHandler` |
+| User | `/api/user/my-bio` | GET | `MyBioShowHandler` |
+| User | `/api/user/my-bio/update` | PATCH, POST | `MyBioUpdateHandler` |
+| User | `/api/user/my-picture` | POST, PATCH | `MyPictureUploadHandler` |
+| Realm | `/api/realm/create` | POST | `RealmCreateHandler` |
+| Realm | `/api/realm/<realm_id>/oauth/<provider>` | GET | `OAuthInitiateHandler` |
+| Realm | `/api/realm/<realm_id>/oauth/<provider>/callback` | GET | `OAuthCallbackHandler` |
+| Generic | `/api/request_state` | GET | `RequestStateHandler` |
+| Org | `/api/organizations/create` | POST | `OrganizationCreateHandler` |
+| Org | `/api/organizations/<id>` | PATCH, POST | `OrganizationUpdateHandler` |
+| Org | `/api/organizations/<id>/delete` | DELETE | `OrganizationDeleteHandler` |
+| Webhook | `/api/webhooks/iam` | POST | `IamWebhookHandler` |
 
 ## OAuth / Facebook SSO
 
