@@ -16,11 +16,11 @@ module Antrikan
 
       authorize_items!(queue_items)
 
-      id_to_item = items_payload.index_by(&.id)
+      id_to_queue_item = queue_items.index_by { |qi| qi.id.to_s }
       updated = [] of QueuedItem
 
-      queue_items.each do |qi|
-        payload = id_to_item[qi.id.to_s]
+      items_payload.each do |payload|
+        qi = id_to_queue_item[payload.id]
         update_fields(qi, payload)
         publish_queued_item_updated(qi)
         updated << qi
