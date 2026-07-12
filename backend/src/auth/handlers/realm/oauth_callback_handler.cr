@@ -9,8 +9,11 @@ module Auth
     before_dispatch :validate_state
 
     def get
-      code = request.query_params["code"]?.to_s || ""
-      result = OAuthTokenAuthenticatorService.new(multi_auth: multi_auth, code: code).run
+      result = OAuthTokenAuthenticatorService.new(
+        realm: realm,
+        multi_auth: multi_auth,
+        code: request.query_params["code"]?.to_s
+      ).run
 
       if result.success?
         json UserTokenSerializer.serialize(result.data.not_nil!), status: 200

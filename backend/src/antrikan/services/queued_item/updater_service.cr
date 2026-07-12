@@ -22,6 +22,7 @@ module Antrikan
       queue_items.each do |qi|
         payload = id_to_item[qi.id.to_s]
         update_fields(qi, payload)
+        publish_queued_item_updated(qi)
         updated << qi
       end
 
@@ -59,6 +60,13 @@ module Antrikan
         queue_org_id = qi.queue!.channel!.space!.owner!.organization_id
         raise Auth::AuthorizationError.new unless @organization_id == queue_org_id
       end
+    end
+
+    private def publish_queued_item_updated(qi : QueuedItem)
+      ChannelEventPublisher.publish(qi.channel!,
+        type: "queued_item_updated",
+        key: "queued_item",
+        value: QueuedItemSerializer.soft_serialize(qi))
     end
   end
 end

@@ -1,0 +1,328 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."   # run from backend/
+
+# ── group discovery ──────────────────────────────────────────────────────────
+#
+# A "group" is a directory passed to `crystal spec`. Groups are determined by:
+#   1. Take each immediate subdirectory of spec/ (excluding spec/factories).
+#   2. If any spec_helper.cr inside that directory force-assigns LIGO_APP_MODE
+#      (plain = not ||=), the directory contains apps with different modes and
+#      must be split: replace it with its own immediate subdirectories.
+#   3. After discovery, verify every *_spec.cr file is covered. Fail loudly if not.
+
+discover_groups() {
+  local found=()
+
+  for dir in spec/*/; do
+    dir="${dir%/}"
+    [[ "$dir" == "spec/factories" ]] && continue
+
+    # Match `ENV["LIGO_APP_MODE"] = "..."` but not `||= "..."` (the root fallback)
+    if grep -rq 'LIGO_APP_MODE"\] =' "$dir" --include="spec_helper.cr" 2>/dev/null; then
+      # Go one level deeper — each subdir is its own group
+      for subdir in "$dir"/*/; do
+        [[ -d "$subdir" ]] && found+=("${subdir%/}")
+      done
+    else
+      found+=("$dir")
+    fi
+  done
+
+  printf '%s\n' "${found[@]}" | sort
+}
+
+check_completeness() {
+  local -a spec_groups=("$@")
+
+  local all_files
+  all_files=$(find spec -name "*_spec.cr" | sort)
+
+  local covered_files
+  covered_files=$(
+    for g in "${spec_groups[@]}"; do
+      find "$g" -name "*_spec.cr" 2>/dev/null || true
+    done | sort
+  )
+
+  local missed
+  missed=$(comm -23 <(echo "$all_files") <(echo "$covered_files"))
+
+  if [[ -n "$missed" ]]; then
+    echo ""
+    echo "ERROR: These spec files were not included in any group:"
+    echo "$missed"
+    echo "If you added a new spec directory, check the discovery logic in bin/run_specs."
+    exit 1
+  fi
+}
+
+# ── flags ─────────────────────────────────────────────────────────────────────
+
+# --list: print discovered groups as a JSON array (used by CI matrix generation)
+if [[ "${1:-}" == "--list" ]]; then
+  json="["
+  first=1
+  while IFS= read -r g; do
+    [[ $first -eq 0 ]] && json+=","
+    json+="\"$g\""
+    first=0
+  done < <(discover_groups)
+  json+="]"
+  echo "$json"
+  exit 0
+fi
+
+# --parallel: run all groups simultaneously within a single process.
+# Each group gets its own database and Crystal cache dir to avoid conflicts.
+# Requires mybin/manage to exist for per-group migrations.
+if [[ "${1:-}" == "--parallel" ]]; then
+  if [[ ! -x "mybin/manage" ]]; then
+    echo "ERROR: mybin/manage not found. Build it first: crystal build manage.cr -o mybin/manage"
+    exit 1
+  fi
+
+  SPEC_GROUPS=()
+  while IFS= read -r g; do SPEC_GROUPS+=("$g"); done < <(discover_groups)
+
+  check_completeness "${SPEC_GROUPS[@]}"
+
+  echo "Running ${#SPEC_GROUPS[@]} spec groups in parallel"
+  echo ""
+
+  # WORK_DIR must live inside the project so that entry files can require spec
+  # files via relative paths (Crystal resolves requires relative to the source
+  # file, so an entry in /tmp cannot reach ../project/spec/...).
+  WORK_DIR=$(mktemp -d "$(pwd)/.spec_runner_XXXXXX")
+  # || true: OOM-killed crystal may leave orphaned LLVM/ld children still
+  # writing to cache dirs inside WORK_DIR when rm runs.
+  trap 'rm -rf "$WORK_DIR" || true' EXIT
+
+  # ── Create one database per group ─────────────────────────────────────────
+  echo "Creating databases..."
+  for group in "${SPEC_GROUPS[@]}"; do
+    safe="${group//\//_}"
+    db="ligo_test_${safe}"
+    MYSQL_PWD="${LIGO_DB_PASSWORD:-root}" mysql \
+      -h"${LIGO_DB_HOST:-127.0.0.1}" \
+      -P"${LIGO_DB_PORT:-3306}" \
+      -u"${LIGO_DB_USERNAME:-root}" \
+      -e "CREATE DATABASE IF NOT EXISTS \`${db}\`;" 2>/dev/null
+    echo "  $db"
+  done
+
+  # ── Run migrations in parallel ─────────────────────────────────────────────
+  echo ""
+  echo "Running migrations in parallel..."
+  PIDS=()
+  for group in "${SPEC_GROUPS[@]}"; do
+    safe="${group//\//_}"
+    db="ligo_test_${safe}"
+    (
+      LIGO_DB_NAME="$db" mybin/manage migrate        >  "$WORK_DIR/${safe}_migrate.log" 2>&1
+      LIGO_DB_NAME="$db" mybin/manage migrate_system_fields >> "$WORK_DIR/${safe}_migrate.log" 2>&1
+    ) &
+    PIDS+=($!)
+  done
+  for pid in "${PIDS[@]}"; do wait "$pid"; done
+  echo "Migrations complete."
+  echo ""
+
+  # ── Phase 1: compile ─────────────────────────────────────────────────────────
+  #
+  # Each Crystal compilation peaks at 3-4 GB (LLVM codegen). GitHub's standard
+  # ubuntu-24.04 runner has 7 GB RAM, so compiling more than one at a time causes
+  # swapping and 15+ min compile times. Default is 1; raise only on larger runners.
+  # Groups share ~/.cache/crystal: compilation N+1 reuses objects from compilation N.
+  #
+  # Override: SPEC_COMPILE_PARALLEL=2 bash bin/run_specs --parallel
+  MAX_TEST_COMPILATION_PARALLELISM="${SPEC_COMPILE_PARALLEL:-1}"
+
+  # ── Phase 2: run ─────────────────────────────────────────────────────────────
+  #
+  # Running a compiled spec binary is lightweight (~100-200 MB). Once all binaries
+  # are built we can run many in parallel without memory pressure.
+  #
+  # Override: SPEC_RUN_PARALLEL=6 bash bin/run_specs --parallel
+  MAX_TEST_RUN_PARALLELISM="${SPEC_RUN_PARALLEL:-4}"
+
+  FAILED=0
+
+  # ── Compile all groups ────────────────────────────────────────────────────────
+  declare -A C_PID_GROUP
+  declare -A C_PID_START
+  c_running=0
+  COMPILED_GROUPS=()
+
+  compile_collect_one() {
+    local pid code=0
+    wait -n -p pid 2>/dev/null || code=$?
+    local g="${C_PID_GROUP[$pid]:-}"
+    [[ -z "$g" ]] && return
+    local safe="${g//\//_}"
+    local elapsed=$(( $(date +%s) - ${C_PID_START[$pid]} ))
+    if [[ $code -eq 0 ]]; then
+      echo "  ✓ $g (${elapsed}s)"
+      COMPILED_GROUPS+=("$g")
+    else
+      echo "  ✗ $g — compilation failed (${elapsed}s):"
+      [[ -f "$WORK_DIR/${safe}_compile.log" ]] && cat "$WORK_DIR/${safe}_compile.log"
+      FAILED=1
+    fi
+    unset "C_PID_GROUP[$pid]" "C_PID_START[$pid]"
+    c_running=$(( c_running - 1 ))
+  }
+
+  echo "Compiling ${#SPEC_GROUPS[@]} spec groups (max $MAX_TEST_COMPILATION_PARALLELISM at a time)..."
+  for group in "${SPEC_GROUPS[@]}"; do
+    [[ $c_running -ge $MAX_TEST_COMPILATION_PARALLELISM ]] && compile_collect_one
+
+    safe="${group//\//_}"
+    binary="$WORK_DIR/spec_bin_${safe}"
+    entry="$WORK_DIR/${safe}_entry.cr"
+    start=$(date +%s)
+    echo "  ⚙ $group"
+
+    # Build entry file: one require per spec file using paths relative to WORK_DIR.
+    # WORK_DIR is a direct child of the project root, so spec files are at "../$f".
+    # Crystal resolves each spec file's own requires (e.g. require "../spec_helper")
+    # relative to THAT spec file's location — not the entry file — so the chain works.
+    while IFS= read -r f; do
+      printf 'require "../%s"\n' "$f"
+    done < <(find "$group" -name "*_spec.cr" | sort) > "$entry"
+
+    (
+      crystal build "$entry" -o "$binary" \
+        > "$WORK_DIR/${safe}_compile.log" 2>&1
+    ) &
+    pid=$!
+    C_PID_GROUP[$pid]=$group
+    C_PID_START[$pid]=$start
+    c_running=$(( c_running + 1 ))
+  done
+  while [[ $c_running -gt 0 ]]; do compile_collect_one; done
+
+  echo ""
+  if [[ ${#COMPILED_GROUPS[@]} -eq 0 ]]; then
+    echo "ERROR: no spec groups compiled successfully."
+    exit 1
+  fi
+  echo "${#COMPILED_GROUPS[@]}/${#SPEC_GROUPS[@]} groups compiled. Starting test runs..."
+  echo ""
+
+  # ── Run all compiled binaries ─────────────────────────────────────────────────
+  declare -A R_PID_GROUP
+  declare -A R_PID_START
+  r_running=0
+  TIMING_FILE="$WORK_DIR/timing"
+  TOTAL=${#COMPILED_GROUPS[@]}
+  COMPLETED=0
+
+  run_collect_one() {
+    local pid code=0
+    wait -n -p pid 2>/dev/null || code=$?
+    local g="${R_PID_GROUP[$pid]:-}"
+    [[ -z "$g" ]] && return
+    local safe="${g//\//_}"
+    local elapsed=$(( $(date +%s) - ${R_PID_START[$pid]} ))
+    COMPLETED=$(( COMPLETED + 1 ))
+    echo ""
+    echo "━━━ $g (${elapsed}s) [$COMPLETED/$TOTAL] ━━━"
+    [[ -f "$WORK_DIR/${safe}_run.log" ]] && cat "$WORK_DIR/${safe}_run.log"
+    printf '%d\t%s\n' "$elapsed" "$g" >> "$TIMING_FILE"
+    [[ $code -ne 0 ]] && FAILED=1
+    unset "R_PID_GROUP[$pid]" "R_PID_START[$pid]"
+    r_running=$(( r_running - 1 ))
+  }
+
+  echo "Running $TOTAL compiled spec groups (max $MAX_TEST_RUN_PARALLELISM at a time)..."
+  echo ""
+  for group in "${COMPILED_GROUPS[@]}"; do
+    [[ $r_running -ge $MAX_TEST_RUN_PARALLELISM ]] && run_collect_one
+
+    safe="${group//\//_}"
+    db="ligo_test_${safe}"
+    binary="$WORK_DIR/spec_bin_${safe}"
+    start=$(date +%s)
+    echo "▶ running $group"
+    ( LIGO_DB_NAME="$db" "$binary" > "$WORK_DIR/${safe}_run.log" 2>&1 ) &
+    pid=$!
+    R_PID_GROUP[$pid]=$group
+    R_PID_START[$pid]=$start
+    r_running=$(( r_running + 1 ))
+  done
+  while [[ $r_running -gt 0 ]]; do run_collect_one; done
+
+  # ── Timing summary ─────────────────────────────────────────────────────────
+  echo "━━━ Timing Summary ━━━"
+  printf "%-52s %s\n" "Group" "Duration"
+  printf "%-52s %s\n" "-----" "--------"
+  sort -rn "$TIMING_FILE" | while IFS=$'\t' read -r elapsed group; do
+    printf "%-52s %ds\n" "$group" "$elapsed"
+  done
+
+  if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+    {
+      echo "## Spec Timing"
+      echo "| Group | Duration |"
+      echo "|-------|----------|"
+      sort -rn "$TIMING_FILE" | while IFS=$'\t' read -r elapsed group; do
+        echo "| \`$group\` | ${elapsed}s |"
+      done
+    } >> "$GITHUB_STEP_SUMMARY"
+  fi
+
+  exit $FAILED
+fi
+
+# ── sequential mode (default, local use) ─────────────────────────────────────
+
+SPEC_GROUPS=()
+while IFS= read -r g; do SPEC_GROUPS+=("$g"); done < <(discover_groups)
+
+echo "Discovered ${#SPEC_GROUPS[@]} spec groups:"
+printf '  %s\n' "${SPEC_GROUPS[@]}"
+echo ""
+
+check_completeness "${SPEC_GROUPS[@]}"
+
+TIMING_FILE=$(mktemp)
+trap 'rm -f "$TIMING_FILE"' EXIT
+
+FAILED=0
+
+for group in "${SPEC_GROUPS[@]}"; do
+  spec_count=$(find "$group" -name "*_spec.cr" 2>/dev/null | wc -l | tr -d ' ')
+  [[ "$spec_count" -eq 0 ]] && continue
+
+  echo "━━━ $group ($spec_count files) ━━━"
+  start=$(date +%s)
+
+  crystal spec "$group" || FAILED=1
+
+  elapsed=$(( $(date +%s) - start ))
+  echo "⏱  ${elapsed}s"
+  echo ""
+
+  printf '%d\t%s\n' "$elapsed" "$group" >> "$TIMING_FILE"
+done
+
+echo "━━━ Timing Summary ━━━"
+printf "%-52s %s\n" "Group" "Duration"
+printf "%-52s %s\n" "-----" "--------"
+sort -rn "$TIMING_FILE" | while IFS=$'\t' read -r elapsed group; do
+  printf "%-52s %ds\n" "$group" "$elapsed"
+done
+
+if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+  {
+    echo "## Spec Timing"
+    echo "| Group | Duration |"
+    echo "|-------|----------|"
+    sort -rn "$TIMING_FILE" | while IFS=$'\t' read -r elapsed group; do
+      echo "| \`$group\` | ${elapsed}s |"
+    done
+  } >> "$GITHUB_STEP_SUMMARY"
+fi
+
+exit $FAILED

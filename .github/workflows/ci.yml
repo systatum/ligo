@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [ main, staging, 'deploy-*']
+    branches: [main, staging, "deploy-*"]
 
 permissions:
   id-token: write
@@ -11,7 +11,7 @@ permissions:
   issues: write
 
 jobs:
-  approval: 
+  approval:
     name: Workflow Approval
     runs-on: ubuntu-24.04
     if: |
@@ -19,12 +19,12 @@ jobs:
       github.actor != 'dependabot[bot]'
     outputs:
       approved: ${{ steps.approval_result.outputs.approved }}
-      denied:   ${{ steps.approval_result.outputs.denied }}
+      denied: ${{ steps.approval_result.outputs.denied }}
 
     steps:
       - name: Extract PR/Commit Message
         id: extract_pr_commit
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const sha = context.sha;
@@ -42,7 +42,7 @@ jobs:
             core.setOutput('title',
               prefix ? `${prefix} - ${defaultTitle}` :
               msg ? `${msg} - ${defaultTitle}` :
-              defaultTitle);              
+              defaultTitle);
 
       - name: Await Workflow Approval
         id: approval_step
@@ -57,7 +57,7 @@ jobs:
           issue-title: "${{ steps.extract_pr_commit.outputs.title }}"
           issue-body: |
             # 🚀 Ligo Production Deployment Approval
-            
+
             ## 📋 Deployment Details
             | Field | Value |
             |-------|-------|
@@ -66,20 +66,20 @@ jobs:
             | **Triggered by** | @${{ github.actor }} |
 
             ## 🎯 Approval Process
-            
+
             ### ✅ To Approve
             Comment with any of: `approved`, `approve`, `lgtm`, or `yes`
-            
-            ### ❌ To Deny  
+
+            ### ❌ To Deny
             Comment with any of: `denied`, `deny`, or `no`
-            
+
             >[!WARNING]
             >🌐 This will deploy to the **production** environment and affect live users.
             >📝 Please ensure you have reviewed all changes carefully before approving.
 
       - name: Determine approval result
         id: approval_result
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const approvalOutcome = '${{ steps.approval_step.outcome }}';
@@ -134,14 +134,14 @@ jobs:
             core.setOutput('denied', String(denied));
 
   test:
-    name: Run Tests
+    name: Build & Test
     runs-on: ubuntu-24.04
 
     defaults:
       run:
         shell: bash
         working-directory: ${{ github.workspace }}/backend
-    
+
     env:
       MARTEN_ENV: test
       LIGO_APP_MODE: workaty
@@ -160,6 +160,10 @@ jobs:
       LIGO_SIDEKIQ_REDIS_PORT: 6379
       LIGO_SIDEKIQ_REDIS_PASSWORD: ""
       LIGO_SIDEKIQ_REDIS_DATABASE_NUMBER: 0
+      LIGO_REDIS_HOST: 127.0.0.1
+      LIGO_REDIS_PORT: 6379
+      LIGO_REDIS_PASSWORD: ""
+      LIGO_REDIS_DATABASE_NUMBER: 0
 
     services:
       mysql:
@@ -203,18 +207,14 @@ jobs:
           --health-timeout=5s
           --health-retries=3
 
-    strategy:
-      matrix:
-        crystal: [ 1.16.3 ]
-
     steps:
       - name: Download source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y mysql-client pkg-config libvips-dev python3-pip
+          sudo apt-get install -y mysql-client pkg-config python3-pip
           pip3 install --user awscli-local
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           export PATH="$HOME/.local/bin:$PATH"
@@ -223,16 +223,40 @@ jobs:
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
         with:
-          crystal: ${{ matrix.crystal }}
+          crystal: "1.20.2"
 
       - name: Cache shards
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: "**/lib"
           key: ${{ runner.os }}-shards-${{ hashFiles('**/shard.lock') }}
 
-      - name: Update and install shards
-        run: shards update && shards check || shards install
+      - name: Cache Crystal build cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/crystal
+          key: ${{ runner.os }}-crystal-build-1.20.2-${{ hashFiles('**/shard.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-crystal-build-1.20.2-
+
+      - name: Install shards
+        run: shards install
+
+      - name: Lint
+        run: crystal tool format --check
+
+      - name: Build app binaries
+        run: |
+          mkdir -p mybin
+          crystal build manage.cr -o mybin/manage
+          crystal build src/server.cr -o mybin/ligo-server --release
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: ligo-binaries-${{ github.sha }}
+          path: backend/mybin/
+          retention-days: 1
 
       - name: Wait for MySQL
         run: |
@@ -265,36 +289,20 @@ jobs:
             --region "$LIGO_S3_REGION" || true
           awslocal s3 ls
 
-      - name: Build app binaries
-        run: |
-          mkdir -p mybin
-          crystal build manage.cr -o mybin/manage
-          crystal build src/server.cr -o mybin/ligo-server --release
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: ligo-binaries-${{ github.sha }}
-          path: backend/mybin/
-          retention-days: 1
-
-      - name: Lint
-        run: crystal tool format --check
-
       - name: Run migration
         run: |
           mybin/manage migrate
           mybin/manage migrate_system_fields
 
       - name: Run Spec
-        run: crystal spec
+        run: bash bin/run_specs --parallel
 
   deploy:
     name: Ligo Deployment
     runs-on: ubuntu-24.04
     needs: [test, approval]
     if: >-
-      ${{ needs.test.result == 'success' && 
+      ${{ needs.test.result == 'success' &&
       needs.approval.outputs.denied == 'false' &&
       needs.approval.outputs.approved == 'true' }}
 
@@ -317,11 +325,11 @@ jobs:
 
     strategy:
       matrix:
-        ruby: [ 3.4.5 ]
+        ruby: [3.4.5]
 
     steps:
       - name: Download source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Download build artifacts
         uses: actions/download-artifact@v8
@@ -373,7 +381,7 @@ jobs:
 
       - name: Deploy to Production with Capistrano
         if: >-
-          ${{ github.ref_name == 'main' || 
+          ${{ github.ref_name == 'main' ||
           startsWith(github.ref_name, 'deploy-') }}
         run: |
           cd ${{ github.workspace }}/deployer

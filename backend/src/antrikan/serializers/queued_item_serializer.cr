@@ -13,6 +13,7 @@ module Antrikan
         note:       record.note,
         unit_price: record.unit_price,
         quantity:   record.quantity,
+        rank:       record.rank,
       }
     end
   end

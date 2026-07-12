@@ -112,3 +112,41 @@ def expect_no_jobs(job_class, queue = "default", &)
     yield
   end
 end
+
+private def collect_redis_messages(channel : String, count : Int, timeout : Time::Span, &) : Array(String)
+  received = Channel(Array(String)).new(1)
+
+  spawn(name: "test_redis_sub") do
+    redis = RedisPool.new_connection
+    messages = [] of String
+    redis.subscribe(channel) do |on|
+      on.message do |_ch, payload|
+        messages << payload
+        redis.unsubscribe([] of String) if messages.size >= count
+      end
+    end
+    received.send(messages)
+  end
+
+  sleep(0.05.seconds)
+  yield
+
+  select
+  when m = received.receive
+    m
+  when timeout(timeout)
+    [] of String
+  end
+end
+
+def capture_redis_message(channel : String, timeout = 2.seconds, &) : String?
+  collect_redis_messages(channel, count: 1, timeout: timeout) { yield }.first?
+end
+
+def capture_redis_messages(channel : String, count : Int, timeout = 2.seconds, &) : Array(String)
+  collect_redis_messages(channel, count: count, timeout: timeout) { yield }
+end
+
+def expect_no_redis_message(channel : String, wait = 0.1.seconds, &) : Nil
+  collect_redis_messages(channel, count: 1, timeout: wait) { yield }.should be_empty
+end

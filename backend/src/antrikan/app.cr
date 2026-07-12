@@ -9,6 +9,13 @@ require "./schemas/**"
 require "./serializers/**"
 require "./services/**"
 
+Socky::ChannelAuthorizer.register_resolver("antrikan") do |user, local_key|
+  channel = Antrikan::Channel.get_by_hashed_id(local_key)
+  !!channel && Antrikan::ChannelHelper.user_can_access?(user, channel)
+end
+
+Socky::Broadcaster.start_subscriber
+
 module Antrikan
   class App < Marten::App
     label "antrikan"

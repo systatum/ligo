@@ -20,6 +20,7 @@ module Antrikan
 
     private def update_fields
       description = schema.description? ? schema.description : nil
+      previous_order = @item.order
       @item.name = schema.name if schema.name?
       @item.order = schema.order if schema.order?
       @item.daily_cap = schema.daily_cap if schema.daily_cap?
@@ -28,10 +29,18 @@ module Antrikan
       @item.main_image_file_id = upload_image(schema.main_image) if @data.has_key?("main_image")
 
       @item.save!
+      publish_item_updated(@item) if @item.order != previous_order
     end
 
     private def schema
       @schema ||= ItemUpdateSchema.new(@data)
+    end
+
+    private def publish_item_updated(item : Item)
+      ChannelEventPublisher.publish(item.channel!,
+        type: "item_updated",
+        key: "item",
+        value: ItemSerializer.soft_serialize(item))
     end
   end
 end

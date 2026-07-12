@@ -20,6 +20,8 @@ module Antrikan
         success(result)
       rescue ex : Marten::DB::Errors::InvalidRecord
         failure(ex.record.errors)
+      rescue ex : Marten::DB::Errors::RecordNotFound
+        failure(:user_id, "User not found")
       end
     end
 

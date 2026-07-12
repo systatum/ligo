@@ -5,10 +5,13 @@
 *.db
 *.dwarf
 /.shards/
-/bin/
+/bin/manage
+/bin/marten*
+/bin/server
 /lib/
 /tmp/
 .DS_Store
 /mybin/
 /log/*.log
 .spectator-failures
+/.spec_runner_*/

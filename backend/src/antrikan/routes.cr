@@ -64,9 +64,12 @@ module Antrikan
     queue_routes = Marten::Routing::Map.draw(:queue) do
       path "/<queue_slug:str>", QueueShowHandler, name: "show"
       path "/<queue_slug:str>/update", QueueUpdateHandler, name: "update"
+      path "/<queue_slug:str>/items/index", QueuedItemIndexHandler, name: "items_index"
 
       item_routes = Marten::Routing::Map.draw(:item) do
         path "/create", QueuedItemCreateHandler, name: "create"
+        path "/<queued_item_slug:str>/update", QueuedItemUpdateHandler, name: "update"
+        path "/rerank", QueuedItemRerankHandler, name: "rerank"
       end
       path "/<queue_slug:str>/item", item_routes
     end

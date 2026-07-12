@@ -10,16 +10,26 @@ describe Auth::OAuthCallbackHandler do
 
   it "returns 404 when app mode is not iam" do
     ENV["LIGO_APP_MODE"] = "workaty"
+    realm = create_realm
 
-    state = SignedToken.generate
-    callback_path = Marten.routes.reverse("auth:api_oauth_callback", provider: "facebook")
-    response = Marten::Spec.client.get("#{callback_path}?code=test-code&state=#{state}")
+    callback_path = Marten.routes.reverse(
+      "auth:realm:oauth:callback",
+      realm_id: realm.id!,
+      provider: "facebook"
+    )
+    response = Marten::Spec.client.get("#{callback_path}?code=test-code")
 
     response.status.should eq 404
   end
 
   it "returns 403 when state token is invalid" do
-    callback_path = Marten.routes.reverse("auth:api_oauth_callback", provider: "facebook")
+    realm = create_realm
+
+    callback_path = Marten.routes.reverse(
+      "auth:realm:oauth:callback",
+      realm_id: realm.id!,
+      provider: "facebook"
+    )
     response = Marten::Spec.client.get("#{callback_path}?code=test-code&state=invalid-state")
 
     response.status.should eq 403
@@ -27,8 +37,14 @@ describe Auth::OAuthCallbackHandler do
   end
 
   it "returns 400 when provider is unsupported" do
+    realm = create_realm
     state = SignedToken.generate
-    callback_path = Marten.routes.reverse("auth:api_oauth_callback", provider: "unsupported-provider")
+
+    callback_path = Marten.routes.reverse(
+      "auth:realm:oauth:callback",
+      realm_id: realm.id!,
+      provider: "unsupported-provider"
+    )
     response = Marten::Spec.client.get("#{callback_path}?code=test-code&state=#{state}")
 
     response.status.should eq 400
@@ -36,11 +52,16 @@ describe Auth::OAuthCallbackHandler do
   end
 
   it "returns jwt payload when callback succeeds" do
+    realm = create_realm
     ensure_multi_auth_provider_config("facebook")
     MultiAuth::Engine.spec_set_user(build_multi_auth_user)
 
     state = SignedToken.generate
-    callback_path = Marten.routes.reverse("auth:api_oauth_callback", provider: "facebook")
+    callback_path = Marten.routes.reverse(
+      "auth:realm:oauth:callback",
+      realm_id: realm.id!,
+      provider: "facebook"
+    )
     response = Marten::Spec.client.get("#{callback_path}?code=test-code&state=#{state}")
 
     response.status.should eq 200
@@ -51,10 +72,15 @@ describe Auth::OAuthCallbackHandler do
   end
 
   it "returns jwt payload when callback succeeds and state param is missing" do
+    realm = create_realm
     ensure_multi_auth_provider_config("facebook")
     MultiAuth::Engine.spec_set_user(build_multi_auth_user)
 
-    callback_path = Marten.routes.reverse("auth:api_oauth_callback", provider: "facebook")
+    callback_path = Marten.routes.reverse(
+      "auth:realm:oauth:callback",
+      realm_id: realm.id!,
+      provider: "facebook"
+    )
     response = Marten::Spec.client.get("#{callback_path}?code=test-code")
 
     response.status.should eq 200
@@ -65,10 +91,15 @@ describe Auth::OAuthCallbackHandler do
   end
 
   it "returns jwt payload when callback succeeds and state param is empty" do
+    realm = create_realm
     ensure_multi_auth_provider_config("facebook")
     MultiAuth::Engine.spec_set_user(build_multi_auth_user)
 
-    callback_path = Marten.routes.reverse("auth:api_oauth_callback", provider: "facebook")
+    callback_path = Marten.routes.reverse(
+      "auth:realm:oauth:callback",
+      realm_id: realm.id!,
+      provider: "facebook"
+    )
     response = Marten::Spec.client.get("#{callback_path}?code=test-code&state=")
 
     response.status.should eq 200

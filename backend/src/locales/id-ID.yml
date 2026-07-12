@@ -128,3 +128,11 @@ id-ID:
       cta: "Ubah password"
       or_visit: "Atau kunjungi tautan berikut:"
       notice: "Tautan tersebut berlaku selama 5 menit. Jika Anda tidak meminta proses pengubahan password ini, cukup abaikan email ini."
+    email_verification:
+      subject: "Verifikasi alamat email Anda"
+      intro: "Terima kasih telah mendaftar!"
+      instructions: "Silakan verifikasi alamat email Anda dengan mengklik tombol di bawah:"
+      cta: "Verifikasi email"
+      code_intro: "Atau masukkan kode verifikasi berikut:"
+      alternative_link: "Atau kunjungi tautan berikut:"
+      notice: "Jika Anda tidak mendaftar untuk akun ini, abaikan email ini."

@@ -11,6 +11,9 @@ module Auth
       if schema.valid?
         user = MartenAuth.authenticate(schema.email!, schema.password!)
         if user
+          unless user.is_email_address_verified?
+            return render_error 403, ["Email address not verified"]
+          end
           json UserTokenSerializer.serialize(user), status: 200
         else
           render_error 404, ["Invalid credentials"]

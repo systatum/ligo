@@ -95,7 +95,7 @@ describe Logger do
       rescue e
         e
       end
-      Logger.error("error with exception", ex)
+      Logger.error("error with exception", err: ex)
 
       entry = backend.entries.first
       entry.severity.should eq Log::Severity::Error

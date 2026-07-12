@@ -127,3 +127,11 @@ en-US:
       cta: "Reset password"
       or_visit: "Or visit the following link:"
       notice: "This link is valid for 5 minutes. If you didn't request this password change, simply ignore this email."
+    email_verification:
+      subject: "Verify your email address"
+      intro: "Thanks for signing up!"
+      instructions: "Please verify your email address by clicking the button below:"
+      cta: "Verify email"
+      code_intro: "Or enter the following verification code:"
+      alternative_link: "Or visit the following link:"
+      notice: "If you didn't sign up for this account, simply ignore this email."

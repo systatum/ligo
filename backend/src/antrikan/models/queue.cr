@@ -41,6 +41,7 @@ module Antrikan
       items = Antrikan::QueuedItem.filter(queue_id: id!).to_a
 
       self.total_price = items.sum(0) { |item| item.unit_price! * item.quantity! }
+      previous_status = status
 
       if items.size > 0
         all_done = items.all? { |item| item.status == QueueStatus::DONE.value }
@@ -54,6 +55,14 @@ module Antrikan
       end
 
       save!
+      publish_queue_updated(self) if status != previous_status
+    end
+
+    private def publish_queue_updated(queue : Queue)
+      ChannelEventPublisher.publish(queue.channel!,
+        type: "queue_updated",
+        key: "queue",
+        value: QueueSerializer.soft_serialize(queue))
     end
   end
 end

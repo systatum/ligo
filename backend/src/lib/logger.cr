@@ -47,8 +47,12 @@ class Logger
     instance.info(message)
   end
 
-  def self.error(message : String, e : Exception? = nil)
-    instance.error(message, e)
+  def self.error(message : String, *, err : Exception? = nil, notify : Bool = false)
+    instance.error(message, err: err, notify: notify)
+  end
+
+  def self.warn(message : String, e : Exception? = nil)
+    instance.warn(message, e)
   end
 
   def debug(message : String)
@@ -59,12 +63,26 @@ class Logger
     @log.info { payload("info", message) }
   end
 
-  def error(message : String, e : Exception? = nil)
-    if e
-      @log.error(exception: e) { payload("error", message, e) }
+  def error(message : String, *, err : Exception? = nil, notify : Bool = false)
+    if err
+      @log.error(exception: err) { payload("error", message, err) }
     else
       @log.error { payload("error", message) }
     end
+
+    notify_sentry(message, err) if notify
+  end
+
+  def warn(message : String, e : Exception? = nil)
+    if e
+      @log.warn(exception: e) { payload("warn", message, e) }
+    else
+      @log.warn { payload("warn", message) }
+    end
+  end
+
+  # TODO: send to Sentry
+  private def notify_sentry(message : String, err : Exception?) : Nil
   end
 
   private def payload(severity : String, message : String, e : Exception? = nil) : String

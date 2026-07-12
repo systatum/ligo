@@ -30,7 +30,7 @@ class FileStagerService < BaseService(Marten::HTTP::UploadedFile)
   private def valid_file_type?(io : IO, media_type : MIME::MediaType)
     case media_type.type
     when "image"
-      return Marten::Core::Validator::Image.valid?(io)
+      return ImageSignature.valid?(io)
     else
       # handle other file types here
       return true

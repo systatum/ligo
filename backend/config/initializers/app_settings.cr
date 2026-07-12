@@ -10,6 +10,7 @@ class AppSettings
   field ligo_app_salt_for_id_concealer : String, default: ""
   field ligo_app_base_url : String, default: "http://localhost:8000" # The url for a ligo app (e.g https://workaty.com)
   field ligo_app_password_reset_token_expiry_minutes : Int32, default: 5
+  field ligo_app_email_verification_token_expiry_minutes : Int32, default: 60
   field ligo_app_mode : String, default: ""
 
   field ligo_database_host : String, default: "", envvar: "LIGO_DB_HOST"
@@ -40,6 +41,11 @@ class AppSettings
   field ligo_s3_endpoint : String, default: ""
   field ligo_s3_force_path_style : Bool, default: false
 
+  field ligo_redis_host : String, default: "127.0.0.1"
+  field ligo_redis_port : Int32, default: 6379
+  field ligo_redis_password : String, default: ""
+  field ligo_redis_database_number : Int32, default: 0
+
   field ligo_sidekiq_redis_host : String, default: "127.0.0.1"
   field ligo_sidekiq_redis_port : Int32, default: 6379
   field ligo_sidekiq_redis_password : String, default: ""
@@ -49,6 +55,7 @@ class AppSettings
 
   field ligo_facebook_app_id : String, default: ""
   field ligo_facebook_app_secret : String, default: ""
+  field ligo_webhook_secret : String, default: ""
 
   @@instance : AppSettings?
 

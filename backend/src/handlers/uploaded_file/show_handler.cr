@@ -31,7 +31,7 @@ class UploadedFileShowHandler < RequestHandler
   end
 
   private def handle_error(ex)
-    Logger.error("Failed to get uploaded file", ex)
+    Logger.error("Failed to get uploaded file", err: ex)
     head 404
   end
 
@@ -63,7 +63,7 @@ class UploadedFileShowHandler < RequestHandler
     id = params["id"]
     @uploaded_file ||= UploadedFile.get(id: id)
   rescue ex
-    Logger.error("Failed to find file metadata (id=#{id})", ex)
+    Logger.error("Failed to find file metadata (id=#{id})", err: ex)
     nil
   end
 end

@@ -6,6 +6,7 @@ What is Ligo? Ligo is our "Everything Backend." It is a latin word, a related wo
 - [Setup Crystal and Marten](#setup-crystal-and-marten)
 - [Sub-Apps](#sub-apps)
 - [Common commands](#common-commands)
+- [Webhook Delivery](#webhook-delivery)
 - [Connecting to the development database](#connecting-to-the-development-database)
 - [Email](#email)
 - [API Endpoints](#api-endpoints)
@@ -13,7 +14,6 @@ What is Ligo? Ligo is our "Everything Backend." It is a latin word, a related wo
 - [Convention](#convention)
 - [Deployment](#deployment)
 - [Reference](#reference)
-
 
 ## Setup MySQL database
 
@@ -56,30 +56,30 @@ Then run `shards install` within the `backend` folder. Always, for local develop
 
 If, you like to install Crystal manually, follow this, assuming using _asdf_ as the SDK manager:
 
-  ```bash
-  asdf install crystal 1.19.1
-  ```
+```bash
+asdf install crystal 1.20.2
+```
 
 Then configure to use that version of Crystal on the local directory:
 
-  ```bash
-  asdf set crystal 1.19.1
-  ```
+```bash
+asdf set crystal 1.20.2
+```
 
 To check if Crystal has been installed successfully:
 
-  ```bash
-  crystal -v
-  ```
+```bash
+crystal -v
+```
 
 Install the Marten framework:
 
-  ```bash
-  cd backend
-  shads install
-  brew tap martenframework/marten
-  brew install marten
-  ```
+```bash
+cd backend
+shads install
+brew tap martenframework/marten
+brew install marten
+```
 
 It's possible that the install `marten` framework is of the newer version, in which case please upgrade our Marten shard as well.
 
@@ -95,8 +95,7 @@ If `LIGO_APP_MODE` is not set or is set to an invalid value, the server will fai
 Example usage:
 
 ```bash
-export LIGO_APP_MODE=workaty
-marten serve -p 3003
+LIGO_APP_MODE=iam marten serve -p 3003
 ```
 
 This variable is required in all environments (development, test, production).
@@ -139,6 +138,48 @@ export LIGO_SIDEKIQ_DASHBOARD_SESSION_SECRET=replace-with-long-random-secret
 
 In local development, docker-compose configures Redis with password `devredis`.
 
+## Webhook Delivery
+
+Webhooks notify target apps when an event happens.
+
+### WebhookDeliveryWorker
+
+```
+WebhookDeliveryWorker.perform(content_id, uri, webhook_secret, body, ack_semantic)
+```
+
+The `AcknowledgeSemantic` enum (`backend/src/enums/ack_semantic.cr`) controls retry:
+
+- **NONE**: no delivery attempted
+- **OPTIONAL**: deliver once, silent on failure
+- **MUTUAL**: deliver, raise on failure → Sidekiq's `RetryJobs` middleware retries
+
+#### Signed Payload
+
+| Header                 | Value                                           |
+| ---------------------- | ----------------------------------------------- |
+| `Content-Type`         | `application/json`                              |
+| `X-Systatum-Timestamp` | Unix epoch seconds                              |
+| `X-Systatum-Signature` | `HMAC-SHA256(body + timestamp, webhook_secret)` |
+
+```json
+// Example payload for a "registration" event
+{
+  "event": "registration",
+  "user_id": "<iam_identifier>",
+  "email": "...",
+  "given_name": "...",
+  "family_name": "..."
+}
+```
+
+> [!WARNING]
+> **Configuration:** Target apps must set `LIGO_WEBHOOK_SECRET` in their environment. This must match the `webhook_secret` stored in the corresponding `Auth::Realm` record that IAM uses to sign the webhook.
+
+#### WebhookDelivery Model
+
+`backend/src/models/webhook_delivery.cr`: attempt log, one row per attempt, same `content_id` across retries. `succeeded` only `true` on final successful attempt.
+
 ## Connecting to the development database
 
 To connect to the database from your host machine
@@ -160,25 +201,25 @@ All authenticated endpoints require the `Authorization: Bearer <jwt_token>` head
 
 ### Health & Utility
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/ping` | Health check — returns `"Pong!"` |
-| GET | `/job/<id>` | Get status of a background Sidekiq job |
-| GET | `/uploaded_file/<uuid>` | Download an uploaded file (cached) |
+| Method | Path                    | Description                            |
+| ------ | ----------------------- | -------------------------------------- |
+| GET    | `/ping`                 | Health check — returns `"Pong!"`       |
+| GET    | `/job/<id>`             | Get status of a background Sidekiq job |
+| GET    | `/uploaded_file/<uuid>` | Download an uploaded file (cached)     |
 
 ### Authentication (`/auth`)
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/auth/api/user/signup` | Register a new user |
-| POST | `/auth/api/user/signin` | Sign in and receive a JWT token |
-| POST | `/auth/api/user/update_password` | Change the current user's password (requires auth) |
-| POST | `/auth/api/user/request_password_reset` | Request a password reset email |
-| PATCH/POST | `/auth/api/user/my-bio` | Update current user's biodata (requires auth) |
-| PATCH/POST | `/auth/api/user/my-picture` | Upload current user's profile picture (requires auth) |
-| POST | `/auth/api/organizations/create` | Create a new organization |
-| PATCH/POST | `/auth/api/organizations/<hashed_id>` | Update an organization |
-| DELETE | `/auth/api/organizations/<hashed_id>/delete` | Delete an organization |
+| Method     | Path                                         | Description                                           |
+| ---------- | -------------------------------------------- | ----------------------------------------------------- |
+| POST       | `/auth/api/user/signup`                      | Register a new user                                   |
+| POST       | `/auth/api/user/signin`                      | Sign in and receive a JWT token                       |
+| POST       | `/auth/api/user/update_password`             | Change the current user's password (requires auth)    |
+| POST       | `/auth/api/user/request_password_reset`      | Request a password reset email                        |
+| PATCH/POST | `/auth/api/user/my-bio`                      | Update current user's biodata (requires auth)         |
+| PATCH/POST | `/auth/api/user/my-picture`                  | Upload current user's profile picture (requires auth) |
+| POST       | `/auth/api/organizations/create`             | Create a new organization                             |
+| PATCH/POST | `/auth/api/organizations/<hashed_id>`        | Update an organization                                |
+| DELETE     | `/auth/api/organizations/<hashed_id>/delete` | Delete an organization                                |
 
 #### Sign Up
 
@@ -296,23 +337,23 @@ Content-Type: application/json
 
 ### Products
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/products/create` | Create a product |
-| GET | `/api/products/<id>` | Get a product |
-| PATCH/POST | `/api/products/<id>` | Update a product (requires `bizdev+` role) |
-| DELETE | `/api/products/<id>` | Soft-delete a product |
+| Method     | Path                   | Description                                |
+| ---------- | ---------------------- | ------------------------------------------ |
+| POST       | `/api/products/create` | Create a product                           |
+| GET        | `/api/products/<id>`   | Get a product                              |
+| PATCH/POST | `/api/products/<id>`   | Update a product (requires `bizdev+` role) |
+| DELETE     | `/api/products/<id>`   | Soft-delete a product                      |
 
 ### Dynamic Fields
 
 Dynamic fields extend any resource type (e.g., `EMAIL_TEMPLATE`) with custom attributes.
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/field/create` | Create a field definition |
-| PATCH/POST | `/api/field/<field_hashed_id>/update` | Update a field definition |
-| DELETE | `/api/field/<field_hashed_id>/delete` | Delete a field definition |
-| GET | `/api/field/rt/<resource_type>/index` | List field definitions for a resource type |
+| Method     | Path                                  | Description                                |
+| ---------- | ------------------------------------- | ------------------------------------------ |
+| POST       | `/api/field/create`                   | Create a field definition                  |
+| PATCH/POST | `/api/field/<field_hashed_id>/update` | Update a field definition                  |
+| DELETE     | `/api/field/<field_hashed_id>/delete` | Delete a field definition                  |
+| GET        | `/api/field/rt/<resource_type>/index` | List field definitions for a resource type |
 
 #### Create Field Definition
 
@@ -341,6 +382,7 @@ Content-Type: application/json
 - Add i18n that's database-overridable, but also cached in memory. For example, so that the word "Item" could be translated differently accross industries (ie: "Tour Package", "Service" etc).
 
 Next release (for hospital):
+
 - Add DailyStock model, which allows for setting the maximum items availability per day. The rationale is for example, in a clinic, we can only serve up to 5 people per day. So we can set the daily items to 5 purchases per day, and set to 0 on saturday and sunday. Perhaps, this can be attached to Pricing
 
 ## Convention
@@ -350,18 +392,19 @@ Next release (for hospital):
   ```bash
   crystal tool format
   ```
+
 - Our app consists of multiple mini-apps, such as "auth" which handles authentication. In each app, there's `app.cr` to load files in order. And yes, each app would have their own `routes.cr` where all routes are defined, like in Rails.
 - Unlike in Rails or most other frameworks where actions are put into the same controller, in Marten each action has its own handler.
 - Routing convention:
 
   | path                                | handler       | description                                |
-  |-------------------------------------|---------------|--------------------------------------------|
+  | ----------------------------------- | ------------- | ------------------------------------------ | --- |
   | `"/list"`                           | ListHandler   | Route to list existing records (unbounded) |
   | `"/index"`                          | IndexHandler  | Route to index existing records (bounded)  |
   | `"/create"`                         | CreateHandler | Route to create a new record               |
   | `"/<resource_id:some_type>"`        | ShowHandler   | Route to retrieve/show a record            |
   | `"/<resource_id:some_type>/update"` | UpdateHandler | Update a record                            |
-  | `"/<resource_id:some_type>/delete"` | DeleteHandler | Delete a record                            |\
+  | `"/<resource_id:some_type>/delete"` | DeleteHandler | Delete a record                            | \   |
 
   If the resource is a `Candidate` then it would be `<candidate_hashed_id:str>` or `<candidate_slug:str>`, for example.
 
@@ -421,6 +464,7 @@ backend/
     └── concerns/
         └── database_config.cr     # Database connection (SSL=PREFFERED by default)
 ```
+
 </details>
 
 ### GitHub Secrets Required
@@ -469,6 +513,7 @@ db.name = ENV.fetch("LIGO_DB_NAME", AppSettings.instance.ligo_database_name)
 ### Health Check & Monitoring System
 
 **Health Check Script** (`scripts/*/health-check-*.rb`):
+
 - Pings `/ping` endpoint every second via systemd timer
 - **On Success**: Logs "." to `~/server-logs/server_fine_YYYY_MM_DD_HH.txt`
 - **On Failure**: Restarts service, logs crash to `~/server-logs/server_crashes.txt`
@@ -503,7 +548,8 @@ For emergency deployments, testing, or when GitHub Actions is unavailable.
   # OR
   cp mybin/ligo-server mybin/ligo-stage   # For staging
   ```
-</details>
+
+  </details>
 
 #### Option B: Native Crystal Build (Linux Only)
 
@@ -535,7 +581,8 @@ For emergency deployments, testing, or when GitHub Actions is unavailable.
   # OR
   # crystal build src/server.cr -o mybin/ligo-stage --release # For staging
   ```
-</details>
+
+  </details>
 
 **Note**: After building with either option above, continue with the following shared steps:
 

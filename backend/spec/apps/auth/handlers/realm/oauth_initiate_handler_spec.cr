@@ -10,20 +10,28 @@ describe Auth::OAuthInitiateHandler do
 
   it "returns 404 when app mode is not iam" do
     ENV["LIGO_APP_MODE"] = "workaty"
+    realm = create_realm
 
     response = Marten::Spec.client.get(
-      Marten.routes.reverse("auth:api_oauth_initiate", provider: "facebook")
+      Marten.routes.reverse("auth:realm:oauth:initiate",
+        realm_id: realm.id!,
+        provider: "facebook"
+      )
     )
 
     response.status.should eq 404
   end
 
   it "redirects to provider authorize uri with mapped scope" do
+    realm = create_realm
     ensure_multi_auth_provider_config("facebook")
     MultiAuth::Engine.spec_set_authorize_uri("https://example-oauth-provider.test/authorize")
 
     response = Marten::Spec.client.get(
-      Marten.routes.reverse("auth:api_oauth_initiate", provider: "facebook")
+      Marten.routes.reverse("auth:realm:oauth:initiate",
+        realm_id: realm.id!,
+        provider: "facebook"
+      )
     )
 
     response.status.should eq 302
@@ -32,8 +40,13 @@ describe Auth::OAuthInitiateHandler do
   end
 
   it "returns 400 when provider is unsupported" do
+    realm = create_realm
+
     response = Marten::Spec.client.get(
-      Marten.routes.reverse("auth:api_oauth_initiate", provider: "unsupported-provider")
+      Marten.routes.reverse("auth:realm:oauth:initiate",
+        realm_id: realm.id!,
+        provider: "unsupported-provider"
+      )
     )
 
     response.status.should eq 400
