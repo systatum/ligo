@@ -95,6 +95,38 @@ describe Antrikan::QueuedItemUpdateHandler do
       deleted_qi = Antrikan::QueuedItem.unscoped.get!(id: qi.id)
       response.content.should eq({items: [Antrikan::QueuedItemSerializer.soft_serialize(deleted_qi)]}.to_json)
     end
+
+    it "allows further edits to an already-canceled (soft-deleted) item" do
+      ctx = create_authorized_queue_item
+      qi = ctx[:queued_item]
+      user = ctx[:user]
+
+      cancel_response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:queued_item:update"),
+        data: {items: [
+          {id: qi.id.to_s, status: Antrikan::QueueStatus::CANCELED},
+        ]}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+      cancel_response.status.should eq 200
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:queued_item:update"),
+        data: {items: [
+          {id: qi.id.to_s, note: "corrected after cancel"},
+        ]}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 200
+
+      updated_qi = Antrikan::QueuedItem.unscoped.get!(id: qi.id)
+      updated_qi.deleted_at.should_not be_nil
+      updated_qi.note.should eq "corrected after cancel"
+      response.content.should eq({items: [Antrikan::QueuedItemSerializer.soft_serialize(updated_qi)]}.to_json)
+    end
   end
 
   context "when the request payload is invalid" do
