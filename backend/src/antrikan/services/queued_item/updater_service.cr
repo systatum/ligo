@@ -22,12 +22,18 @@ module Antrikan
       id_to_queue_item = queue_items.index_by { |qi| qi.id.to_s }
       updated = [] of QueuedItem
 
-      items_payload.each do |payload|
-        qi = id_to_queue_item[payload.id]
-        update_fields(qi, payload)
-        publish_queued_item_updated(qi)
-        updated << qi
+      QueuedItem.transaction do
+        items_payload.each do |payload|
+          qi = id_to_queue_item[payload.id]
+          qi.skip_parent_sync = true
+          update_fields(qi, payload)
+          updated << qi
+        end
+
+        queue_items.map(&.queue!).uniq_by(&.id!).each(&.sync_from_queued_items!)
       end
+
+      updated.each { |qi| publish_queued_item_updated(qi) }
 
       success(updated)
     rescue ex : AASM::AASMException

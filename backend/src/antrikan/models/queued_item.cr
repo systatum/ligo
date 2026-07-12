@@ -22,11 +22,18 @@ module Antrikan
     field :item, :many_to_one, to: Antrikan::Item, related: :queued_items, null: false
     field :handler, :many_to_one, to: Auth::User, related: :handle_queued_items, null: true, blank: true
 
+    # When batch-saving several queued items belonging to the same queue (see
+    # QueuedItem::UpdaterService), set this to avoid re-syncing the parent queue
+    # after every single save; the caller is then responsible for syncing once.
+    property skip_parent_sync : Bool = false
+
     after_save :sync_parent_queue
 
     validate :validate_item
 
     private def sync_parent_queue
+      return if skip_parent_sync
+
       queue!.sync_from_queued_items!
     end
 
