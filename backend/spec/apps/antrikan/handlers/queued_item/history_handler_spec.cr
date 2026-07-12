@@ -7,9 +7,10 @@ describe Antrikan::QueuedItemHistoryHandler do
       qi = ctx[:queued_item]
       user = ctx[:user]
 
-      qi.attended_at = 1.hour.ago
-      qi.packed_at = 30.minutes.ago
-      qi.ready_at = 10.minutes.ago
+      t = qi.created_at.not_nil!
+      qi.attended_at = t + 1.hour
+      qi.packed_at = t + 1.5.hours
+      qi.ready_at = t + 1.hour + 50.minutes
       qi.status = Antrikan::QueueStatus::READY.value
       qi.save!
 

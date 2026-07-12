@@ -6,14 +6,16 @@ describe Antrikan::QueuedItem::UpdaterService do
       it "updates note and publishes event" do
         qi = create_queued_item(note: "old note")
         cid = qi.channel!
+        org_id = qi.queue!.channel!.space!.owner!.organization_id
 
-        raw_hash = Marten::HTTP::Params::Data::RawHash.new
-        raw_hash["note"] = ["new note"]
+        raw = Marten::HTTP::Params::Data::RawHash.new
+        items_json = JSON.parse([{id: qi.id.to_s, note: "new note"}].to_json)
+        raw["items"] = [items_json]
 
         msg = capture_redis_message("socky:channel:antrikan:#{cid.hashed_id}") do
           result = Antrikan::QueuedItem::UpdaterService.new(
-            qi,
-            Marten::HTTP::Params::Data.new(raw_hash),
+            org_id.to_s,
+            Marten::HTTP::Params::Data.new(raw),
           ).run
 
           result.success?.should be_true
@@ -32,14 +34,16 @@ describe Antrikan::QueuedItem::UpdaterService do
           status: Antrikan::QueueStatus::QUEUED,
         )
         cid = qi.channel!
+        org_id = qi.queue!.channel!.space!.owner!.organization_id
 
-        raw_hash = Marten::HTTP::Params::Data::RawHash.new
-        raw_hash["status"] = ["attended"]
+        raw = Marten::HTTP::Params::Data::RawHash.new
+        items_json = JSON.parse([{id: qi.id.to_s, status: "attended"}].to_json)
+        raw["items"] = [items_json]
 
         msg = capture_redis_message("socky:channel:antrikan:#{cid.hashed_id}") do
           result = Antrikan::QueuedItem::UpdaterService.new(
-            qi,
-            Marten::HTTP::Params::Data.new(raw_hash),
+            org_id.to_s,
+            Marten::HTTP::Params::Data.new(raw),
           ).run
 
           result.success?.should be_true
@@ -57,11 +61,12 @@ describe Antrikan::QueuedItem::UpdaterService do
     context "with invalid schema" do
       it "returns failure for empty data" do
         qi = create_queued_item
-        raw_hash = Marten::HTTP::Params::Data::RawHash.new
+        org_id = qi.queue!.channel!.space!.owner!.organization_id
+        raw = Marten::HTTP::Params::Data::RawHash.new
 
         result = Antrikan::QueuedItem::UpdaterService.new(
-          qi,
-          Marten::HTTP::Params::Data.new(raw_hash),
+          org_id.to_s,
+          Marten::HTTP::Params::Data.new(raw),
         ).run
 
         result.success?.should be_false

@@ -37,7 +37,7 @@ module Antrikan
 
     private def update_fields(qi : QueuedItem, payload : QueuedItemUpdatePayload)
       if handler_id = payload.handler_id
-        qi.handler = Auth::User.get!(handler_id)
+        qi.handler = Auth::User.get!(id: handler_id)
       end
       if note = payload.note
         qi.note = note
@@ -58,7 +58,7 @@ module Antrikan
     private def authorize_items!(queue_items)
       queue_items.each do |qi|
         queue_org_id = qi.queue!.channel!.space!.owner!.organization_id
-        raise Auth::AuthorizationError.new unless @organization_id == queue_org_id
+        raise Auth::AuthorizationError.new unless @organization_id == queue_org_id.to_s
       end
     end
 

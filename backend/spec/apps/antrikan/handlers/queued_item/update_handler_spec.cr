@@ -9,13 +9,13 @@ describe Antrikan::QueuedItemUpdateHandler do
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:queued_item:update"),
-        data: [
+        data: {items: [
           {
             id:     qi.id.to_s,
             status: Antrikan::QueueStatus::ATTENDED,
             note:   "updated",
           },
-        ].to_json,
+        ]}.to_json,
         headers: {authorization: "Bearer #{user.jwt_token}"},
         content_type: "application/json"
       )
@@ -35,10 +35,10 @@ describe Antrikan::QueuedItemUpdateHandler do
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:queued_item:update"),
-        data: [
+        data: {items: [
           {id: qi_a.id.to_s, status: Antrikan::QueueStatus::ATTENDED, note: "first"},
           {id: qi_b.id.to_s, status: Antrikan::QueueStatus::PACKED, note: "second"},
-        ].to_json,
+        ]}.to_json,
         headers: {authorization: "Bearer #{user.jwt_token}"},
         content_type: "application/json"
       )
@@ -63,9 +63,9 @@ describe Antrikan::QueuedItemUpdateHandler do
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:queued_item:update"),
-        data: [
-          {id: qi.id.to_s, handler_id: handler.id},
-        ].to_json,
+        data: {items: [
+          {id: qi.id.to_s, handler_id: handler.id.to_s},
+        ]}.to_json,
         headers: {authorization: "Bearer #{user.jwt_token}"},
         content_type: "application/json"
       )
@@ -83,9 +83,9 @@ describe Antrikan::QueuedItemUpdateHandler do
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:queued_item:update"),
-        data: [
+        data: {items: [
           {id: qi.id.to_s, status: Antrikan::QueueStatus::CANCELED},
-        ].to_json,
+        ]}.to_json,
         headers: {authorization: "Bearer #{user.jwt_token}"},
         content_type: "application/json"
       )
@@ -103,9 +103,9 @@ describe Antrikan::QueuedItemUpdateHandler do
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:queued_item:update"),
-        data: [
+        data: {items: [
           {id: qi.id.to_s, note: "x"},
-        ].to_json,
+        ]}.to_json,
         content_type: "application/json"
       )
 
@@ -119,9 +119,9 @@ describe Antrikan::QueuedItemUpdateHandler do
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:queued_item:update"),
-        data: [
+        data: {items: [
           {id: qi.id.to_s, note: "unauthorized"},
-        ].to_json,
+        ]}.to_json,
         headers: {authorization: "Bearer #{outsider.jwt_token}"},
         content_type: "application/json"
       )
@@ -147,9 +147,9 @@ describe Antrikan::QueuedItemUpdateHandler do
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:queued_item:update"),
-        data: [
+        data: {items: [
           {id: UUID.random.to_s, note: "x"},
-        ].to_json,
+        ]}.to_json,
         headers: {authorization: "Bearer #{user.jwt_token}"},
         content_type: "application/json"
       )
@@ -164,9 +164,9 @@ describe Antrikan::QueuedItemUpdateHandler do
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:queued_item:update"),
-        data: [
+        data: {items: [
           {id: qi.id.to_s, status: Antrikan::QueueStatus::QUEUED},
-        ].to_json,
+        ]}.to_json,
         headers: {authorization: "Bearer #{user.jwt_token}"},
         content_type: "application/json"
       )

@@ -33,7 +33,7 @@ module Antrikan
     end
 
     private def queued_item_by_id
-      @queued_item_by_id ||= QueuedItem.unscoped.get!(params["queued_item_id"].to_s)
+      @queued_item_by_id ||= QueuedItem.unscoped.get!(id: params["queued_item_id"].to_s)
     end
 
     private def schema
