@@ -6,7 +6,10 @@ module Antrikan
     def run : ServiceResult(Array(QueuedItem))
       return failure(schema.errors) unless schema.valid?
 
-      items_payload = Array(QueuedItemUpdatePayload).from_json(schema.items!.to_json)
+      items_array = schema.items!.as_a?
+      return failure(:items, "must be an array") unless items_array
+
+      items_payload = Array(QueuedItemUpdatePayload).from_json(items_array.to_json)
       return failure(:items, "must be a non-empty array") if items_payload.empty?
 
       queue_items = QueuedItem.unscoped.filter(id__in: items_payload.map(&.id)).to_a

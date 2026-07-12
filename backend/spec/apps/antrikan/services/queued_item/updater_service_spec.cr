@@ -71,6 +71,21 @@ describe Antrikan::QueuedItem::UpdaterService do
 
         result.success?.should be_false
       end
+
+      it "returns failure instead of raising when items is not an array" do
+        qi = create_queued_item
+        org_id = qi.queue!.channel!.space!.owner!.organization_id
+
+        raw = Marten::HTTP::Params::Data::RawHash.new
+        raw["items"] = [JSON.parse({id: qi.id.to_s}.to_json)]
+
+        result = Antrikan::QueuedItem::UpdaterService.new(
+          org_id.to_s,
+          Marten::HTTP::Params::Data.new(raw),
+        ).run
+
+        result.success?.should be_false
+      end
     end
   end
 end
