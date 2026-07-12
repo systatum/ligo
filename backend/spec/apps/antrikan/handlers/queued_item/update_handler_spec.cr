@@ -174,6 +174,24 @@ describe Antrikan::QueuedItemUpdateHandler do
       response.status.should eq 422
     end
 
+    it "returns 422 when an item has no updatable fields" do
+      ctx = create_authorized_queue_item
+      qi = ctx[:queued_item]
+      user = ctx[:user]
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:queued_item:update"),
+        data: {items: [{id: qi.id.to_s}]}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+
+      qi.reload
+      qi.note.should be_nil
+    end
+
     it "returns 422 when an item is not found" do
       user = create_user
 

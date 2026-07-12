@@ -12,6 +12,10 @@ module Antrikan
       items_payload = Array(QueuedItemUpdatePayload).from_json(items_array.to_json)
       return failure(:items, "must be a non-empty array") if items_payload.empty?
 
+      if items_payload.any? { |payload| payload.handler_id.nil? && payload.status.nil? && payload.note.nil? }
+        return failure(:items, "At least one field must be provided for update")
+      end
+
       queue_items = QueuedItem.unscoped.filter(id__in: items_payload.map(&.id)).to_a
       unless queue_items.size == items_payload.size
         return failure(:items, "Some items not found")
@@ -65,10 +69,12 @@ module Antrikan
     # each items in the payload must belong to the same
     # organization as the current user
     private def authorize_items!(queue_items)
-      queue_items.each do |qi|
-        queue_org_id = qi.queue!.channel!.space!.owner!.organization_id
-        raise Auth::AuthorizationError.new unless @organization_id == queue_org_id.to_s
-      end
+      authorized_count = QueuedItem.unscoped
+        .filter(id__in: queue_items.map(&.id))
+        .filter(queue__channel__space__owner__organization_id: @organization_id.to_i64)
+        .count
+
+      raise Auth::AuthorizationError.new unless authorized_count == queue_items.size
     end
 
     private def publish_queued_item_updated(qi : QueuedItem)
