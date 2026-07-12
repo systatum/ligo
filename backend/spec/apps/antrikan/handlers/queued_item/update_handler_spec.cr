@@ -64,7 +64,7 @@ describe Antrikan::QueuedItemUpdateHandler do
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:queued_item:update"),
         data: {items: [
-          {id: qi.id.to_s, handler_id: handler.id.to_s},
+          {id: qi.id.to_s, handler_id: handler.hashed_id},
         ]}.to_json,
         headers: {authorization: "Bearer #{user.jwt_token}"},
         content_type: "application/json"

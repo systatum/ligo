@@ -37,7 +37,7 @@ module Antrikan
 
     private def update_fields(qi : QueuedItem, payload : QueuedItemUpdatePayload)
       if handler_id = payload.handler_id
-        qi.handler = Auth::User.get!(id: handler_id)
+        qi.handler = Auth::User.get_by_hashed_id!(handler_id)
       end
       if note = payload.note
         qi.note = note
