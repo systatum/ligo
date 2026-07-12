@@ -1,7 +1,6 @@
 module Antrikan
   module QueuedItemHelper
     @queued_item : QueuedItem?
-    @scoped_queued_item : QueuedItem?
     @queued_item_by_id : QueuedItem?
     @schema : QueuedItemSchema?
     @update_schema : QueuedItemUpdateSchema?
@@ -24,12 +23,6 @@ module Antrikan
 
     private def queued_item
       @queued_item ||= QueuedItem.get_by_slug!(params["queued_item_slug"].to_s)
-    end
-
-    private def queued_item_by_queue(queue : Queue)
-      @scoped_queued_item ||= queue.queued_items
-        .filter(slug: params["queued_item_slug"].to_s)
-        .get!
     end
 
     private def queued_item_by_id

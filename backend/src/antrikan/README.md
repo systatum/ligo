@@ -996,25 +996,33 @@ Content-Type: application/json
 **Supported Methods:** `PATCH`, `POST`
 
 ```json
-[
-  {
-    "id": "550e8400-e29b-41d4-a716-446655440000",
-    "handler_id": "stringUserId",
-    "status": "done",
-    "note": "Updated note"
-  }
-]
+{
+  "items": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "handler_id": "hashedHandlerId",
+      "status": "done",
+      "note": "Updated note"
+    }
+  ]
+}
 ```
 
 | Field        | Required | Description                                    |
 | ------------ | -------- | ---------------------------------------------- |
 | `id`         | yes      | Queued item UUID                               |
-| `handler_id` | no       | Assign or reassign a handler for this item     |
+| `handler_id` | no       | Hashed ID of the handler to (re)assign         |
 | `status`     | no       | Advance the item's state (see [Queue Status](#queue-status)) |
 | `note`       | no       | Free-form note (max 255 chars)                 |
 
 > [!IMPORTANT]
-> `item_slug` and `quantity` cannot be modified after creation.
+> `item_slug` and `quantity` cannot be modified after creation. Each item must provide at least one of `handler_id`, `status`, or `note` — an item with none of these returns `422`.
+
+> [!NOTE]
+> Canceled (soft-deleted) queued items can still be targeted by this endpoint — e.g. to correct a `note` or reassign a `handler_id` after cancellation. Only `status` transitions are constrained by the state machine; canceling is terminal and cannot be transitioned out of.
+
+> [!IMPORTANT]
+> The whole batch is applied atomically: if any item fails (not found, invalid transition, unauthorized), no items in the request are updated and no `queued_item_updated` events are broadcast.
 
 **Parent queue status side effects:**
 
@@ -1034,7 +1042,7 @@ Content-Type: application/json
       "queue_id": "26xK9mQp",
       "channel_id": "hashedChannelId",
       "item_id": "abc123",
-      "handler_id": "stringUserId",
+      "handler_id": "hashedHandlerId",
       "status": "done",
       "note": "Updated note",
       "unit_price": 15000,
