@@ -274,4 +274,43 @@ describe Antrikan::QueuedItemRerankHandler do
       response.status.should eq 422
     end
   end
+
+  context "when publishing events to redis" do
+    it "publishes queued_item_updated for each reranked item" do
+      ctx = create_authorized_queue_item
+      queue = ctx[:queue]
+      user = ctx[:user]
+      item_a = ctx[:queued_item]
+      item_b = create_queued_item(queue: queue, item: create_item(channel: queue.channel!))
+      cid = queue.channel!
+
+      payload = {
+        items: [
+          {slug: item_a.slug!, rank: 0},
+          {slug: item_b.slug!, rank: 1},
+        ],
+        timestamp: Time.utc,
+      }
+
+      messages = capture_redis_messages("socky:channel:antrikan:#{cid.hashed_id}", 2) do
+        response = Marten::Spec.client.patch(
+          Marten.routes.reverse(
+            "antrikan:queue:item:rerank",
+            queue_slug: queue.slug!
+          ),
+          data: payload.to_json,
+          headers: {authorization: "Bearer #{user.jwt_token}"},
+          content_type: "application/json"
+        )
+
+        response.status.should eq 200
+      end
+
+      messages.size.should eq 2
+      messages.each do |msg|
+        json = JSON.parse(msg)
+        json["type"].as_s.should eq "queued_item_updated"
+      end
+    end
+  end
 end

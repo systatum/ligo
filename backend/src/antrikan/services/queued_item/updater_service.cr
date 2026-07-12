@@ -8,6 +8,7 @@ module Antrikan
 
       begin
         update_fields
+        publish_queued_item_updated(@queued_item)
         success(@queued_item)
       rescue ex : AASM::AASMException
         failure(:status, ex.message || "Invalid status transition")
@@ -28,6 +29,13 @@ module Antrikan
 
     private def schema
       @schema ||= QueuedItemUpdateSchema.new(@data)
+    end
+
+    private def publish_queued_item_updated(qi : QueuedItem)
+      ChannelEventPublisher.publish(qi.channel!,
+        type: "queued_item_updated",
+        key: "queued_item",
+        value: QueuedItemSerializer.soft_serialize(qi))
     end
   end
 end

@@ -11,6 +11,7 @@ def create_queued_item(
   note : String? = nil,
   unit_price : Int64 = 0_i64,
   quantity : Int32 = 1,
+  rank : Int32? = nil,
   attended_at : Time? = nil,
   packed_at : Time? = nil,
   ready_at : Time? = nil,
@@ -30,6 +31,7 @@ def create_queued_item(
   queued_item.note = note
   queued_item.unit_price = unit_price
   queued_item.quantity = quantity
+  queued_item.rank = rank if rank
   queued_item.attended_at = attended_at
   queued_item.packed_at = packed_at
   queued_item.ready_at = ready_at

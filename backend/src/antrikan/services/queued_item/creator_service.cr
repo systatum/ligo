@@ -29,6 +29,7 @@ module Antrikan
         end
 
         qi.save!
+        publish_queued_item_created(qi)
 
         success(qi)
       rescue ex : AASM::AASMException
@@ -40,6 +41,13 @@ module Antrikan
 
     private def schema
       @schema ||= QueuedItemSchema.new(@data)
+    end
+
+    private def publish_queued_item_created(qi : QueuedItem)
+      ChannelEventPublisher.publish(qi.channel!,
+        type: "queued_item_created",
+        key: "queued_item",
+        value: QueuedItemSerializer.soft_serialize(qi))
     end
   end
 end

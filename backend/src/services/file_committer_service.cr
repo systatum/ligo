@@ -52,6 +52,6 @@ class FileCommitterService < BaseService(UploadedFile)
     return unless @storage.exists?(key)
     @storage.delete(key)
   rescue ex
-    Logger.error("Failed to rollback committed file (key=#{key})", ex)
+    Logger.error("Failed to rollback committed file (key=#{key})", err: ex)
   end
 end

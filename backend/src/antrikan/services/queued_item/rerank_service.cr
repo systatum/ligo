@@ -29,6 +29,7 @@ module Antrikan
       end
 
       queue_items.each(&.save!)
+      queue_items.each { |qi| publish_queued_item_updated(qi) }
 
       success(queue_items)
     rescue ex : Marten::DB::Errors::InvalidRecord
@@ -39,6 +40,13 @@ module Antrikan
 
     private def schema
       @schema ||= QueuedItemRerankSchema.new(@data)
+    end
+
+    private def publish_queued_item_updated(qi : QueuedItem)
+      ChannelEventPublisher.publish(qi.channel!,
+        type: "queued_item_updated",
+        key: "queued_item",
+        value: QueuedItemSerializer.soft_serialize(qi))
     end
   end
 end

@@ -12,4 +12,14 @@ module Antrikan
       QueuedItemUpdateSchema: {disallowed: [:item_slug, :quantity]},
     }
   )
+
+  class QueuedItemUpdateSchema
+    validate :validate_has_fields
+
+    private def validate_has_fields
+      if !handler_id? && !status? && !note?
+        errors.add(:base, "At least one field must be provided for update")
+      end
+    end
+  end
 end

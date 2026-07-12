@@ -50,6 +50,6 @@ module ExceptionsHandler
   end
 
   private def debug_exception(e)
-    Logger.error("#{e.class}: #{e.message}", e)
+    Logger.error("#{e.class}: #{e.message}", err: e)
   end
 end

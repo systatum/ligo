@@ -20,6 +20,7 @@ Marten.configure do |config|
     Auth::App,
     Antrikan::App,
     Workaty::App,
+    Socky::App,
     MartenS3::App,
   ] of Marten::Apps::Config.class
 

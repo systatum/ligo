@@ -148,4 +148,26 @@ describe "Antrikan::Queue" do
       end
     end
   end
+
+  describe "when publishing events to redis" do
+    it "publishes queue_updated event when status changes during sync" do
+      queue = create_queue
+      cid = queue.channel!
+
+      msg = capture_redis_message("socky:channel:antrikan:#{cid.hashed_id}") do
+        create_queued_item(
+          queue: queue,
+          item: create_item(channel: cid),
+          status: Antrikan::QueueStatus::DONE,
+        )
+      end
+
+      queue.reload
+      queue.status.should eq Antrikan::QueueStatus::READY.value
+
+      msg.should_not be_nil
+      json = JSON.parse(msg.not_nil!)
+      json["type"].as_s.should eq "queue_updated"
+    end
+  end
 end

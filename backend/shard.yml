@@ -42,8 +42,6 @@ dependencies:
     github: spider-gazelle/qr-code
   stumpy_png:
     github: stumpycr/stumpy_png
-  vips:
-    github: naqvis/crystal-vips
   sidekiq:
     github: mperham/sidekiq.cr
     version: ~> 0.7.3

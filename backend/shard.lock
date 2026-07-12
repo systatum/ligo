@@ -164,7 +164,3 @@ shards:
     git: https://github.com/systatum/typed_env_config.git
     version: 0.3.0
 
-  vips:
-    git: https://github.com/naqvis/crystal-vips.git
-    version: 0.1.6
-
