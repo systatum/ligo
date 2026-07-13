@@ -34,7 +34,7 @@ module Antrikan
           updated << qi
         end
 
-        queue_items.map(&.queue!).uniq_by(&.id!).each(&.sync_from_queued_items!)
+        queue_items.map(&.queue!).uniq(&.id!).each(&.sync_from_queued_items!)
       end
 
       updated.each { |qi| publish_queued_item_updated(qi) }
