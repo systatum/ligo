@@ -15,6 +15,14 @@ module Antrikan
         .get!
     end
 
+    private def authorized_for_item?
+      item.channel!.space!.owned_by?(current_user!)
+    end
+
+    private def authorized_for_item_including_deleted?
+      item_even_if_deleted.channel!.space!.owned_by?(current_user!)
+    end
+
     private def schema
       @schema ||= ItemSchema.new(request.data)
     end

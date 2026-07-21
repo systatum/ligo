@@ -4,7 +4,7 @@ describe Antrikan::OperatingHourUpdateHandler do
   context "when the operating hour cannot be found" do
     it "renders 404" do
       user = create_user
-      space = create_space(owner: user)
+      space = create_space(manager: user)
       fake_hashed_id = IdConcealer.encode(999999999)
 
       response = Marten::Spec.client.patch(
@@ -30,7 +30,7 @@ describe Antrikan::OperatingHourUpdateHandler do
     context "when the user is authorized" do
       it "will be updated" do
         user = create_user
-        space = create_space(owner: user)
+        space = create_space(manager: user)
         op_hour = create_operating_hour(
           space: space,
           day: 1,
@@ -66,8 +66,8 @@ describe Antrikan::OperatingHourUpdateHandler do
     context "when the operating hour belongs to another space" do
       it "will not be updated" do
         user = create_user
-        space1 = create_space(owner: user)
-        space2 = create_space(owner: user)
+        space1 = create_space(manager: user)
+        space2 = create_space(manager: user)
         op_hour = create_operating_hour(space: space2, day: 1)
 
         response = Marten::Spec.client.patch(
@@ -97,7 +97,7 @@ describe Antrikan::OperatingHourUpdateHandler do
   context "when the user is not authorized" do
     it "returns 400" do
       user = create_user
-      space = create_space(owner: user)
+      space = create_space(manager: user)
       op_hour = create_operating_hour(space: space, day: 1)
 
       response = Marten::Spec.client.patch(

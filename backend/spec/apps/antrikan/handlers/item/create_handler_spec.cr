@@ -1,10 +1,11 @@
 require "./spec_helper"
 
 describe Antrikan::ItemCreateHandler do
-  context "when the user is an admin" do
+  context "when the user owns the channel's space" do
     it "it can create an item without optional fields" do
       user = create_user
-      channel = create_channel
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:channel:item:create", channel_hashed_id: channel.hashed_id),
@@ -30,16 +31,19 @@ describe Antrikan::ItemCreateHandler do
 
     it "creates an item with all optional fields" do
       user = create_user
-      channel = create_channel
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:channel:item:create", channel_hashed_id: channel.hashed_id),
         data: {
-          name:         "9AM",
-          order:        2,
-          daily_cap:    5,
-          is_monitored: true,
-          description:  "Morning slot",
+          name:          "9AM",
+          order:         2,
+          daily_cap:     5,
+          unit_price:    15000,
+          unit_currency: "USD",
+          is_monitored:  true,
+          description:   "Morning slot",
         }.to_json,
         headers: {authorization: "Bearer #{user.jwt_token}"},
         content_type: "application/json"
@@ -51,13 +55,16 @@ describe Antrikan::ItemCreateHandler do
       item.name.should eq "9AM"
       item.order.should eq 2
       item.daily_cap.should eq 5
+      item.unit_price.should eq 15000
+      item.unit_currency.should eq Antrikan::Currency::USD.value
       item.is_monitored.should eq true
       item.description.should eq "Morning slot"
     end
 
     it "creates an item with a negative daily_cap (no cap)" do
       user = create_user
-      channel = create_channel
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:channel:item:create", channel_hashed_id: channel.hashed_id),
@@ -74,7 +81,8 @@ describe Antrikan::ItemCreateHandler do
 
     it "creates an item with a main image and returns it in the response" do
       user = create_user
-      channel = create_channel
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:channel:item:create", channel_hashed_id: channel.hashed_id),
@@ -101,7 +109,8 @@ describe Antrikan::ItemCreateHandler do
   context "when name is missing" do
     it "returns 422" do
       user = create_user
-      channel = create_channel
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:channel:item:create", channel_hashed_id: channel.hashed_id),
@@ -113,9 +122,25 @@ describe Antrikan::ItemCreateHandler do
       response.status.should eq 422
     end
 
+    it "returns 422 when unit_currency is not a known currency" do
+      user = create_user
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:channel:item:create", channel_hashed_id: channel.hashed_id),
+        data: {name: "8AM", unit_currency: "GBP"}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+    end
+
     it "when main_image is not an image" do
       user = create_user
-      channel = create_channel
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:channel:item:create", channel_hashed_id: channel.hashed_id),
@@ -134,7 +159,7 @@ describe Antrikan::ItemCreateHandler do
     end
   end
 
-  context "when the user is not an admin" do
+  context "when the user has an insufficient role and does not own the space" do
     it "returns 403" do
       user = create_user(role: Auth::Role::SECURITY_STAFF)
       channel = create_channel
@@ -147,6 +172,42 @@ describe Antrikan::ItemCreateHandler do
       )
 
       response.status.should eq 403
+    end
+  end
+
+  context "when the user owns an unrelated space" do
+    it "returns 403 and does not create the item" do
+      user = create_user
+      create_space(manager: user)
+      channel = create_channel
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:channel:item:create", channel_hashed_id: channel.hashed_id),
+        data: {name: "8AM"}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 403
+    end
+  end
+
+  context "when the user has OWNER role in the same organization as the space owner" do
+    it "creates the item" do
+      organization = create_organization
+      space_owner = create_user(organization: organization)
+      space = create_space(manager: space_owner)
+      channel = create_channel(space: space)
+      colleague = create_user(organization: organization, role: Auth::Role::OWNER)
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:channel:item:create", channel_hashed_id: channel.hashed_id),
+        data: {name: "8AM"}.to_json,
+        headers: {authorization: "Bearer #{colleague.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 201
     end
   end
 

@@ -10,7 +10,7 @@ module Antrikan
     end
 
     def patch : Marten::HTTP::Response
-      raise Marten::HTTP::Errors::PermissionDenied.new unless current_user!.admin?
+      raise Marten::HTTP::Errors::PermissionDenied.new unless authorized_for_item_including_deleted?
 
       it = item_even_if_deleted
       it.deleted_at = nil

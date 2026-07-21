@@ -8,6 +8,8 @@ module Antrikan
     field :id, :uuid, primary_key: true
     field :slug, :string, max_size: 8, null: false, index: true, unique: true
     field :note, :string, max_size: 255, null: true, blank: true
+    # Reason given when the item is CANCELED; ignored otherwise
+    field :cancel_note, :string, max_size: 255, null: true, blank: true
     field :unit_price, :big_int, null: false, default: 0
     field :quantity, :int, null: false, default: 1
     # The logical ordering of the item in a queue.

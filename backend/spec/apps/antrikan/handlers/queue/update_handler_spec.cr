@@ -4,7 +4,7 @@ describe Antrikan::QueueUpdateHandler do
   context "when the request payload is valid" do
     it "updates allowed fields only" do
       queue = create_queue(note: "old", status: Antrikan::QueueStatus::QUEUED)
-      user = create_user(organization: queue.channel!.space!.owner!.organization!)
+      user = create_user(organization: queue.channel!.space!.manager!.organization!)
 
       response = Marten::Spec.client.patch(
         Marten.routes.reverse("antrikan:queue:update", queue_slug: queue.slug!),
@@ -83,7 +83,7 @@ describe Antrikan::QueueUpdateHandler do
     it "returns 422 when handler organization does not match queue organization" do
       organization = create_organization
       owner = create_user(organization: organization)
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
       channel = create_channel(space: space)
       queue = create_queue(channel: channel, queuer: create_queuer(space: space))
 

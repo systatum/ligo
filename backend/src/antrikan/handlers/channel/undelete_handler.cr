@@ -10,7 +10,9 @@ module Antrikan
     end
 
     def patch : Marten::HTTP::Response
-      raise Marten::HTTP::Errors::PermissionDenied.new unless current_user!.admin?
+      unless authorized_for_channel_including_deleted?
+        raise Marten::HTTP::Errors::PermissionDenied.new
+      end
 
       ch = channel_including_deleted
       ch.deleted_at = nil

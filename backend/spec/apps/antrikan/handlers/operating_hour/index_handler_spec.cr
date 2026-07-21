@@ -4,7 +4,7 @@ describe Antrikan::OperatingHourIndexHandler do
   context "when the user is authorized" do
     it "returns all operating hours for a space" do
       user = create_user
-      space = create_space(owner: user)
+      space = create_space(manager: user)
       op_hour1 = create_operating_hour(space: space, day: 1)
       op_hour2 = create_operating_hour(space: space, day: 2)
 
@@ -27,8 +27,8 @@ describe Antrikan::OperatingHourIndexHandler do
 
     it "does not return operating hours from other spaces" do
       user = create_user
-      space1 = create_space(owner: user)
-      space2 = create_space(owner: user)
+      space1 = create_space(manager: user)
+      space2 = create_space(manager: user)
       op_hour1 = create_operating_hour(space: space1, day: 1)
       op_hour2 = create_operating_hour(space: space2, day: 1)
 
@@ -44,7 +44,7 @@ describe Antrikan::OperatingHourIndexHandler do
 
     it "does not return soft-deleted operating hours" do
       user = create_user
-      space = create_space(owner: user)
+      space = create_space(manager: user)
       op_hour1 = create_operating_hour(space: space, day: 1)
       op_hour2 = create_operating_hour(space: space, day: 2)
       op_hour2.soft_delete!
@@ -63,7 +63,7 @@ describe Antrikan::OperatingHourIndexHandler do
   context "when the user is not authorized" do
     it "returns 400" do
       user = create_user
-      space = create_space(owner: user)
+      space = create_space(manager: user)
 
       response = Marten::Spec.client.get(
         Marten.routes.reverse("antrikan:space:operating_hour:index", space_hashed_id: space.hashed_id)

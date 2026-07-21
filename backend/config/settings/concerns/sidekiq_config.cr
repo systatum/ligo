@@ -20,6 +20,7 @@ module SidekiqConfig
     # configure the client, the redis settings are read from the environment
     Sidekiq::Client.default_context = Sidekiq::Client::Context.new(Sidekiq::RedisConfig.new)
     Sidekiq::Client.middleware.add JobQueuedMarker.new
+    Sidekiq::Client.middleware.add PerformerContextPropagator.new
   end
 
   def self.dashboard_session_secret

@@ -34,6 +34,12 @@ module Antrikan
         path "/update", QueuerUpdateHandler, name: "update"
       end
       path "/<space_hashed_id:str>/queuer", queuer_space_routes
+
+      space_review_routes = Marten::Routing::Map.draw(:space_review) do
+        path "/create", SpaceReviewCreateHandler, name: "create"
+        path "/index", SpaceReviewIndexHandler, name: "index"
+      end
+      path "/<space_hashed_id:str>/reviews", space_review_routes
     end
 
     channel_routes = Marten::Routing::Map.draw(:channel) do
@@ -81,10 +87,17 @@ module Antrikan
       path "/<slug:str>/undelete", ItemUndeleteHandler, name: "undelete"
     end
 
+    space_review_routes = Marten::Routing::Map.draw(:space_review) do
+      path "/<space_review_hashed_id:str>", SpaceReviewShowHandler, name: "show"
+      path "/<space_review_hashed_id:str>/update", SpaceReviewUpdateHandler, name: "update"
+      path "/<space_review_hashed_id:str>/delete", SpaceReviewDeleteHandler, name: "delete"
+    end
+
     path "/api/space", space_routes
     path "/api/channel", channel_routes
     path "/api/queuer", queuer_routes
     path "/api/queue", queue_routes
     path "/api/item", item_routes
+    path "/api/space_review", space_review_routes
   end
 end

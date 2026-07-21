@@ -12,9 +12,10 @@ describe Antrikan::QueuedItemUpdateHandler do
           queued_item_slug: ctx[:queued_item].slug!
         ),
         data: {
-          handler_id: ctx[:user].hashed_id,
-          status:     Antrikan::QueueStatus::READY,
-          note:       "updated",
+          handler_id:  ctx[:user].hashed_id,
+          status:      Antrikan::QueueStatus::READY,
+          note:        "updated",
+          cancel_note: "should be ignored, not canceling",
         }.to_json,
         headers: {authorization: "Bearer #{ctx[:user].jwt_token}"},
         content_type: "application/json"
@@ -26,11 +27,12 @@ describe Antrikan::QueuedItemUpdateHandler do
       ctx[:queued_item].handler_id.should eq ctx[:user].id
       ctx[:queued_item].status.should eq Antrikan::QueueStatus::READY.value
       ctx[:queued_item].note.should eq "updated"
+      ctx[:queued_item].cancel_note.should be_nil
 
       response.content.should eq Antrikan::QueuedItemSerializer.serialize(ctx[:queued_item])
     end
 
-    it "soft-deletes queued item when applying CANCELED status" do
+    it "soft-deletes queued item when applying CANCELED status, persisting cancel_note" do
       ctx = create_authorized_queue_item
 
       response = Marten::Spec.client.patch(
@@ -40,7 +42,8 @@ describe Antrikan::QueuedItemUpdateHandler do
           queued_item_slug: ctx[:queued_item].slug!
         ),
         data: {
-          status: Antrikan::QueueStatus::CANCELED,
+          status:      Antrikan::QueueStatus::CANCELED,
+          cancel_note: "customer changed their mind",
         }.to_json,
         headers: {authorization: "Bearer #{ctx[:user].jwt_token}"},
         content_type: "application/json"
@@ -51,12 +54,60 @@ describe Antrikan::QueuedItemUpdateHandler do
       deleted_queued_item = Antrikan::QueuedItem.unscoped.get!(id: ctx[:queued_item].id)
       deleted_queued_item.status.should eq Antrikan::QueueStatus::CANCELED.value
       deleted_queued_item.deleted_at.should_not be_nil
+      deleted_queued_item.cancel_note.should eq "customer changed their mind"
 
       response.content.should eq Antrikan::QueuedItemSerializer.serialize(deleted_queued_item)
+    end
+
+    it "allows canceling when the item is exactly at the channel's predeletable_state" do
+      ctx = create_authorized_queue_item(
+        status: Antrikan::QueueStatus::ATTENDED,
+        predeletable_state: Antrikan::QueueStatus::ATTENDED
+      )
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse(
+          "antrikan:queue:item:update",
+          queue_slug: ctx[:queue].slug!,
+          queued_item_slug: ctx[:queued_item].slug!
+        ),
+        data: {status: Antrikan::QueueStatus::CANCELED}.to_json,
+        headers: {authorization: "Bearer #{ctx[:user].jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 200
+
+      deleted_queued_item = Antrikan::QueuedItem.unscoped.get!(id: ctx[:queued_item].id)
+      deleted_queued_item.deleted_at.should_not be_nil
     end
   end
 
   context "when the request payload is invalid" do
+    it "returns 422 when the item is past the channel's predeletable_state" do
+      ctx = create_authorized_queue_item(
+        status: Antrikan::QueueStatus::PACKED,
+        predeletable_state: Antrikan::QueueStatus::ATTENDED
+      )
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse(
+          "antrikan:queue:item:update",
+          queue_slug: ctx[:queue].slug!,
+          queued_item_slug: ctx[:queued_item].slug!
+        ),
+        data: {status: Antrikan::QueueStatus::CANCELED}.to_json,
+        headers: {authorization: "Bearer #{ctx[:user].jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+
+      ctx[:queued_item].reload
+      ctx[:queued_item].status.should eq Antrikan::QueueStatus::PACKED.value
+      ctx[:queued_item].deleted_at.should be_nil
+    end
+
     it "rejects unauthenticated request" do
       queue = create_queue
       queued_item = create_queued_item(queue: queue, item: create_item(channel: queue.channel!))
@@ -79,7 +130,7 @@ describe Antrikan::QueuedItemUpdateHandler do
     it "rejects authenticated user from different organization" do
       organization = create_organization
       owner = create_user(organization: organization)
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
       channel = create_channel(space: space)
       queue = create_queue(channel: channel, queuer: create_queuer(space: space))
       queued_item = create_queued_item(queue: queue, item: create_item(channel: channel))
@@ -135,7 +186,7 @@ describe Antrikan::QueuedItemUpdateHandler do
     it "returns 404 when queued item does not belong to the queue slug" do
       organization = create_organization
       owner = create_user(organization: organization)
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
       channel = create_channel(space: space)
       other_channel = create_channel(space: space, name: "Other")
       queue_a = create_queue(channel: channel, queuer: create_queuer(space: space))

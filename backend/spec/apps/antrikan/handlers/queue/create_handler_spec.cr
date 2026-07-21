@@ -30,7 +30,7 @@ describe Antrikan::QueueCreateHandler do
     it "accepts optional fields" do
       channel = create_channel
       queuer = create_queuer(space: channel.space.not_nil!)
-      user = create_user(organization: channel.space.not_nil!.owner.not_nil!.organization.not_nil!)
+      user = create_user(organization: channel.space.not_nil!.manager.not_nil!.organization.not_nil!)
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id),

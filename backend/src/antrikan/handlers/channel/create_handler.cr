@@ -9,7 +9,7 @@ module Antrikan
     http_method_names :post
 
     def post : Marten::HTTP::Response
-      raise Marten::HTTP::Errors::PermissionDenied.new unless current_user!.admin?
+      raise Marten::HTTP::Errors::PermissionDenied.new unless owner_of_space?
 
       if schema.valid?
         ch = Channel.new
@@ -22,6 +22,7 @@ module Antrikan
         ch.description = desc.nil? || desc.empty? ? nil : desc
 
         ch.logo_file_id = upload_image(schema.logo)
+        ch.predeletable_state = schema.predeletable_state!.value if schema.predeletable_state?
 
         ch.save!
         json ChannelSerializer.serialize(ch), status: 201

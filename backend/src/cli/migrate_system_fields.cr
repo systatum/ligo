@@ -4,7 +4,7 @@ class MigrateSystemFields < Marten::CLI::Command
   help "Migrate system fields definitions to the database"
 
   @verbose : Bool = false
-  @dry_run : Bool = false
+  @dryrun : Bool = false
   @clear : Bool = false
   @yaml_file : String?
 
@@ -22,9 +22,9 @@ class MigrateSystemFields < Marten::CLI::Command
 
     on_option(
       :d,
-      :dry_run,
+      :dryrun,
       "Show what would be migrated without making changes"
-    ) { @dry_run = true }
+    ) { @dryrun = true }
 
     on_option(
       :c,
@@ -43,7 +43,7 @@ class MigrateSystemFields < Marten::CLI::Command
       print_verbose ""
     end
 
-    if @dry_run
+    if @dryrun
       run_dry_run
     else
       run_migration
@@ -190,11 +190,11 @@ class MigrateSystemFields < Marten::CLI::Command
     print_total "  Total:        #{total}"
     print_separator
     print ""
-    print_warning "Run without --dry-run to apply these changes"
+    print_warning "Run without --dryrun to apply these changes"
   end
 
   private def print_header
-    return unless @verbose || @dry_run
+    return unless @verbose || @dryrun
     print_verbose "=" * 60
     print_verbose "System Fields Migration"
     print_verbose "=" * 60
@@ -206,7 +206,7 @@ class MigrateSystemFields < Marten::CLI::Command
   end
 
   private def print_verbose(message : String)
-    stdout.puts message if @verbose || @dry_run
+    stdout.puts message if @verbose || @dryrun
   end
 
   private def print_success(message : String)

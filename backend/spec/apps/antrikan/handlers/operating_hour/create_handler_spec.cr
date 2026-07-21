@@ -5,7 +5,7 @@ describe Antrikan::OperatingHourCreateHandler do
     context "with valid data" do
       it "creates a new operating hour for a space" do
         user = create_user
-        space = create_space(owner: user)
+        space = create_space(manager: user)
 
         response = Marten::Spec.client.post(
           Marten.routes.reverse("antrikan:space:operating_hour:create", space_hashed_id: space.hashed_id),
@@ -53,7 +53,7 @@ describe Antrikan::OperatingHourCreateHandler do
     context "with invalid data" do
       it "raises an error when day is missing" do
         user = create_user
-        space = create_space(owner: user)
+        space = create_space(manager: user)
 
         response = Marten::Spec.client.post(
           Marten.routes.reverse("antrikan:space:operating_hour:create", space_hashed_id: space.hashed_id),
@@ -73,7 +73,7 @@ describe Antrikan::OperatingHourCreateHandler do
   context "when the user is not authorized" do
     it "returns 400" do
       user = create_user
-      space = create_space(owner: user)
+      space = create_space(manager: user)
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:space:operating_hour:create", space_hashed_id: space.hashed_id),

@@ -69,7 +69,7 @@ describe Socky::ChannelAuthorizer do
     it "returns true for a user in the same organization as the channel space owner" do
       org = create_organization
       user = create_user(organization: org, role: Auth::Role::OWNER)
-      space = create_space(owner: user)
+      space = create_space(manager: user)
       channel = create_channel(space: space)
 
       Socky::ChannelAuthorizer.can_access?(user, "antrikan:#{channel.hashed_id}").should be_true
@@ -80,7 +80,7 @@ describe Socky::ChannelAuthorizer do
       org_b = create_organization
       owner = create_user(organization: org_a, role: Auth::Role::OWNER)
       outsider = create_user(organization: org_b)
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
       channel = create_channel(space: space)
 
       Socky::ChannelAuthorizer.can_access?(outsider, "antrikan:#{channel.hashed_id}").should be_false

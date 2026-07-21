@@ -4,15 +4,16 @@ module Antrikan
       record = @record.as(Item)
 
       {
-        id:           record.slug,
-        channel_id:   record.channel!.hashed_id,
-        name:         record.name,
-        order:        record.order,
-        daily_cap:    record.daily_cap,
-        unit_price:   record.unit_price,
-        is_monitored: record.is_monitored,
-        description:  record.description,
-        main_image:   fetch_main_image_url,
+        id:            record.slug,
+        channel_id:    record.channel!.hashed_id,
+        name:          record.name,
+        order:         record.order,
+        daily_cap:     record.daily_cap,
+        unit_price:    record.unit_price,
+        unit_currency: record.unit_currency,
+        is_monitored:  record.is_monitored,
+        description:   record.description,
+        main_image:    fetch_main_image_url,
       }
     end
 

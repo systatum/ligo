@@ -6,7 +6,7 @@ describe Antrikan::Space do
       it "sets default attributes" do
         user = create_user
         space = Antrikan::Space.new(
-          owner: user,
+          manager: user,
           name: "Test Space"
         )
 
@@ -19,7 +19,7 @@ describe Antrikan::Space do
       it "generates a 5-character code" do
         user = create_user
         space = Antrikan::Space.new(
-          owner: user,
+          manager: user,
           name: "Test Space"
         )
 
@@ -30,7 +30,7 @@ describe Antrikan::Space do
       it "generates code using alphanumeric characters" do
         user = create_user
         space = Antrikan::Space.new(
-          owner: user,
+          manager: user,
           name: "Test Space"
         )
 
@@ -41,8 +41,8 @@ describe Antrikan::Space do
 
       it "generates unique codes for different spaces" do
         user = create_user
-        space1 = create_space(owner: user, name: "Space 1")
-        space2 = create_space(owner: user, name: "Space 2")
+        space1 = create_space(manager: user, name: "Space 1")
+        space2 = create_space(manager: user, name: "Space 2")
 
         space1.code.should_not eq space2.code
       end
@@ -79,7 +79,8 @@ describe Antrikan::Space do
       it "is invalid" do
         user = create_user
         space = Antrikan::Space.new(
-          owner: user,
+          manager: user,
+          owner: create_business(owner: user),
           name: ""
         )
 
@@ -91,7 +92,7 @@ describe Antrikan::Space do
     context "when name is nil" do
       it "is invalid" do
         user = create_user
-        space = Antrikan::Space.new(owner: user)
+        space = Antrikan::Space.new(manager: user, owner: create_business(owner: user))
 
         space.valid?.should be_false
       end
@@ -101,7 +102,8 @@ describe Antrikan::Space do
       it "is valid" do
         user = create_user
         space = Antrikan::Space.new(
-          owner: user,
+          manager: user,
+          owner: create_business(owner: user),
           name: "Valid Space Name"
         )
 
@@ -130,6 +132,87 @@ describe Antrikan::Space do
 
       space.soft_delete!
       space.deleted_at.should_not be_nil
+    end
+  end
+
+  describe "#owned_by?" do
+    it "is true for the space's manager" do
+      manager = create_user
+      space = create_space(manager: manager)
+
+      space.owned_by?(manager).should be_true
+    end
+
+    it "is true for the space's business owner, even if not the manager" do
+      manager = create_user
+      business_owner = create_user
+      business = create_business(owner: business_owner)
+      space = create_space(manager: manager, business: business)
+
+      space.owned_by?(business_owner).should be_true
+    end
+
+    it "is true for a same-organization OWNER-role user" do
+      organization = create_organization
+      manager = create_user(organization: organization)
+      space = create_space(manager: manager)
+      colleague = create_user(organization: organization, role: Auth::Role::OWNER)
+
+      space.owned_by?(colleague).should be_true
+    end
+
+    it "is false for an unrelated user" do
+      space = create_space
+      unrelated_user = create_user
+
+      space.owned_by?(unrelated_user).should be_false
+    end
+  end
+
+  describe "#average_rating and #review_count" do
+    it "returns 0.0 and 0 when there are no reviews" do
+      space = create_space
+
+      space.average_rating.should eq 0.0
+      space.review_count.should eq 0
+    end
+
+    it "computes the average and count fresh from current reviews" do
+      space = create_space
+      create_space_review(space: space, reviewer: create_user, rating: 4.0)
+      create_space_review(space: space, reviewer: create_user, rating: 8.0)
+
+      space.average_rating.should eq 6.0
+      space.review_count.should eq 2
+    end
+
+    it "excludes soft-deleted reviews" do
+      space = create_space
+      create_space_review(space: space, reviewer: create_user, rating: 4.0)
+      deleted_review = create_space_review(space: space, reviewer: create_user, rating: 10.0)
+      deleted_review.soft_delete!
+
+      space.average_rating.should eq 4.0
+      space.review_count.should eq 1
+    end
+
+    it "reflects an update to a review's rating immediately" do
+      space = create_space
+      review = create_space_review(space: space, reviewer: create_user, rating: 4.0)
+
+      review.rating = 10.0
+      review.save!
+
+      space.average_rating.should eq 10.0
+    end
+
+    it "does not include reviews from other spaces" do
+      space = create_space
+      other_space = create_space
+      create_space_review(space: other_space, reviewer: create_user, rating: 2.0)
+
+      space.average_rating.should eq 0.0
+      space.review_count.should eq 0
     end
   end
 end

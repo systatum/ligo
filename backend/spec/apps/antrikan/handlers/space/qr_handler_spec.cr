@@ -4,7 +4,7 @@ describe Antrikan::SpaceQrHandler do
   context "when the user is authorized" do
     it "returns QR code as Base64 PNG" do
       user = create_user
-      space = create_space(owner: user, name: "QR Test Space")
+      space = create_space(manager: user, name: "QR Test Space")
 
       response = Marten::Spec.client.get(
         Marten.routes.reverse("antrikan:space:qr", space_hashed_id: space.hashed_id),
@@ -44,7 +44,7 @@ describe Antrikan::SpaceQrHandler do
     it "returns 403 when space belongs to another user" do
       user1 = create_user
       user2 = create_user
-      space = create_space(owner: user2, name: "Other User Space")
+      space = create_space(manager: user2, name: "Other User Space")
 
       response = Marten::Spec.client.get(
         Marten.routes.reverse("antrikan:space:qr", space_hashed_id: space.hashed_id),
@@ -58,7 +58,7 @@ describe Antrikan::SpaceQrHandler do
   context "when the user is not authorized" do
     it "returns 400" do
       user = create_user
-      space = create_space(owner: user)
+      space = create_space(manager: user)
 
       response = Marten::Spec.client.get(
         Marten.routes.reverse("antrikan:space:qr", space_hashed_id: space.hashed_id)

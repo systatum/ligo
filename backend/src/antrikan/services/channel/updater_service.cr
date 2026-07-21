@@ -23,6 +23,7 @@ module Antrikan
       @channel.name = schema.name if schema.name?
       @channel.description = description if @data.has_key?("description")
       @channel.logo_file_id = upload_image(schema.logo) if @data.has_key?("logo")
+      @channel.predeletable_state = schema.predeletable_state!.value if schema.predeletable_state?
 
       @channel.save!
     end

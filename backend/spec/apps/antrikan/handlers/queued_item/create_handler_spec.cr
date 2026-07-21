@@ -30,7 +30,7 @@ describe Antrikan::QueuedItemCreateHandler do
     it "accepts optional fields" do
       queue = create_queue
       item = create_item(channel: queue.channel!)
-      user = create_user(organization: queue.queuer!.space!.owner!.organization!)
+      user = create_user(organization: queue.queuer!.space!.manager!.organization!)
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:queue:item:create", queue_slug: queue.slug!),
@@ -154,6 +154,22 @@ describe Antrikan::QueuedItemCreateHandler do
       )
 
       response.status.should eq 404
+    end
+
+    it "returns 422 when cancel_note is provided on create" do
+      queue = create_queue
+      item = create_item(channel: queue.channel!)
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:queue:item:create", queue_slug: queue.slug!),
+        data: {
+          item_slug:   item.slug,
+          cancel_note: "not allowed on create",
+        }.to_json,
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
     end
 
     it "returns 422 when the item's channel does not match with queue channel" do

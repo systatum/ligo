@@ -172,7 +172,7 @@ describe Antrikan::QueuedItemRerankHandler do
     it "rejects authenticated user from different organization" do
       organization = create_organization
       owner = create_user(organization: organization)
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
       channel = create_channel(space: space)
       queue = create_queue(channel: channel, queuer: create_queuer(space: space))
       qi = create_queued_item(queue: queue, item: create_item(channel: channel))

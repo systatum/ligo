@@ -15,7 +15,7 @@ describe "Antrikan::Queue" do
     it "allows a handler from the same organization as the channel space owner" do
       organization = create_organization
       owner = create_user(organization: organization)
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
       queue = create_queue(
         channel: create_channel(space: space),
         queuer: create_queuer(space: space),
@@ -27,7 +27,7 @@ describe "Antrikan::Queue" do
 
     it "rejects a handler from a different organization than the channel space owner" do
       owner = create_user(organization: create_organization)
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
       queue = Antrikan::Queue.new
       queue.queuer = create_queuer(space: space)
       queue.channel = create_channel(space: space)

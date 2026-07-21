@@ -30,7 +30,7 @@ module Antrikan
     private def validate_handler_organization
       return unless handler?
 
-      channel_owner_organization_id = channel!.space!.owner!.organization_id
+      channel_owner_organization_id = channel!.space!.manager!.organization_id
       return if handler!.organization_id == channel_owner_organization_id
 
       errors.add(:handler, "must be from the same organization as the channel space owner")

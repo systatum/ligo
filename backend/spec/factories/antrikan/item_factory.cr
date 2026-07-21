@@ -6,6 +6,7 @@ def create_item(
   order : Int32 = 0,
   daily_cap : Int32 = 0,
   unit_price : Int64 = 0_i64,
+  unit_currency : Int32 = Antrikan::Currency::IDR.value,
   is_monitored : Bool = false,
   description : String? = nil,
   main_image_file_id : UUID? = nil,
@@ -16,6 +17,7 @@ def create_item(
   item.order = order
   item.daily_cap = daily_cap
   item.unit_price = unit_price
+  item.unit_currency = unit_currency
   item.is_monitored = is_monitored
   item.description = description
   item.main_image_file_id = main_image_file_id

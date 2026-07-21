@@ -5,6 +5,7 @@ module Antrikan
 
     def run : ServiceResult(QueuedItem)
       return failure(schema.errors) unless schema.valid?
+      return failure(:status, "Cannot delete this item at its current state") if past_predeletable_state?
 
       begin
         update_fields
@@ -22,9 +23,20 @@ module Antrikan
 
       @queued_item.handler = handler if schema.handler_id?
       @queued_item.note = schema.note if schema.note?
+      @queued_item.cancel_note = schema.cancel_note if schema.cancel_note? && becoming_canceled?
       @queued_item.change_status!(schema.status!.to_state) if schema.status?
 
       @queued_item.save!
+    end
+
+    private def becoming_canceled? : Bool
+      schema.status? && schema.status! == QueueStatus::CANCELED
+    end
+
+    # True when this request is trying to cancel (delete) the item, but the item's
+    # current state is already past the channel's configured predeletable_state cutoff.
+    private def past_predeletable_state? : Bool
+      becoming_canceled? && @queued_item.status! > @queued_item.channel!.predeletable_state!
     end
 
     private def schema

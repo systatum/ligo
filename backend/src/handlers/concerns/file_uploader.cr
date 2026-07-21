@@ -1,7 +1,7 @@
 # Handles file uploads from a file payload.
 # Stages and commits the file through the standard pipeline, returning the resulting file ID.
 module FileUploader
-  private def upload_image(file_payload : FilePayload?) : UUID?
+  private def upload_image(file_payload : FilePayload?, uploaded_by : Auth::User? = nil) : UUID?
     return nil unless file_payload
 
     media_type = file_payload.media_type
@@ -15,7 +15,7 @@ module FileUploader
     end
 
     staged = fs_result.data.not_nil!
-    fc_result = FileCommitterService.new(staged).run
+    fc_result = FileCommitterService.new(staged, uploaded_by).run
     unless fc_result.success?
       raise ::Errors::LogoUploadException.new("commit failed: #{fc_result.errors}")
     end

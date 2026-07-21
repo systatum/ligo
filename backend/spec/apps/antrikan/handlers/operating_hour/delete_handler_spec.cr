@@ -4,7 +4,7 @@ describe Antrikan::OperatingHourDeleteHandler do
   context "when the user is authorized to delete the record" do
     it "can be deleted" do
       user = create_user
-      space = create_space(owner: user)
+      space = create_space(manager: user)
       op_hour = create_operating_hour(space: space, day: 1)
       op_hour_id = op_hour.id!
 
@@ -28,8 +28,8 @@ describe Antrikan::OperatingHourDeleteHandler do
   context "when the operating hour belongs to another space" do
     it "will not be deleted" do
       user = create_user
-      space1 = create_space(owner: user)
-      space2 = create_space(owner: user)
+      space1 = create_space(manager: user)
+      space2 = create_space(manager: user)
       op_hour = create_operating_hour(space: space2, day: 1)
 
       response = Marten::Spec.client.delete(
@@ -47,7 +47,7 @@ describe Antrikan::OperatingHourDeleteHandler do
   context "when the user is not authorized" do
     it "returns 400" do
       user = create_user
-      space = create_space(owner: user)
+      space = create_space(manager: user)
       op_hour = create_operating_hour(space: space, day: 1)
 
       response = Marten::Spec.client.delete(

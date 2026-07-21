@@ -4,7 +4,7 @@ describe Antrikan::SpaceJoinHandler do
   context "when the user is authorized" do
     it "returns 200 with empty added and failed when payload has no users" do
       owner = create_user
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:space:code:join", space_code: space.code!),
@@ -23,7 +23,7 @@ describe Antrikan::SpaceJoinHandler do
 
     it "returns 201 when at least one user is added successfully" do
       owner = create_user
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
       user_to_add = create_user
       before_member_count = space.members.count
       before_joined_spaces_count = user_to_add.joined_spaces.count
@@ -54,7 +54,7 @@ describe Antrikan::SpaceJoinHandler do
 
     it "returns 201 when payload includes non-existing and invalid user_ids" do
       owner = create_user
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
       user_to_add = create_user
 
       user_to_delete = create_user
@@ -101,7 +101,7 @@ describe Antrikan::SpaceJoinHandler do
 
     it "returns 500 when all users are not found" do
       owner = create_user
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
       before_member_count = space.members.count
 
       user_to_delete = create_user
@@ -136,7 +136,7 @@ describe Antrikan::SpaceJoinHandler do
 
     it "returns 201 when all users in the payload is already a member" do
       owner = create_user
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
       existing_member = create_user
       space.members.add(existing_member)
       before_member_count = space.members.count
@@ -167,7 +167,7 @@ describe Antrikan::SpaceJoinHandler do
 
     it "returns 201 when payload contains duplicate user_id entries" do
       owner = create_user
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
       user_to_add = create_user
       before_member_count = space.members.count
       before_joined_spaces_count = user_to_add.joined_spaces.count
@@ -200,7 +200,7 @@ describe Antrikan::SpaceJoinHandler do
 
     it "returns 200 with empty added and failed when payload does not include users" do
       owner = create_user
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:space:code:join", space_code: space.code!),
@@ -217,7 +217,7 @@ describe Antrikan::SpaceJoinHandler do
 
     it "returns 422 when users is not an array" do
       owner = create_user
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:space:code:join", space_code: space.code!),
@@ -231,7 +231,7 @@ describe Antrikan::SpaceJoinHandler do
 
     it "returns 422 when a user entry is missing user_id" do
       owner = create_user
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:space:code:join", space_code: space.code!),
@@ -249,7 +249,7 @@ describe Antrikan::SpaceJoinHandler do
 
     it "returns 400 when payload JSON is malformed" do
       owner = create_user
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:space:code:join", space_code: space.code!),
@@ -280,7 +280,7 @@ describe Antrikan::SpaceJoinHandler do
   context "when the user is not authorized" do
     it "returns 400" do
       owner = create_user
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:space:code:join", space_code: space.code!),

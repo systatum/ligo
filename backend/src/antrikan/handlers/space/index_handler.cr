@@ -5,7 +5,7 @@ class Antrikan::SpaceIndexHandler < RequestHandler
   http_method_names :get
 
   def get
-    spaces = Antrikan::Space.filter(owner_id: current_user!.id, deleted_at: nil).map do |space|
+    spaces = Antrikan::Space.filter(manager_id: current_user!.id, deleted_at: nil).map do |space|
       Antrikan::SpaceSerializer.soft_serialize(space)
     end
     json({

@@ -9,6 +9,8 @@ module Antrikan
     field :name, :string, max_size: 255, null: false, blank: false
     field :logo_file_id, :uuid, null: true, blank: true
     field :description, :text, null: true, blank: true
+    # Latest QueuedItem state at/before which cancellation (deletion) is still allowed
+    field :predeletable_state, :int, null: false, default: QueueStatus::ATTENDED.value
     field :created_at, :date_time, null: false, auto_now_add: true
     field :updated_at, :date_time, null: false, auto_now: true
   end

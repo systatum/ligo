@@ -22,7 +22,7 @@ module Auth
       user.organization = schema.organization
       user.first_name = schema.first_name
       user.last_name = schema.last_name
-      user.role = Auth::Role::FULL_TIME_STAFF
+      user.role = schema.organization_name? ? schema.realm!.default_role! : Auth::Role::FULL_TIME_STAFF
       user.set_password(schema.password!)
       user.password_updated_at = Time.utc
       user.save!
