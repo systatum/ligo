@@ -1,0 +1,33 @@
+{
+  "name": {
+    "en-US": "Croatia"
+  },
+  "cities": {
+    "140010001": "Bjelovar, Bjelovarsko-Bilogorska",
+    "140020001": "Slavonski Brod, Brodsko-Posavska",
+    "140030001": "Dubrovnik, Dubrovačko-Neretvanska",
+    "140040001": "Sesvete, Grad Zagreb",
+    "140040002": "Zagreb, Grad Zagreb",
+    "140040003": "Zagreb - Centar, Grad Zagreb",
+    "140040004": "Zagreb- Stenjevec, Grad Zagreb",
+    "140050001": "Pula, Istarska",
+    "140060001": "Karlovac, Karlovačka",
+    "140070001": "Koprivnica, Koprivničko-Križevačka",
+    "140080001": "Čakovec, Međimurska",
+    "140090001": "Osijek, Osječko-Baranjska",
+    "140100001": "Požega, Požeško-Slavonska",
+    "140110001": "Rijeka, Primorsko-Goranska",
+    "140120001": "Sisak, Sisačko-Moslavačka",
+    "140130001": "Solin, Splitsko-Dalmatinska",
+    "140130002": "Split, Splitsko-Dalmatinska",
+    "140140001": "Varaždin, Varaždinska",
+    "140150001": "Virovitica, Virovitičk-Podravska",
+    "140160001": "Vinkovci, Vukovarsko-Srijemska",
+    "140160002": "Vukovar, Vukovarsko-Srijemska",
+    "140170001": "Zadar, Zadarska",
+    "140180001": "Samobor, Zagrebačka",
+    "140180002": "Velika Gorica, Zagrebačka",
+    "140180003": "Zaprešić, Zagrebačka",
+    "140190001": "Šibenik, Šibensko-Kniniska"
+  }
+}

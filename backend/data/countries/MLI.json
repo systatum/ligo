@@ -1,0 +1,27 @@
+{
+  "name": {
+    "en-US": "Mali"
+  },
+  "cities": {
+    "205010001": "Bamako, Bamako",
+    "205020001": "Gao, Gao",
+    "205030001": "Bafoulabé, Kayes",
+    "205030002": "Kayes, Kayes",
+    "205030003": "Sagalo, Kayes",
+    "205040001": "Banamba, Koulikoro",
+    "205040002": "Kangaba, Koulikoro",
+    "205040003": "Kati, Koulikoro",
+    "205040004": "Kolokani, Koulikoro",
+    "205040005": "Koulikoro, Koulikoro",
+    "205050001": "Djénné, Mopti",
+    "205050002": "Mopti, Mopti",
+    "205060001": "Bougouni, Sikasso",
+    "205060002": "Koutiala, Sikasso",
+    "205060003": "Sikasso, Sikasso",
+    "205060004": "Yorosso, Sikasso",
+    "205070001": "Markala, Ségou",
+    "205070002": "San, Ségou",
+    "205070003": "Ségou, Ségou",
+    "205080001": "Timbuktu, Tombouctou"
+  }
+}

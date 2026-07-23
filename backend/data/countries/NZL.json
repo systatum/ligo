@@ -1,0 +1,42 @@
+{
+  "name": {
+    "en-US": "New Zealand"
+  },
+  "cities": {
+    "223010001": "Auckland, Auckland",
+    "223010002": "Mangere, Auckland",
+    "223010003": "Manukau City, Auckland",
+    "223010004": "North Shore, Auckland",
+    "223010005": "Papakura, Auckland",
+    "223010006": "Pukekohe East, Auckland",
+    "223010007": "Waitakere, Auckland",
+    "223020001": "Rotorua, Bay of Plenty",
+    "223020002": "Tauranga, Bay of Plenty",
+    "223020003": "Whakatane, Bay of Plenty",
+    "223030001": "Ashburton, Canterbury",
+    "223030002": "Christchurch, Canterbury",
+    "223030003": "Timaru, Canterbury",
+    "223040001": "Gisborne, Gisborne",
+    "223050001": "Hastings, Hawke's Bay",
+    "223050002": "Napier, Hawke's Bay",
+    "223050003": "Taradale, Hawke's Bay",
+    "223060001": "Levin, Manawatu-Wanganui",
+    "223060002": "Palmerston North, Manawatu-Wanganui",
+    "223060003": "Wanganui, Manawatu-Wanganui",
+    "223070001": "Blenheim, Marlborough",
+    "223080001": "Nelson, Nelson",
+    "223090001": "Whangarei, Northland",
+    "223100001": "Dunedin, Otago",
+    "223110001": "Invercargill, Southland",
+    "223120001": "New Plymouth, Taranaki",
+    "223130001": "Cambridge, Waikato",
+    "223130002": "Hamilton, Waikato",
+    "223130003": "Taupo, Waikato",
+    "223140001": "Lower Hutt, Wellington",
+    "223140002": "Masterton, Wellington",
+    "223140003": "Paraparaumu, Wellington",
+    "223140004": "Porirua, Wellington",
+    "223140005": "Upper Hutt, Wellington",
+    "223140006": "Wellington, Wellington"
+  }
+}

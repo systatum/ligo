@@ -13,7 +13,7 @@ describe Antrikan::QueueIndexHandler do
         note: "First queue",
         status: Antrikan::QueueStatus::QUEUED,
         payment_status: Antrikan::PaymentStatus::UNPAID,
-        total_price: 10_000_i64
+        total_price: BigFloat.new(10_000)
       )
       q2 = create_queue(
         queuer: create_queuer(space: space),
@@ -21,7 +21,7 @@ describe Antrikan::QueueIndexHandler do
         note: "Second queue",
         status: Antrikan::QueueStatus::ATTENDED,
         payment_status: Antrikan::PaymentStatus::PARTIAL,
-        total_price: 25_000_i64
+        total_price: BigFloat.new(25_000)
       )
       q3 = create_queue(
         queuer: create_queuer(space: space),

@@ -40,6 +40,11 @@ module Antrikan
         path "/index", SpaceReviewIndexHandler, name: "index"
       end
       path "/<space_hashed_id:str>/reviews", space_review_routes
+
+      voucher_routes = Marten::Routing::Map.draw(:voucher) do
+        path "/create", VoucherCreateHandler, name: "create"
+      end
+      path "/<space_hashed_id:str>/voucher", voucher_routes
     end
 
     channel_routes = Marten::Routing::Map.draw(:channel) do
@@ -93,11 +98,16 @@ module Antrikan
       path "/<space_review_hashed_id:str>/delete", SpaceReviewDeleteHandler, name: "delete"
     end
 
+    voucher_routes = Marten::Routing::Map.draw(:voucher) do
+      path "/redeemable", VoucherRedeemabilityHandler, name: "redeemable"
+    end
+
     path "/api/space", space_routes
     path "/api/channel", channel_routes
     path "/api/queuer", queuer_routes
     path "/api/queue", queue_routes
     path "/api/item", item_routes
     path "/api/space_review", space_review_routes
+    path "/api/voucher", voucher_routes
   end
 end

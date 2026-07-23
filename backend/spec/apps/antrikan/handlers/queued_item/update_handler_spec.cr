@@ -315,5 +315,29 @@ describe Antrikan::QueuedItemUpdateHandler do
       ctx[:queued_item].reload
       ctx[:queued_item].status.should eq Antrikan::QueueStatus::QUEUED.value
     end
+
+    it "returns 422 when the queue is already paid" do
+      ctx = create_authorized_queue_item
+      ctx[:queue].payment_status = Antrikan::PaymentStatus::PARTIAL.value
+      ctx[:queue].save!
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse(
+          "antrikan:queue:item:update",
+          queue_slug: ctx[:queue].slug!,
+          queued_item_slug: ctx[:queued_item].slug!
+        ),
+        data: {
+          note: "should not apply",
+        }.to_json,
+        headers: {authorization: "Bearer #{ctx[:user].jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+
+      ctx[:queued_item].reload
+      ctx[:queued_item].note.should_not eq "should not apply"
+    end
   end
 end

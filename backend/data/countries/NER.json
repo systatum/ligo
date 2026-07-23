@@ -1,0 +1,32 @@
+{
+  "name": {
+    "en-US": "Niger"
+  },
+  "cities": {
+    "225010001": "Agadez, Agadez",
+    "225010002": "Alaghsas, Agadez",
+    "225020001": "Diffa, Diffa",
+    "225020002": "Nguigmi, Diffa",
+    "225030001": "Dogondoutchi, Dosso",
+    "225030002": "Dosso, Dosso",
+    "225030003": "Gaya, Dosso",
+    "225040001": "Dakoro, Maradi",
+    "225040002": "Maradi, Maradi",
+    "225040003": "Mayahi, Maradi",
+    "225040004": "Tessaoua, Maradi",
+    "225040005": "Tibiri, Maradi",
+    "225050001": "Niamey, Niamey",
+    "225060001": "Birni N Konni, Tahoua",
+    "225060002": "Illéla, Tahoua",
+    "225060003": "Madaoua, Tahoua",
+    "225060004": "Tahoua, Tahoua",
+    "225070001": "Ayorou, Tillabéri",
+    "225070002": "Tillabéri, Tillabéri",
+    "225070003": "Téra, Tillabéri",
+    "225080001": "Magaria, Zinder",
+    "225080002": "Matamey, Zinder",
+    "225080003": "Mirriah, Zinder",
+    "225080004": "Tanout, Zinder",
+    "225080005": "Zinder, Zinder"
+  }
+}

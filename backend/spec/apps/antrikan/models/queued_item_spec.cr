@@ -88,7 +88,7 @@ describe Antrikan::QueuedItem do
 
       queue.reload
       queue.status.should eq Antrikan::QueueStatus::ATTENDED.value
-      queue.total_price.should eq 50_000_i64
+      queue.total_price.should eq "50000.0"
     end
 
     it "moves parent queue to ready when all active items are done" do
@@ -109,7 +109,7 @@ describe Antrikan::QueuedItem do
 
       queue.reload
       queue.status.should eq Antrikan::QueueStatus::READY.value
-      queue.total_price.should eq 25_000_i64
+      queue.total_price.should eq "25000.0"
       queue.ready_at.should_not be_nil
     end
 
@@ -134,7 +134,7 @@ describe Antrikan::QueuedItem do
 
       queue.reload
       queue.status.should eq Antrikan::QueueStatus::READY.value
-      queue.total_price.should eq 10_000_i64
+      queue.total_price.should eq "10000.0"
       queue.ready_at.should_not be_nil
     end
 
@@ -155,13 +155,13 @@ describe Antrikan::QueuedItem do
       )
 
       queue.reload
-      queue.total_price.should eq 28_000_i64
+      queue.total_price.should eq "28000.0"
 
       item_a.change_status!(:canceled)
       item_a.save!
 
       queue.reload
-      queue.total_price.should eq 16_000_i64
+      queue.total_price.should eq "16000.0"
     end
   end
 

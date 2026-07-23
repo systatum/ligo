@@ -9,6 +9,13 @@ module Antrikan
       return failure(schema.errors) unless schema.valid?
 
       begin
+        if @data.has_key?("carousel_images")
+          current_ids = @item.carousel_image_ids.try(&.ids) || [] of String
+          result = CarouselImagesResolverService.new(schema.carousel_images!, current_ids).run
+          return failure(result.errors) unless result.success?
+          @item.carousel_image_ids = CarouselImageIds.new(ids: result.data.not_nil!)
+        end
+
         update_fields
         success(@item)
       rescue ex : ::Errors::LogoUploadException
@@ -35,7 +42,7 @@ module Antrikan
     end
 
     private def schema
-      @schema ||= ItemUpdateSchema.new(@data)
+      @schema ||= ItemUpdateSchema.new(JsonArrayMapper.map(@data, "carousel_images"))
     end
 
     private def publish_item_updated(item : Item)

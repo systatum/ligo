@@ -1,0 +1,21 @@
+{
+  "name": {
+    "en-US": "Latvia"
+  },
+  "cities": {
+    "192010001": "Cēsis, Cēsu Rajons",
+    "192020001": "Daugavpils, Daugavpils municipality",
+    "192030001": "Jelgava, Jelgava",
+    "192040001": "Jēkabpils, Jēkabpils Municipality",
+    "192050001": "Jūrmala, Jūrmala",
+    "192060001": "Liepāja, Liepāja",
+    "192060002": "Vec-Liepāja, Liepāja",
+    "192070001": "Ogre, Ogre",
+    "192080001": "Riga, Riga",
+    "192090001": "Rēzekne, Rēzekne",
+    "192100001": "Salaspils, Salaspils",
+    "192110001": "Tukums, Tukuma Rajons",
+    "192120001": "Valmiera, Valmieras Rajons",
+    "192130001": "Ventspils, Ventspils"
+  }
+}

@@ -14,6 +14,10 @@ module Antrikan
         carousel_images:           fetch_carousel_images,
         business_id:               record.owner!.hashed_id,
         address:                   record.address,
+        address_city_code:         record.address_city_code,
+        address_postal_code:       record.address_postal_code,
+        latitude:                  record.latitude,
+        longitude:                 record.longitude,
         phone:                     record.phone,
         email:                     record.email,
         average_rating:            record.average_rating,
@@ -34,9 +38,13 @@ module Antrikan
       record = @record.as(Space)
 
       ids = record.carousel_image_ids.try(&.ids) || [] of String
-      files_by_id = UploadedFile.filter(id__in: ids.map { |id| UUID.new(id) }).index_by(&.id.to_s)
+      files_by_id = UploadedFile.filter(
+        id__in: ids.map { |id| UUID.new(id) }
+      ).index_by(&.id.to_s)
 
-      ids.compact_map { |id| files_by_id[id]? }.map { |file| UploadedFileSerializer.soft_serialize(file) }
+      ids.compact_map { |id| files_by_id[id]? }.map do |file|
+        UploadedFileSerializer.soft_serialize(file)
+      end
     end
   end
 end

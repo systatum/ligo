@@ -1,0 +1,12 @@
+{
+  "name": {
+    "en-US": "Malta"
+  },
+  "cities": {
+    "206010001": "Birkirkara, Birkirkara",
+    "206020001": "Valletta, Il-Belt Valletta",
+    "206030001": "Mosta, Il-Mosta",
+    "206040001": "Qormi, Qormi",
+    "206050001": "Żabbar, Ħaż-Żabbar"
+  }
+}

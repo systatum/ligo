@@ -13,21 +13,9 @@ module Antrikan
 
         if @data.has_key?("carousel_images")
           current_ids = @space.carousel_image_ids.try(&.ids) || [] of String
-          new_ids = [] of String
-
-          schema.carousel_images!.each do |entry|
-            item = entry.as(SpaceSchema::CarouselImagePayload)
-
-            if (keep_id = item.keep_id)
-              unless current_ids.includes?(keep_id)
-                return failure(:carousel_images, "keep_id does not reference an existing image on this space")
-              end
-              new_ids << keep_id
-            else
-              raw_payload = FilePayload.from_json({base64_bytes: item.base64_bytes, mimetype: item.mimetype}.to_json)
-              new_ids << upload_image(raw_payload).not_nil!.to_s
-            end
-          end
+          result = CarouselImagesResolverService.new(schema.carousel_images!, current_ids).run
+          return failure(result.errors) unless result.success?
+          new_ids = result.data
         end
 
         data = schema.validated_data
@@ -48,7 +36,7 @@ module Antrikan
     end
 
     private def schema
-      @schema ||= SpaceSchema.new(JsonArrayFieldNormalizer.normalize(@data, "carousel_images"))
+      @schema ||= SpaceSchema.new(JsonArrayMapper.map(@data, "carousel_images"))
     end
   end
 end

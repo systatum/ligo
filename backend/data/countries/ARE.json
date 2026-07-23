@@ -1,0 +1,20 @@
+{
+  "name": {
+    "en-US": "United Arab Emirates"
+  },
+  "cities": {
+    "285010001": "Abu Dhabi, Abu Dhabi",
+    "285010002": "Al Ain, Abu Dhabi",
+    "285010003": "Ar Ruways, Abu Dhabi",
+    "285020001": "Ajman, Ajman",
+    "285030001": "Al Fujayrah, Al Fujayrah",
+    "285030002": "Dibba Al-Fujairah, Al Fujayrah",
+    "285030003": "Dibba Al-Hisn, Al Fujayrah",
+    "285040001": "Adh Dhayd, Ash Shāriqah",
+    "285040002": "Khawr Fakkān, Ash Shāriqah",
+    "285040003": "Sharjah, Ash Shāriqah",
+    "285050001": "Dubai, Dubai",
+    "285060001": "Ras al-Khaimah, Raʼs al Khaymah",
+    "285070001": "Umm al Qaywayn, Umm al Qaywayn"
+  }
+}

@@ -7,7 +7,7 @@ def create_queue(
   note : String? = nil,
   status : Antrikan::QueueStatus = Antrikan::QueueStatus::QUEUED,
   payment_status : Antrikan::PaymentStatus = Antrikan::PaymentStatus::UNPAID,
-  total_price : Int64 = 0_i64,
+  total_price : BigFloat = BigFloat.new(0),
   fully_paid_at : Time? = nil,
   attended_at : Time? = nil,
   packed_at : Time? = nil,
@@ -22,7 +22,7 @@ def create_queue(
   queue.note = note
   queue.status = status.value
   queue.payment_status = payment_status.value
-  queue.total_price = total_price
+  queue.total_price = total_price.to_s
   queue.fully_paid_at = fully_paid_at
   queue.attended_at = attended_at
   queue.packed_at = packed_at

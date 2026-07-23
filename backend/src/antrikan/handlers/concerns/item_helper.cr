@@ -24,7 +24,7 @@ module Antrikan
     end
 
     private def schema
-      @schema ||= ItemSchema.new(request.data)
+      @schema ||= ItemSchema.new(JsonArrayMapper.map(request.data, "carousel_images"))
     end
   end
 end

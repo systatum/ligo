@@ -1,0 +1,38 @@
+{
+  "name": {
+    "en-US": "Uruguay"
+  },
+  "cities": {
+    "288010001": "Artigas, Artigas",
+    "288020001": "Canelones, Canelones",
+    "288020002": "La Paz, Canelones",
+    "288020003": "Las Piedras, Canelones",
+    "288020004": "Pando, Canelones",
+    "288020005": "Paso de Carrasco, Canelones",
+    "288020006": "Progreso, Canelones",
+    "288020007": "Santa Lucía, Canelones",
+    "288030001": "Melo, Cerro Largo",
+    "288040001": "Carmelo, Colonia",
+    "288040002": "Colonia del Sacramento, Colonia",
+    "288050001": "Durazno, Durazno",
+    "288060001": "Trinidad, Flores",
+    "288060002": "Trinidad, Flores",
+    "288070001": "Florida, Florida",
+    "288080001": "Minas, Lavalleja",
+    "288090001": "Maldonado, Maldonado",
+    "288090002": "San Carlos, Maldonado",
+    "288100001": "Montevideo, Montevideo",
+    "288110001": "Paysandú, Paysandú",
+    "288120001": "Rivera, Rivera",
+    "288130001": "Rocha, Rocha",
+    "288140001": "Fray Bentos, Río Negro",
+    "288140002": "Young, Río Negro",
+    "288150001": "Salto, Salto",
+    "288160001": "Delta del Tigre, San José",
+    "288160002": "San José de Mayo, San José",
+    "288170001": "Dolores, Soriano",
+    "288170002": "Mercedes, Soriano",
+    "288180001": "Tacuarembó, Tacuarembó",
+    "288190001": "Treinta y Tres, Treinta y Tres"
+  }
+}

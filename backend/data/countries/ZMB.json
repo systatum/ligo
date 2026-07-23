@@ -1,0 +1,36 @@
+{
+  "name": {
+    "en-US": "Zambia"
+  },
+  "cities": {
+    "295010001": "Kabwe, Central",
+    "295010002": "Kapiri Mposhi, Central",
+    "295010003": "Mumbwa, Central",
+    "295020001": "Chililabombwe, Copperbelt",
+    "295020002": "Chingola, Copperbelt",
+    "295020003": "Kalulushi, Copperbelt",
+    "295020004": "Kitwe, Copperbelt",
+    "295020005": "Luanshya, Copperbelt",
+    "295020006": "Mufulira, Copperbelt",
+    "295020007": "Ndola, Copperbelt",
+    "295030001": "Chipata, Eastern",
+    "295030002": "Petauke, Eastern",
+    "295040001": "Kawambwa, Luapula",
+    "295040002": "Mansa, Luapula",
+    "295040003": "Nchelenge, Luapula",
+    "295040004": "Samfya, Luapula",
+    "295050001": "Kafue, Lusaka",
+    "295050002": "Lusaka, Lusaka",
+    "295060001": "Kansanshi, North-Western",
+    "295070001": "Kasama, Northern",
+    "295070002": "Mbala, Northern",
+    "295070003": "Mpika, Northern",
+    "295080001": "Choma, Southern",
+    "295080002": "Livingstone, Southern",
+    "295080003": "Mazabuka, Southern",
+    "295080004": "Monze, Southern",
+    "295080005": "Siavonga, Southern",
+    "295090001": "Mongu, Western",
+    "295090002": "Sesheke, Western"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": {
+    "en-US": "Moldova"
+  },
+  "cities": {
+    "212010001": "Bender, Bender",
+    "212020001": "Bălţi, Bălţi",
+    "212030001": "Cahul, Cahul",
+    "212040001": "Chişinău, Chişinău",
+    "212050001": "Căuşeni, Căuşeni",
+    "212060001": "Drochia, Drochia",
+    "212070001": "Floreşti, Floreşti",
+    "212080001": "Ceadîr-Lunga, Găgăuzia",
+    "212080002": "Comrat, Găgăuzia",
+    "212090001": "Hînceşti, Hînceşti",
+    "212100001": "Orhei, Orhei",
+    "212110001": "Edineţ, Raionul Edineţ",
+    "212120001": "Soroca, Raionul Soroca",
+    "212130001": "Straşeni, Strășeni",
+    "212140001": "Rîbniţa, Stînga Nistrului",
+    "212140002": "Slobozia, Stînga Nistrului",
+    "212140003": "Tiraspolul, Stînga Nistrului",
+    "212150001": "Bilicenii Vechi, Sîngerei",
+    "212160001": "Dubăsari, Teleneşti",
+    "212170001": "Ungheni, Ungheni"
+  }
+}

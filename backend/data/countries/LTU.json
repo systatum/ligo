@@ -1,0 +1,42 @@
+{
+  "name": {
+    "en-US": "Lithuania"
+  },
+  "cities": {
+    "198010001": "Alytus, Alytaus apskritis",
+    "198010002": "Druskininkai, Alytaus apskritis",
+    "198020001": "Aleksotas, Kauno apskritis",
+    "198020002": "Dainava (Kaunas), Kauno apskritis",
+    "198020003": "Eiguliai, Kauno apskritis",
+    "198020004": "Jonava, Kauno apskritis",
+    "198020005": "Kaunas, Kauno apskritis",
+    "198020006": "Kėdainiai, Kauno apskritis",
+    "198020007": "Šilainiai, Kauno apskritis",
+    "198030001": "Gargždai, Klaipėdos apskritis",
+    "198030002": "Klaipėda, Klaipėdos apskritis",
+    "198030003": "Kretinga, Klaipėdos apskritis",
+    "198030004": "Palanga, Klaipėdos apskritis",
+    "198030005": "Silute, Klaipėdos apskritis",
+    "198040001": "Marijampolė, Marijampolės apskritis",
+    "198050001": "Panevėžys, Panevėžys",
+    "198050002": "Rokiškis, Panevėžys",
+    "198060001": "Taurage, Tauragės apskritis",
+    "198070001": "Mazeikiai, Telšių apskritis",
+    "198070002": "Plunge, Telšių apskritis",
+    "198070003": "Telsiai, Telšių apskritis",
+    "198080001": "Utena, Utenos apskritis",
+    "198080002": "Visaginas, Utenos apskritis",
+    "198090001": "Fabijoniškės, Vilnius County",
+    "198090002": "Justiniškės, Vilnius County",
+    "198090003": "Lazdynai, Vilnius County",
+    "198090004": "Naujamiestis, Vilnius County",
+    "198090005": "Pašilaičiai, Vilnius County",
+    "198090006": "Pilaitė, Vilnius County",
+    "198090007": "Ukmerge, Vilnius County",
+    "198090008": "Vilkpėdė, Vilnius County",
+    "198090009": "Vilnius, Vilnius County",
+    "198090010": "Šeškinė, Vilnius County",
+    "198100001": "Radviliskis, Šiaulių apskritis",
+    "198100002": "Šiauliai, Šiaulių apskritis"
+  }
+}

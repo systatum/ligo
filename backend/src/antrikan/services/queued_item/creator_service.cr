@@ -5,6 +5,7 @@ module Antrikan
 
     def run : ServiceResult(QueuedItem)
       return failure(schema.errors) unless schema.valid?
+      return failure(:queue, "Cannot add items to a paid queue") unless unpaid?
 
       begin
         handler = schema.handler_id? ? Auth::User.get_by_hashed_id!(schema.handler_id!) : nil
@@ -37,6 +38,10 @@ module Antrikan
       rescue ex : Marten::DB::Errors::InvalidRecord
         failure(ex.record.errors)
       end
+    end
+
+    private def unpaid? : Bool
+      @queue.payment_status! == PaymentStatus::UNPAID.value
     end
 
     private def schema

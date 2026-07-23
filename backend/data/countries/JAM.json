@@ -1,0 +1,18 @@
+{
+  "name": {
+    "en-US": "Jamaica"
+  },
+  "cities": {
+    "182010001": "May Pen, Clarendon",
+    "182020001": "Kingston, Kingston",
+    "182030001": "Mandeville, Manchester",
+    "182040001": "Half Way Tree, Saint Andrew",
+    "182040002": "New Kingston, Saint Andrew",
+    "182050001": "Linstead, Saint Catherine",
+    "182050002": "Old Harbour, Saint Catherine",
+    "182050003": "Portmore, Saint Catherine",
+    "182050004": "Spanish Town, Saint Catherine",
+    "182060001": "Montego Bay, Saint James",
+    "182070001": "Savanna-la-Mar, Westmoreland"
+  }
+}

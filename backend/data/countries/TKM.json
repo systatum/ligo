@@ -1,0 +1,31 @@
+{
+  "name": {
+    "en-US": "Turkmenistan"
+  },
+  "cities": {
+    "281010001": "Abadan, Ahal",
+    "281010002": "Annau, Ahal",
+    "281010003": "Ashgabat, Ahal",
+    "281010004": "Baharly, Ahal",
+    "281010005": "Kaka, Ahal",
+    "281010006": "Tejen, Ahal",
+    "281020001": "Balkanabat, Balkan",
+    "281020002": "Gazanjyk, Balkan",
+    "281020003": "Gumdag, Balkan",
+    "281020004": "Türkmenbaşy, Balkan",
+    "281030001": "Boldumsaz, Daşoguz",
+    "281030002": "Daşoguz, Daşoguz",
+    "281030003": "Köneürgench, Daşoguz",
+    "281030004": "Tagta, Daşoguz",
+    "281030005": "Yylanly, Daşoguz",
+    "281040001": "Atamyrat, Lebap",
+    "281040002": "Gazojak, Lebap",
+    "281040003": "Gowurdak, Lebap",
+    "281040004": "Saýat, Lebap",
+    "281040005": "Türkmenabat, Lebap",
+    "281050001": "Bayramaly, Mary",
+    "281050002": "Mary, Mary",
+    "281050003": "Seydi, Mary",
+    "281050004": "Yolöten, Mary"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": {
+    "en-US": "East Timor"
+  },
+  "cities": {
+    "149010001": "Aileu, Aileu",
+    "149020001": "Baucau, Baucau",
+    "149020002": "Venilale, Baucau",
+    "149030001": "Maliana, Bobonaro",
+    "149040001": "Suai, Cova Lima",
+    "149050001": "Dili, Díli",
+    "149060001": "Lospalos, Lautém",
+    "149070001": "Liquica, Liquiçá",
+    "149070002": "Maubara, Liquiçá",
+    "149080001": "Same, Manufahi"
+  }
+}

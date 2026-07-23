@@ -1,0 +1,16 @@
+{
+  "name": {
+    "en-US": "Estonia"
+  },
+  "cities": {
+    "155010001": "Maardu, Harjumaa",
+    "155010002": "Tallinn, Harjumaa",
+    "155020001": "Kohtla-Järve, Ida-Virumaa",
+    "155020002": "Narva, Ida-Virumaa",
+    "155020003": "Sillamäe, Ida-Virumaa",
+    "155030001": "Rakvere, Lääne-Virumaa",
+    "155040001": "Pärnu, Pärnumaa",
+    "155050001": "Tartu, Tartu",
+    "155060001": "Viljandi, Viljandimaa"
+  }
+}

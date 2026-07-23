@@ -15,6 +15,7 @@ module Antrikan
     field :is_monitored, :bool, null: false, default: false # if true, then new user purchasing this needs to be specifically acknowledged before being confirmed
     field :description, :text, null: true, blank: true
     field :main_image_file_id, :uuid, null: true, blank: true
+    field :carousel_image_ids, :json, null: true, blank: true, serializable: CarouselImageIds
     field :created_at, :date_time, null: false, auto_now_add: true
     field :updated_at, :date_time, null: false, auto_now: true
   end

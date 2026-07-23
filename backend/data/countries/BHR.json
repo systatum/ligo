@@ -1,0 +1,15 @@
+{
+  "name": {
+    "en-US": "Bahrain"
+  },
+  "cities": {
+    "113010001": "Madīnat Ḩamad, Central Governorate",
+    "113020001": "Jidd Ḩafş, Manama",
+    "113020002": "Manama, Manama",
+    "113020003": "Sitrah, Manama",
+    "113030001": "Al Muharraq, Muharraq",
+    "113040001": "Ar Rifā‘, Southern Governorate",
+    "113040002": "Dār Kulayb, Southern Governorate",
+    "113040003": "Madīnat ‘Īsá, Southern Governorate"
+  }
+}

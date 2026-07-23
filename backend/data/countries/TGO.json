@@ -1,0 +1,24 @@
+{
+  "name": {
+    "en-US": "Togo"
+  },
+  "cities": {
+    "276010001": "Sokodé, Centrale",
+    "276010002": "Sotouboua, Centrale",
+    "276010003": "Tchamba, Centrale",
+    "276020001": "Bafilo, Kara",
+    "276020002": "Bassar, Kara",
+    "276020003": "Kara, Kara",
+    "276020004": "Niamtougou, Kara",
+    "276030001": "Aného, Maritime",
+    "276030002": "Lomé, Maritime",
+    "276030003": "Tsévié, Maritime",
+    "276030004": "Vogan, Maritime",
+    "276040001": "Atakpamé, Plateaux",
+    "276040002": "Badou, Plateaux",
+    "276040003": "Kpalimé, Plateaux",
+    "276040004": "Notsé, Plateaux",
+    "276050001": "Dapaong, Savanes",
+    "276050002": "Sansanné-Mango, Savanes"
+  }
+}

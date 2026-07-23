@@ -11,7 +11,12 @@ class Antrikan::Space < Marten::Model
   field :require_registered_queuer, :bool, null: false, default: false
   field :logo_file_id, :uuid, null: true, blank: true
   field :carousel_image_ids, :json, null: true, blank: true, serializable: CarouselImageIds
-  field :address, :text, null: true, blank: true
+  field :address, :string, max_size: 255, null: true, blank: true
+  # An entry id in data/countries/<ISO 3166-1 alpha-3>.json (e.g. data/countries/IDN.json).
+  field :address_city_code, :int, null: true, blank: true
+  field :address_postal_code, :string, max_size: 20, null: true, blank: true
+  field :latitude, :float, null: true, blank: true
+  field :longitude, :float, null: true, blank: true
   field :phone, :string, max_size: 20, null: true, blank: true
   field :email, :string, max_size: 255, null: true, blank: true
   field :created_at, :date_time, null: false, auto_now_add: true

@@ -22,4 +22,13 @@ abstract class BaseService(T)
     errors.add(message)
     ServiceResult(T).failure(errors)
   end
+
+  # may bundle errors from more than one failed step.
+  class TransactionError < Exception
+    getter errors : ServiceResult::ErrorType?
+
+    def initialize(@errors : ServiceResult::ErrorType?)
+      super()
+    end
+  end
 end

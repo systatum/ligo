@@ -1,0 +1,36 @@
+{
+  "name": {
+    "en-US": "Senegal"
+  },
+  "cities": {
+    "252010001": "Dakar, Dakar",
+    "252010002": "Pikine, Dakar",
+    "252020001": "Mbaké, Diourbel",
+    "252020002": "Tiébo, Diourbel",
+    "252020003": "Touba, Diourbel",
+    "252030001": "Guinguinéo, Fatick",
+    "252030002": "Pourham, Fatick",
+    "252040001": "Kaffrine, Kaffrine",
+    "252050001": "Kaolack, Kaolack",
+    "252050002": "Nioro du Rip, Kaolack",
+    "252060001": "Kolda, Kolda",
+    "252060002": "Vélingara, Kolda",
+    "252070001": "Kédougou, Kédougou",
+    "252080001": "Dara, Louga",
+    "252080002": "Louga, Louga",
+    "252080003": "Ndibène Dahra, Louga",
+    "252090001": "Matam, Matam",
+    "252100001": "Richard-Toll, Saint-Louis",
+    "252100002": "Saint-Louis, Saint-Louis",
+    "252110001": "Sédhiou, Sédhiou",
+    "252120001": "Tambacounda, Tambacounda",
+    "252130001": "Joal-Fadiout, Thiès",
+    "252130002": "Kayar, Thiès",
+    "252130003": "Mékhé, Thiès",
+    "252130004": "Nguékhokh, Thiès",
+    "252130005": "Pout, Thiès",
+    "252130006": "Thiès Nones, Thiès",
+    "252140001": "Bignona, Ziguinchor",
+    "252140002": "Ziguinchor, Ziguinchor"
+  }
+}

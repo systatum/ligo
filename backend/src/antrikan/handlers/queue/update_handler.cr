@@ -6,7 +6,7 @@ module Antrikan
     http_method_names :patch
 
     def patch : Marten::HTTP::Response
-      result = Queue::UpdaterService.new(queue, request.data).run
+      result = Queue::UpdaterService.new(queue, request.data, current_user).run
 
       if result.success?
         json QueueSerializer.serialize(result.data.not_nil!), status: 200

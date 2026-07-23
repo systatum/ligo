@@ -5,6 +5,7 @@ module Antrikan
 
     def run : ServiceResult(QueuedItem)
       return failure(schema.errors) unless schema.valid?
+      return failure(:queue, "Cannot modify items on a paid queue") unless unpaid?
       return failure(:status, "Cannot delete this item at its current state") if past_predeletable_state?
 
       begin
@@ -37,6 +38,10 @@ module Antrikan
     # current state is already past the channel's configured predeletable_state cutoff.
     private def past_predeletable_state? : Bool
       becoming_canceled? && @queued_item.status! > @queued_item.channel!.predeletable_state!
+    end
+
+    private def unpaid? : Bool
+      @queued_item.queue!.payment_status! == PaymentStatus::UNPAID.value
     end
 
     private def schema

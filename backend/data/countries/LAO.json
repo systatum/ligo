@@ -1,0 +1,19 @@
+{
+  "name": {
+    "en-US": "Laos"
+  },
+  "cities": {
+    "191010001": "Ban Houakhoua, Bokeo Province",
+    "191020001": "Muang Pakxan, Bolikhamsai Province",
+    "191030001": "Pakxé, Champasak",
+    "191040001": "Xam Nua, Houaphan",
+    "191050001": "Thakhèk, Khammouan",
+    "191060001": "Luang Prabang, Louangphabang",
+    "191070001": "Muang Xay, Oudômxai",
+    "191080001": "Savannakhét, Savannahkhét",
+    "191090001": "Vientiane, Vientiane",
+    "191100001": "Vangviang, Vientiane Province",
+    "191110001": "Muang Phônsavan, Xiangkhoang",
+    "191110002": "Phonsavan, Xiangkhoang"
+  }
+}

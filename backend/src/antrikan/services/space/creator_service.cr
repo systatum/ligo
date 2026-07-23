@@ -12,22 +12,12 @@ module Antrikan
         logo_file_id = upload_image(schema.logo)
         business_name = schema.business_name? ? schema.business_name! : schema.name!
 
-        carousel_image_ids = if schema.carousel_images?
-                               ids = [] of String
-
-                               schema.carousel_images!.each do |entry|
-                                 item = entry.as(SpaceSchema::CarouselImagePayload)
-
-                                 if item.keep_id
-                                   return failure(:carousel_images, "cannot keep an existing image when creating a new space")
-                                 end
-
-                                 raw_payload = FilePayload.from_json({base64_bytes: item.base64_bytes, mimetype: item.mimetype}.to_json)
-                                 ids << upload_image(raw_payload).not_nil!.to_s
-                               end
-
-                               ids
-                             end
+        carousel_image_ids = nil
+        if schema.carousel_images?
+          result = CarouselImagesResolverService.new(schema.carousel_images!).run
+          return failure(result.errors) unless result.success?
+          carousel_image_ids = result.data
+        end
 
         data = schema.validated_data
         data.delete("logo")
@@ -52,7 +42,7 @@ module Antrikan
     end
 
     private def schema
-      @schema ||= SpaceSchema.new(JsonArrayFieldNormalizer.normalize(@data, "carousel_images"))
+      @schema ||= SpaceSchema.new(JsonArrayMapper.map(@data, "carousel_images"))
     end
   end
 end

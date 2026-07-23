@@ -1,0 +1,24 @@
+{
+  "name": {
+    "en-US": "Armenia"
+  },
+  "cities": {
+    "108010001": "Ashtarak, Aragatsotn Province",
+    "108020001": "Ararat, Ararat Province",
+    "108020002": "Artashat, Ararat Province",
+    "108020003": "Masis, Ararat Province",
+    "108030001": "Armavir, Armavir Province",
+    "108030002": "Ejmiatsin, Armavir Province",
+    "108040001": "Gavarr, Gegharkunik Province",
+    "108040002": "Sevan, Gegharkunik Province",
+    "108050001": "Abovyan, Kotayk Province",
+    "108050002": "Hrazdan, Kotayk Province",
+    "108060001": "Spitak, Lori Province",
+    "108060002": "Vanadzor, Lori Province",
+    "108070001": "Gyumri, Shirak Province",
+    "108080001": "Goris, Syunik Province",
+    "108080002": "Hats’avan, Syunik Province",
+    "108080003": "Kapan, Syunik Province",
+    "108090001": "Yerevan, Yerevan"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": {
+    "en-US": "Namibia"
+  },
+  "cities": {
+    "219010001": "Swakopmund, Erongo",
+    "219010002": "Walvis Bay, Erongo",
+    "219020001": "Rehoboth, Hardap",
+    "219030001": "Keetmanshoop, Karas",
+    "219030002": "Lüderitz, Karas",
+    "219040001": "Rundu, Kavango East",
+    "219050001": "Windhoek, Khomas",
+    "219060001": "Gobabis, Omaheke",
+    "219070001": "Oshakati, Oshana",
+    "219080001": "Grootfontein, Otjozondjupa",
+    "219080002": "Okahandja, Otjozondjupa",
+    "219080003": "Otjiwarongo, Otjozondjupa",
+    "219090001": "Katima Mulilo, Zambezi"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": {
+    "en-US": "Sierra Leone"
+  },
+  "cities": {
+    "255010001": "Kenema, Eastern Province",
+    "255010002": "Koidu, Eastern Province",
+    "255010003": "Segbwema, Eastern Province",
+    "255020001": "Kabala, Northern Province",
+    "255020002": "Lunsar, Northern Province",
+    "255020003": "Makeni, Northern Province",
+    "255020004": "Port Loko, Northern Province",
+    "255030001": "Bo, Southern Province",
+    "255040001": "Freetown, Western Area",
+    "255040002": "Waterloo, Western Area"
+  }
+}

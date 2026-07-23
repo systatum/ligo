@@ -1,0 +1,42 @@
+{
+  "name": {
+    "en-US": "Austria"
+  },
+  "cities": {
+    "110010001": "Klagenfurt am Wörthersee, Carinthia",
+    "110010002": "Spittal an der Drau, Carinthia",
+    "110010003": "Villach, Carinthia",
+    "110010004": "Wolfsberg, Carinthia",
+    "110020001": "Amstetten, Lower Austria",
+    "110020002": "Baden, Lower Austria",
+    "110020003": "Klosterneuburg, Lower Austria",
+    "110020004": "Krems an der Donau, Lower Austria",
+    "110020005": "Mödling, Lower Austria",
+    "110020006": "Sankt Pölten, Lower Austria",
+    "110020007": "Schwechat, Lower Austria",
+    "110020008": "Ternitz, Lower Austria",
+    "110020009": "Traiskirchen, Lower Austria",
+    "110020010": "Weinzierl bei Krems, Lower Austria",
+    "110020011": "Wiener Neustadt, Lower Austria",
+    "110030001": "Ansfelden, Salzburg",
+    "110030002": "Hallein, Salzburg",
+    "110030003": "Saalfelden am Steinernen Meer, Salzburg",
+    "110030004": "Salzburg, Salzburg",
+    "110040001": "Graz, Styria",
+    "110040002": "Kapfenberg, Styria",
+    "110040003": "Leoben, Styria",
+    "110050001": "Innsbruck, Tyrol",
+    "110050002": "Kufstein, Tyrol",
+    "110060001": "Braunau am Inn, Upper Austria",
+    "110060002": "Leonding, Upper Austria",
+    "110060003": "Linz, Upper Austria",
+    "110060004": "Steyr, Upper Austria",
+    "110060005": "Traun, Upper Austria",
+    "110060006": "Wels, Upper Austria",
+    "110070001": "Vienna, Vienna",
+    "110080001": "Bregenz, Vorarlberg",
+    "110080002": "Dornbirn, Vorarlberg",
+    "110080003": "Feldkirch, Vorarlberg",
+    "110080004": "Lustenau, Vorarlberg"
+  }
+}

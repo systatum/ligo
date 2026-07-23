@@ -104,6 +104,37 @@ describe Antrikan::ItemCreateHandler do
 
       response.content.should eq Antrikan::ItemSerializer.serialize(item)
     end
+
+    it "uploads and persists carousel images in submitted order" do
+      user = create_user
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:channel:item:create", channel_hashed_id: channel.hashed_id),
+        data: {
+          name:            "Gallery Item",
+          carousel_images: [
+            {base64_bytes: Base64.encode(PNG_1X1), mimetype: "image/png"},
+            {base64_bytes: Base64.encode(PNG_1X1), mimetype: "image/png"},
+          ],
+        }.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 201
+
+      item = Antrikan::Item.last!
+      item.carousel_image_ids!.ids.size.should eq 2
+
+      body = JSON.parse(response.content)
+      images = body["carousel_images"].as_a
+      images.size.should eq 2
+      images[0]["url"].as_s.should_not be_empty
+      images[0]["id"].as_s.should eq item.carousel_image_ids!.ids[0]
+      images[1]["id"].as_s.should eq item.carousel_image_ids!.ids[1]
+    end
   end
 
   context "when name is missing" do
@@ -130,6 +161,37 @@ describe Antrikan::ItemCreateHandler do
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:channel:item:create", channel_hashed_id: channel.hashed_id),
         data: {name: "8AM", unit_currency: "GBP"}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+    end
+
+    it "returns 422 when a carousel_images keep_id is given (nothing to keep on create)" do
+      user = create_user
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:channel:item:create", channel_hashed_id: channel.hashed_id),
+        data: {name: "8AM", carousel_images: [{keep_id: "some-uuid"}]}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+    end
+
+    it "returns 422 when more than 6 carousel images are submitted" do
+      user = create_user
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
+      images = (1..7).map { {base64_bytes: Base64.encode(PNG_1X1), mimetype: "image/png"} }
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:channel:item:create", channel_hashed_id: channel.hashed_id),
+        data: {name: "8AM", carousel_images: images}.to_json,
         headers: {authorization: "Bearer #{user.jwt_token}"},
         content_type: "application/json"
       )

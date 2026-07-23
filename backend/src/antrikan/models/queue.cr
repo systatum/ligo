@@ -10,7 +10,10 @@ module Antrikan
     field :slug, :string, max_size: 8, null: false, index: true, unique: true
     field :note, :string, max_size: 255, null: true, blank: true
     field :payment_status, :int, default: PaymentStatus::UNPAID.value
-    field :total_price, :big_int, default: 0 # always updated when an item is added or subtracted
+    # Exact BigFloat decimal string - always updated when an item is added or
+    # subtracted. Not :big_int - discounts can produce fractional amounts,
+    # and rounding here would misbill the customer.
+    field :total_price, :string, max_size: 255, null: false, default: "0.0"
     field :fully_paid_at, :date_time, null: true, blank: true
     field :updated_at, :date_time, null: false, auto_now: true
 
@@ -40,7 +43,7 @@ module Antrikan
       # get fresh queryset from db, always
       items = Antrikan::QueuedItem.filter(queue_id: id!).to_a
 
-      self.total_price = items.sum(0) { |item| item.unit_price! * item.quantity! }
+      self.total_price = items.sum(BigFloat.new(0)) { |item| item.discounted_line_total }.to_s
       previous_status = status
 
       if items.size > 0

@@ -1,0 +1,16 @@
+{
+  "name": {
+    "en-US": "Slovenia"
+  },
+  "cities": {
+    "258010001": "Celje, Celje",
+    "258020001": "Koper, Koper-Capodistria",
+    "258030001": "Kranj, Kranj",
+    "258040001": "Ljubljana, Ljubljana",
+    "258050001": "Maribor, Maribor",
+    "258060001": "Novo Mesto, Novo Mesto",
+    "258070001": "Ptuj, Ptuj",
+    "258080001": "Trbovlje, Trbovlje",
+    "258090001": "Velenje, Velenje"
+  }
+}

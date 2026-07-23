@@ -1,0 +1,28 @@
+{
+  "name": {
+    "en-US": "Taiwan"
+  },
+  "cities": {
+    "272010001": "Jincheng, Fukien",
+    "272020001": "Kaohsiung, Kaohsiung",
+    "272030001": "Banqiao, Taipei",
+    "272030002": "Taipei, Taipei",
+    "272040001": "Daxi, Taiwan",
+    "272040002": "Douliu, Taiwan",
+    "272040003": "Hengchun, Taiwan",
+    "272040004": "Hsinchu, Taiwan",
+    "272040005": "Hualien City, Taiwan",
+    "272040006": "Keelung, Taiwan",
+    "272040007": "Lugu, Taiwan",
+    "272040008": "Magong, Taiwan",
+    "272040009": "Nantou, Taiwan",
+    "272040010": "Puli, Taiwan",
+    "272040011": "Taichung, Taiwan",
+    "272040012": "Tainan, Taiwan",
+    "272040013": "Taitung City, Taiwan",
+    "272040014": "Taoyuan City, Taiwan",
+    "272040015": "Yilan, Taiwan",
+    "272040016": "Yujing, Taiwan",
+    "272040017": "Zhongxing New Village, Taiwan"
+  }
+}

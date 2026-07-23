@@ -220,6 +220,80 @@ describe Antrikan::ItemUpdateHandler do
       item.main_image_file_id.should be_nil
     end
 
+    it "reorders carousel images using keep_id only, without re-uploading" do
+      user = create_user
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
+      item = create_item(channel: channel)
+      first = create_uploaded_file_metadata
+      second = create_uploaded_file_metadata
+      item.carousel_image_ids = Antrikan::CarouselImageIds.new(ids: [first.id.to_s, second.id.to_s])
+      item.save!
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:item:update", slug: item.slug!),
+        data: {
+          carousel_images: [{keep_id: second.id.to_s}, {keep_id: first.id.to_s}],
+        }.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 200
+
+      item.reload
+      item.carousel_image_ids!.ids.should eq [second.id.to_s, first.id.to_s]
+    end
+
+    it "mixes a kept carousel image with a freshly uploaded one" do
+      user = create_user
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
+      item = create_item(channel: channel)
+      existing = create_uploaded_file_metadata
+      item.carousel_image_ids = Antrikan::CarouselImageIds.new(ids: [existing.id.to_s])
+      item.save!
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:item:update", slug: item.slug!),
+        data: {
+          carousel_images: [
+            {keep_id: existing.id.to_s},
+            {base64_bytes: Base64.encode(PNG_1X1), mimetype: "image/png"},
+          ],
+        }.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 200
+
+      item.reload
+      item.carousel_image_ids!.ids.size.should eq 2
+      item.carousel_image_ids!.ids[0].should eq existing.id.to_s
+      item.carousel_image_ids!.ids[1].should_not eq existing.id.to_s
+    end
+
+    it "returns 422 when a carousel keep_id does not reference an existing image on this item" do
+      user = create_user
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
+      item = create_item(channel: channel)
+      unrelated = create_uploaded_file_metadata
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:item:update", slug: item.slug!),
+        data: {carousel_images: [{keep_id: unrelated.id.to_s}]}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+
+      item.reload
+      item.carousel_image_ids.should be_nil
+    end
+
     it "does not change fields that are not in the request body" do
       user = create_user
       space = create_space(manager: user)

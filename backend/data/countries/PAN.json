@@ -1,0 +1,31 @@
+{
+  "name": {
+    "en-US": "Panama"
+  },
+  "cities": {
+    "233010001": "Changuinola, Bocas del Toro",
+    "233020001": "David, Chiriquí",
+    "233020002": "La Concepción, Chiriquí",
+    "233020003": "Pedregal, Chiriquí",
+    "233020004": "Puerto Armuelles, Chiriquí",
+    "233030001": "Aguadulce, Coclé",
+    "233040001": "Cativá, Colón",
+    "233040002": "Colón, Colón",
+    "233050001": "Chitré, Herrera",
+    "233060001": "Alcalde Díaz, Panamá",
+    "233060002": "Arraiján, Panamá",
+    "233060003": "Chepo, Panamá",
+    "233060004": "Chilibre, Panamá",
+    "233060005": "La Cabima, Panamá",
+    "233060006": "La Chorrera, Panamá",
+    "233060007": "Las Cumbres, Panamá",
+    "233060008": "Nuevo Arraiján, Panamá",
+    "233060009": "Pacora, Panamá",
+    "233060010": "Panamá, Panamá",
+    "233060011": "San Miguelito, Panamá",
+    "233060012": "Tocumen, Panamá",
+    "233060013": "Veracruz, Panamá",
+    "233060014": "Vista Alegre, Panamá",
+    "233070001": "Santiago de Veraguas, Veraguas"
+  }
+}

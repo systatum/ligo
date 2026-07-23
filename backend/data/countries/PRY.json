@@ -1,0 +1,32 @@
+{
+  "name": {
+    "en-US": "Paraguay"
+  },
+  "cities": {
+    "235010001": "Ciudad del Este, Alto Paraná",
+    "235010002": "Presidente Franco, Alto Paraná",
+    "235020001": "Pedro Juan Caballero, Amambay",
+    "235030001": "Asunción, Asunción",
+    "235040001": "Caaguazú, Caaguazú",
+    "235040002": "Coronel Oviedo, Caaguazú",
+    "235050001": "Caazapá, Caazapá",
+    "235060001": "Capiatá, Central",
+    "235060002": "Colonia Mariano Roque Alonso, Central",
+    "235060003": "Fernando de la Mora, Central",
+    "235060004": "Itauguá, Central",
+    "235060005": "Itá, Central",
+    "235060006": "Lambaré, Central",
+    "235060007": "Limpio, Central",
+    "235060008": "Nemby, Central",
+    "235060009": "San Antonio, Central",
+    "235060010": "San Lorenzo, Central",
+    "235060011": "Villa Elisa, Central",
+    "235070001": "Concepción, Concepción",
+    "235080001": "Caacupé, Cordillera",
+    "235090001": "Villarrica, Guairá",
+    "235100001": "Encarnación, Itapúa",
+    "235110001": "San Juan Bautista, Misiones",
+    "235120001": "Villa Hayes, Presidente Hayes",
+    "235130001": "Pilar, Ñeembucú"
+  }
+}

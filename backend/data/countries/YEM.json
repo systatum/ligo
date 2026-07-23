@@ -1,0 +1,30 @@
+{
+  "name": {
+    "en-US": "Yemen"
+  },
+  "cities": {
+    "294010001": "Zinjibār, Abyan",
+    "294020001": "Aden, Aden",
+    "294030001": "Al Bayḑā’, Al Bayḑāʼ",
+    "294040001": "Al Ḩazm, Al Jawf",
+    "294050001": "Dhamār, Dhamār",
+    "294060001": "Dhī as Sufāl, Ibb",
+    "294060002": "Ibb, Ibb",
+    "294060003": "Yarīm, Ibb",
+    "294070001": "Laḩij, Laḩij",
+    "294080001": "Ma'rib, Ma’rib",
+    "294090001": "Al Ḩudaydah, Muḩāfaz̧at al Ḩudaydah",
+    "294090002": "Bayt al Faqīh, Muḩāfaz̧at al Ḩudaydah",
+    "294090003": "Bājil, Muḩāfaz̧at al Ḩudaydah",
+    "294090004": "Zabīd, Muḩāfaz̧at al Ḩudaydah",
+    "294100001": "Al Mukallā, Muḩāfaz̧at Ḩaḑramawt",
+    "294110001": "‘Amrān, Omran",
+    "294120001": "Sanaa, Sanaa",
+    "294120002": "Sayyān, Sanaa",
+    "294120003": "Saḩar, Sanaa",
+    "294130001": "Ataq, Shabwah",
+    "294140001": "Ta‘izz, Ta‘izz",
+    "294150001": "Sa'dah, Şa‘dah",
+    "294160001": "Ḩajjah, Ḩajjah"
+  }
+}

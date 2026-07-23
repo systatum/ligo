@@ -1,0 +1,13 @@
+{
+  "name": {
+    "en-US": "Gambia"
+  },
+  "cities": {
+    "161010001": "Bakau, Banjul",
+    "161010002": "Banjul, Banjul",
+    "161020001": "Farafenni, North Bank",
+    "161020002": "Lamin, North Bank",
+    "161030001": "Brikama, Western",
+    "161030002": "Sukuta, Western"
+  }
+}

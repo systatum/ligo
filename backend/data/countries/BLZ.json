@@ -1,0 +1,11 @@
+{
+  "name": {
+    "en-US": "Belize"
+  },
+  "cities": {
+    "118010001": "Belize City, Belize",
+    "118020001": "Belmopan, Cayo",
+    "118020002": "San Ignacio, Cayo",
+    "118030001": "Orange Walk, Orange Walk"
+  }
+}

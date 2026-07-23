@@ -1,0 +1,28 @@
+{
+  "name": {
+    "en-US": "Bosnia and Herzegovina"
+  },
+  "cities": {
+    "122010001": "Brčko, Brčko",
+    "122020001": "Bihać, Federation of Bosnia and Herzegovina",
+    "122020002": "Bosanska Krupa, Federation of Bosnia and Herzegovina",
+    "122020003": "Bugojno, Federation of Bosnia and Herzegovina",
+    "122020004": "Cazin, Federation of Bosnia and Herzegovina",
+    "122020005": "Goražde, Federation of Bosnia and Herzegovina",
+    "122020006": "Gradačac, Federation of Bosnia and Herzegovina",
+    "122020007": "Gračanica, Federation of Bosnia and Herzegovina",
+    "122020008": "Konjic, Federation of Bosnia and Herzegovina",
+    "122020009": "Mostar, Federation of Bosnia and Herzegovina",
+    "122020010": "Sarajevo, Federation of Bosnia and Herzegovina",
+    "122020011": "Travnik, Federation of Bosnia and Herzegovina",
+    "122020012": "Tuzla, Federation of Bosnia and Herzegovina",
+    "122020013": "Velika Kladuša, Federation of Bosnia and Herzegovina",
+    "122020014": "Visoko, Federation of Bosnia and Herzegovina",
+    "122020015": "Zenica, Federation of Bosnia and Herzegovina",
+    "122030001": "Banja Luka, Republika Srpska",
+    "122030002": "Bijeljina, Republika Srpska",
+    "122030003": "Doboj, Republika Srpska",
+    "122030004": "Prijedor, Republika Srpska",
+    "122030005": "Trebinje, Republika Srpska"
+  }
+}

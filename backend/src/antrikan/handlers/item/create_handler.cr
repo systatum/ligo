@@ -27,6 +27,12 @@ module Antrikan
 
         it.main_image_file_id = upload_image(schema.main_image)
 
+        if schema.carousel_images?
+          result = CarouselImagesResolverService.new(schema.carousel_images!).run
+          return render_invalid_payload(result.errors) unless result.success?
+          it.carousel_image_ids = CarouselImageIds.new(ids: result.data.not_nil!)
+        end
+
         it.save!
         json ItemSerializer.serialize(it), status: 201
       else

@@ -8,5 +8,16 @@ module Antrikan
     field :is_monitored, :bool, required: false
     field :description, :string, required: false
     field :main_image, :json, required: false, serializable: FilePayload
+    field :carousel_images, :array, required: false, of: :json, serializable: CarouselImagePayload
+
+    validate :validate_carousel_images_size
+
+    private def validate_carousel_images_size
+      return unless carousel_images?
+
+      if carousel_images!.size > 6
+        errors.add(:carousel_images, "cannot have more than 6 images")
+      end
+    end
   end
 end

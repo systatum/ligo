@@ -1,0 +1,15 @@
+{
+  "name": {
+    "en-US": "Montenegro"
+  },
+  "cities": {
+    "215010001": "Bar, Bar",
+    "215020001": "Bijelo Polje, Bijelo Polje",
+    "215030001": "Budva, Budva",
+    "215040001": "Cetinje, Cetinje",
+    "215050001": "Herceg-Novi, Herceg Novi",
+    "215060001": "Nikšić, Opština Nikšić",
+    "215070001": "Pljevlja, Pljevlja",
+    "215080001": "Podgorica, Podgorica"
+  }
+}

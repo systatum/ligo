@@ -1,4 +1,5 @@
 require "./enums/**"
+require "./error_code.cr"
 require "./errors.cr"
 require "./handlers/concerns/**"
 require "./handlers/**"

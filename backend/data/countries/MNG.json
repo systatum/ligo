@@ -1,0 +1,28 @@
+{
+  "name": {
+    "en-US": "Mongolia"
+  },
+  "cities": {
+    "214010001": "Ölgiy, Bayan-Ölgiy",
+    "214020001": "Bayanhongor, Bayanhongor",
+    "214020002": "Bayanhongor, Bayanhongor",
+    "214030001": "Bulgan, Bulgan",
+    "214040001": "Зуунмод, Central Aimak",
+    "214050001": "Darhan, Darhan Uul",
+    "214060001": "Uliastay, Dzabkhan",
+    "214070001": "Saynshand, East Gobi Aymag",
+    "214080001": "Altai, Govĭ-Altay",
+    "214090001": "Khovd, Hovd",
+    "214100001": "Murun-kuren, Hövsgöl",
+    "214110001": "Mandalgovi, Middle Govĭ",
+    "214120001": "Erdenet, Orhon",
+    "214130001": "Dzüünharaa, Selenge",
+    "214130002": "Sühbaatar, Selenge",
+    "214140001": "Baruun-Urt, Sühbaatar",
+    "214150001": "Ulan Bator, Ulaanbaatar",
+    "214160001": "Ulaangom, Uvs",
+    "214170001": "Dalandzadgad, Ömnögovĭ",
+    "214180001": "Arvayheer, Övörhangay",
+    "214180002": "Hovd, Övörhangay"
+  }
+}

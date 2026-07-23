@@ -187,5 +187,20 @@ describe Antrikan::QueuedItemCreateHandler do
 
       response.status.should eq 422
     end
+
+    it "returns 422 when the queue is already paid" do
+      queue = create_queue(payment_status: Antrikan::PaymentStatus::PARTIAL)
+      item = create_item(channel: queue.channel!)
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:queue:item:create", queue_slug: queue.slug!),
+        data: {
+          item_slug: item.slug,
+        }.to_json,
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+    end
   end
 end

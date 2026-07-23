@@ -1,0 +1,18 @@
+{
+  "name": {
+    "en-US": "Mauritania"
+  },
+  "cities": {
+    "208010001": "Atar, Adrar",
+    "208020001": "Kiffa, Assaba",
+    "208030001": "Aleg, Brakna",
+    "208040001": "Nouâdhibou, Dakhlet Nouadhibou",
+    "208050001": "Kaédi, Gorgol",
+    "208060001": "Sélibaby, Guidimaka",
+    "208070001": "Néma, Hodh ech Chargui",
+    "208080001": "Nouakchott, Nouakchott",
+    "208090001": "Zouerate, Tiris Zemmour",
+    "208100001": "Rosso, Trarza",
+    "208100002": "Tékane, Trarza"
+  }
+}
