@@ -32,4 +32,13 @@ class BaseSchema < Marten::Schema
   private def current_organization!
     current_user.organization
   end
+
+  # Shared cap check for any `:array` schema field holding upload/keep-id
+  # entries (e.g. carousel_images, refund evidence images).
+  private def validate_max_images(field_name : Symbol, images, max : Int32)
+    return unless images
+    return if images.size <= max
+
+    errors.add(field_name, "cannot have more than #{max} images")
+  end
 end

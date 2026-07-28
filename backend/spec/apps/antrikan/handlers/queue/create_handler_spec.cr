@@ -3,11 +3,11 @@ require "./spec_helper"
 describe Antrikan::QueueCreateHandler do
   context "when the request payload is valid" do
     it "creates a queue with required fields only" do
-      channel = create_channel
-      queuer = create_queuer(space: channel.space.not_nil!)
+      space = create_space
+      queuer = create_queuer(space: space)
 
       response = Marten::Spec.client.post(
-        Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id),
+        Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id),
         data: {
           queuer_id: queuer.hashed_id,
         }.to_json,
@@ -18,7 +18,7 @@ describe Antrikan::QueueCreateHandler do
 
       queue = Antrikan::Queue.last!
       queue.id.should_not be_nil
-      queue.channel_id.should eq channel.id
+      queue.space_id.should eq space.id
       queue.queuer_id.should eq queuer.id
       queue.status.should eq Antrikan::QueueStatus::QUEUED.value
       queue.payment_status.should eq Antrikan::PaymentStatus::UNPAID.value
@@ -28,12 +28,12 @@ describe Antrikan::QueueCreateHandler do
     end
 
     it "accepts optional fields" do
-      channel = create_channel
-      queuer = create_queuer(space: channel.space.not_nil!)
-      user = create_user(organization: channel.space.not_nil!.manager.not_nil!.organization.not_nil!)
+      space = create_space
+      queuer = create_queuer(space: space)
+      user = create_user(organization: space.manager.not_nil!.organization.not_nil!)
 
       response = Marten::Spec.client.post(
-        Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id),
+        Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id),
         data: {
           queuer_id:      queuer.hashed_id,
           handler_id:     user.hashed_id,
@@ -47,7 +47,7 @@ describe Antrikan::QueueCreateHandler do
       response.status.should eq 201
 
       queue = Antrikan::Queue.last!
-      queue.channel_id.should eq channel.id
+      queue.space_id.should eq space.id
       queue.handler_id.should eq user.id
       queue.note.should eq "we accept optional fields"
       queue.status.should eq Antrikan::QueueStatus::QUEUED.value
@@ -58,11 +58,11 @@ describe Antrikan::QueueCreateHandler do
     end
 
     it "allows creating with non-queued status (state jump)" do
-      channel = create_channel
-      queuer = create_queuer(space: channel.space.not_nil!)
+      space = create_space
+      queuer = create_queuer(space: space)
 
       response = Marten::Spec.client.post(
-        Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id),
+        Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id),
         data: {
           queuer_id: queuer.hashed_id,
           status:    Antrikan::QueueStatus::DONE,
@@ -73,7 +73,7 @@ describe Antrikan::QueueCreateHandler do
       response.status.should eq 201
 
       queue = Antrikan::Queue.last!
-      queue.channel_id.should eq channel.id
+      queue.space_id.should eq space.id
       queue.queuer_id.should eq queuer.id
       queue.status.should eq Antrikan::QueueStatus::DONE.value
 
@@ -81,11 +81,11 @@ describe Antrikan::QueueCreateHandler do
     end
 
     it "soft-deletes queue when creating with CANCELED status" do
-      channel = create_channel
-      queuer = create_queuer(space: channel.space.not_nil!)
+      space = create_space
+      queuer = create_queuer(space: space)
 
       response = Marten::Spec.client.post(
-        Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id),
+        Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id),
         data: {
           queuer_id: queuer.hashed_id,
           status:    Antrikan::QueueStatus::CANCELED,
@@ -96,7 +96,7 @@ describe Antrikan::QueueCreateHandler do
       response.status.should eq 201
 
       queue = Antrikan::Queue.unscoped.last!
-      queue.channel_id.should eq channel.id
+      queue.space_id.should eq space.id
       queue.queuer_id.should eq queuer.id
       queue.status.should eq Antrikan::QueueStatus::CANCELED.value
       queue.deleted_at.should_not be_nil
@@ -105,13 +105,14 @@ describe Antrikan::QueueCreateHandler do
     end
 
     it "creates queued items from a bulk items array" do
-      channel = create_channel
-      queuer = create_queuer(space: channel.space.not_nil!)
+      space = create_space
+      channel = create_channel(space: space)
+      queuer = create_queuer(space: space)
       item_a = create_item(channel: channel)
       item_b = create_item(channel: channel)
 
       response = Marten::Spec.client.post(
-        Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id),
+        Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id),
         data: {
           queuer_id: queuer.hashed_id,
           items:     [
@@ -130,13 +131,40 @@ describe Antrikan::QueueCreateHandler do
       queued_items.map(&.item_id).to_set.should eq Set{item_a.id!, item_b.id!}
     end
 
-    it "attaches a voucher via voucher_code" do
-      channel = create_channel
-      queuer = create_queuer(space: channel.space.not_nil!)
-      voucher = create_voucher(space: channel.space.not_nil!, code: "SAVE10", space_percentage_discount: 10.0)
+    it "creates queued items from a bulk items array spanning multiple channels" do
+      space = create_space
+      channel_a = create_channel(space: space)
+      channel_b = create_channel(space: space)
+      queuer = create_queuer(space: space)
+      item_a = create_item(channel: channel_a)
+      item_b = create_item(channel: channel_b)
 
       response = Marten::Spec.client.post(
-        Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id),
+        Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id),
+        data: {
+          queuer_id: queuer.hashed_id,
+          items:     [
+            {item_slug: item_a.slug},
+            {item_slug: item_b.slug},
+          ],
+        }.to_json,
+        content_type: "application/json"
+      )
+
+      response.status.should eq 201
+
+      queue = Antrikan::Queue.last!
+      queued_items = Antrikan::QueuedItem.filter(queue_id: queue.id!).to_a
+      queued_items.map(&.channel_id).to_set.should eq Set{channel_a.id!, channel_b.id!}
+    end
+
+    it "attaches a voucher via voucher_code" do
+      space = create_space
+      queuer = create_queuer(space: space)
+      voucher = create_voucher(space: space, code: "SAVE10", space_percentage_discount: 10.0)
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id),
         data: {
           queuer_id:    queuer.hashed_id,
           voucher_code: voucher.code,
@@ -153,18 +181,18 @@ describe Antrikan::QueueCreateHandler do
     end
 
     it "attaches a non-anonymously-redeemable voucher when the queuer is a registered user" do
-      channel = create_channel
-      user = create_user(organization: channel.space.not_nil!.manager.not_nil!.organization.not_nil!)
-      queuer = create_queuer(space: channel.space.not_nil!, user: user)
+      space = create_space
+      user = create_user(organization: space.manager.not_nil!.organization.not_nil!)
+      queuer = create_queuer(space: space, user: user)
       voucher = create_voucher(
-        space: channel.space.not_nil!,
+        space: space,
         code: "MEMBERS10",
         space_percentage_discount: 10.0,
         anon_redeemable: false
       )
 
       response = Marten::Spec.client.post(
-        Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id),
+        Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id),
         data: {
           queuer_id:    queuer.hashed_id,
           voucher_code: voucher.code,
@@ -180,12 +208,12 @@ describe Antrikan::QueueCreateHandler do
     end
 
     it "does not record a redeemer for an anonymously-redeemable voucher" do
-      channel = create_channel
-      queuer = create_queuer(space: channel.space.not_nil!)
-      voucher = create_voucher(space: channel.space.not_nil!, code: "SAVE10", space_percentage_discount: 10.0)
+      space = create_space
+      queuer = create_queuer(space: space)
+      voucher = create_voucher(space: space, code: "SAVE10", space_percentage_discount: 10.0)
 
       response = Marten::Spec.client.post(
-        Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id),
+        Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id),
         data: {
           queuer_id:    queuer.hashed_id,
           voucher_code: voucher.code,
@@ -201,10 +229,10 @@ describe Antrikan::QueueCreateHandler do
     end
 
     it "allows a second redemption by the same user when under max_redeem_per_user" do
-      channel = create_channel
-      user = create_user(organization: channel.space.not_nil!.manager.not_nil!.organization.not_nil!)
+      space = create_space
+      user = create_user(organization: space.manager.not_nil!.organization.not_nil!)
       voucher = create_voucher(
-        space: channel.space.not_nil!,
+        space: space,
         code: "LIMIT2",
         space_percentage_discount: 10.0,
         anon_redeemable: false,
@@ -212,10 +240,10 @@ describe Antrikan::QueueCreateHandler do
       )
 
       2.times do
-        queuer = create_queuer(space: channel.space.not_nil!, user: user)
+        queuer = create_queuer(space: space, user: user)
 
         response = Marten::Spec.client.post(
-          Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id),
+          Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id),
           data: {
             queuer_id:    queuer.hashed_id,
             voucher_code: voucher.code,
@@ -232,18 +260,19 @@ describe Antrikan::QueueCreateHandler do
 
   context "when the request payload is invalid" do
     it "does not create anything when one bulk item entry is invalid" do
-      channel = create_channel
-      queuer = create_queuer(space: channel.space.not_nil!)
+      space = create_space
+      channel = create_channel(space: space)
+      queuer = create_queuer(space: space)
       valid_item = create_item(channel: channel)
-      other_channel_item = create_item(channel: create_channel)
+      other_space_item = create_item(channel: create_channel)
 
       response = Marten::Spec.client.post(
-        Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id),
+        Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id),
         data: {
           queuer_id: queuer.hashed_id,
           items:     [
             {item_slug: valid_item.slug},
-            {item_slug: other_channel_item.slug},
+            {item_slug: other_space_item.slug},
           ],
         }.to_json,
         content_type: "application/json"
@@ -255,11 +284,11 @@ describe Antrikan::QueueCreateHandler do
     end
 
     it "returns 422 for an invalid voucher_code" do
-      channel = create_channel
-      queuer = create_queuer(space: channel.space.not_nil!)
+      space = create_space
+      queuer = create_queuer(space: space)
 
       response = Marten::Spec.client.post(
-        Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id),
+        Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id),
         data: {
           queuer_id:    queuer.hashed_id,
           voucher_code: "NOT-A-CODE",
@@ -273,17 +302,17 @@ describe Antrikan::QueueCreateHandler do
     end
 
     it "returns 422 for a non-anonymously-redeemable voucher when the queuer has no registered user" do
-      channel = create_channel
-      queuer = create_queuer(space: channel.space.not_nil!)
+      space = create_space
+      queuer = create_queuer(space: space)
       voucher = create_voucher(
-        space: channel.space.not_nil!,
+        space: space,
         code: "MEMBERS10",
         space_percentage_discount: 10.0,
         anon_redeemable: false
       )
 
       response = Marten::Spec.client.post(
-        Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id),
+        Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id),
         data: {
           queuer_id:    queuer.hashed_id,
           voucher_code: voucher.code,
@@ -297,19 +326,19 @@ describe Antrikan::QueueCreateHandler do
     end
 
     it "returns 422 once the same user reaches max_redeem_per_user" do
-      channel = create_channel
-      user = create_user(organization: channel.space.not_nil!.manager.not_nil!.organization.not_nil!)
+      space = create_space
+      user = create_user(organization: space.manager.not_nil!.organization.not_nil!)
       voucher = create_voucher(
-        space: channel.space.not_nil!,
+        space: space,
         code: "LIMIT1",
         space_percentage_discount: 10.0,
         anon_redeemable: false,
         max_redeem_per_user: 1
       )
 
-      first_queuer = create_queuer(space: channel.space.not_nil!, user: user)
+      first_queuer = create_queuer(space: space, user: user)
       first = Marten::Spec.client.post(
-        Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id),
+        Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id),
         data: {
           queuer_id:    first_queuer.hashed_id,
           voucher_code: voucher.code,
@@ -318,9 +347,9 @@ describe Antrikan::QueueCreateHandler do
       )
       first.status.should eq 201
 
-      second_queuer = create_queuer(space: channel.space.not_nil!, user: user)
+      second_queuer = create_queuer(space: space, user: user)
       second = Marten::Spec.client.post(
-        Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id),
+        Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id),
         data: {
           queuer_id:    second_queuer.hashed_id,
           voucher_code: voucher.code,
@@ -334,10 +363,10 @@ describe Antrikan::QueueCreateHandler do
     end
 
     it "returns 422 for a voucher outside its active window" do
-      channel = create_channel
-      queuer = create_queuer(space: channel.space.not_nil!)
+      space = create_space
+      queuer = create_queuer(space: space)
       voucher = create_voucher(
-        space: channel.space.not_nil!,
+        space: space,
         code: "EXPIRED",
         space_percentage_discount: 10.0,
         indeterminate: false,
@@ -346,7 +375,7 @@ describe Antrikan::QueueCreateHandler do
       )
 
       response = Marten::Spec.client.post(
-        Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id),
+        Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id),
         data: {
           queuer_id:    queuer.hashed_id,
           voucher_code: voucher.code,
@@ -360,10 +389,10 @@ describe Antrikan::QueueCreateHandler do
     end
 
     it "returns 422 when queuer_id is missing" do
-      channel = create_channel
+      space = create_space
 
       response = Marten::Spec.client.post(
-        Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id),
+        Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id),
         data: {
           note: "no queuer",
         }.to_json,
@@ -373,9 +402,9 @@ describe Antrikan::QueueCreateHandler do
       response.status.should eq 422
     end
 
-    it "returns 404 when channel does not exist" do
+    it "returns 404 when space does not exist" do
       response = Marten::Spec.client.post(
-        Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: IdConcealer.encode(9_999_999)),
+        Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: IdConcealer.encode(9_999_999)),
         data: {
           queuer_id: IdConcealer.encode(1),
         }.to_json,
@@ -386,14 +415,14 @@ describe Antrikan::QueueCreateHandler do
     end
 
     it "returns 422 when handler's organization does not match space owner's" do
-      channel = create_channel
-      queuer = create_queuer(space: channel.space.not_nil!)
+      space = create_space
+      queuer = create_queuer(space: space)
 
       other_org = create_organization
       other_user = create_user(organization: other_org)
 
       response = Marten::Spec.client.post(
-        Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id),
+        Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id),
         data: {
           queuer_id:  queuer.hashed_id,
           handler_id: other_user.hashed_id,
@@ -405,9 +434,9 @@ describe Antrikan::QueueCreateHandler do
     end
 
     it "throttles repeated create attempts by ip and queuer_id" do
-      channel = create_channel
-      queuer = create_queuer(space: channel.space.not_nil!)
-      path = Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id)
+      space = create_space
+      queuer = create_queuer(space: space)
+      path = Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id)
 
       3.times do
         response = Marten::Spec.client.post(
@@ -433,10 +462,10 @@ describe Antrikan::QueueCreateHandler do
     end
 
     it "does not throttle a different queuer_id on the same ip bucket" do
-      channel = create_channel
-      queuer_a = create_queuer(space: channel.space.not_nil!)
-      queuer_b = create_queuer(space: channel.space.not_nil!)
-      path = Marten.routes.reverse("antrikan:channel:queue:create", channel_hashed_id: channel.hashed_id)
+      space = create_space
+      queuer_a = create_queuer(space: space)
+      queuer_b = create_queuer(space: space)
+      path = Marten.routes.reverse("antrikan:space:queue:create", space_hashed_id: space.hashed_id)
 
       3.times do
         response = Marten::Spec.client.post(

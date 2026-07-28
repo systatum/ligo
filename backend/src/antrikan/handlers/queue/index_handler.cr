@@ -1,12 +1,12 @@
 module Antrikan
   class QueueIndexHandler < RequestHandler
-    include ChannelHelper
+    include SpaceHelper
 
     protect_from_forgery false
     http_method_names :get
 
     def get : Marten::HTTP::Response
-      queues = channel.queues
+      queues = space.queues
 
       if raw = request.query_params["status"]?
         status = QueueStatus.parse(raw).value

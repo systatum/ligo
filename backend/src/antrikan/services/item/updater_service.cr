@@ -13,7 +13,7 @@ module Antrikan
           current_ids = @item.carousel_image_ids.try(&.ids) || [] of String
           result = CarouselImagesResolverService.new(schema.carousel_images!, current_ids).run
           return failure(result.errors) unless result.success?
-          @item.carousel_image_ids = CarouselImageIds.new(ids: result.data.not_nil!)
+          @item.carousel_image_ids = UploadedFileIds.new(ids: result.data.not_nil!)
         end
 
         update_fields

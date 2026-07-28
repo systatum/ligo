@@ -30,7 +30,7 @@ module Antrikan
         space = Space.new(data)
         space.manager = @user
         space.owner = business
-        space.carousel_image_ids = CarouselImageIds.new(ids: carousel_image_ids) if carousel_image_ids
+        space.carousel_image_ids = UploadedFileIds.new(ids: carousel_image_ids) if carousel_image_ids
         space.save!
 
         success(space)

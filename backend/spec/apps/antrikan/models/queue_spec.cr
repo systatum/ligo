@@ -12,12 +12,12 @@ describe "Antrikan::Queue" do
   end
 
   describe "validations" do
-    it "allows a handler from the same organization as the channel space owner" do
+    it "allows a handler from the same organization as the space owner" do
       organization = create_organization
       owner = create_user(organization: organization)
       space = create_space(manager: owner)
       queue = create_queue(
-        channel: create_channel(space: space),
+        space: space,
         queuer: create_queuer(space: space),
         handler: create_user(organization: organization)
       )
@@ -25,16 +25,48 @@ describe "Antrikan::Queue" do
       queue.valid?.should be_true
     end
 
-    it "rejects a handler from a different organization than the channel space owner" do
+    it "rejects a handler from a different organization than the space owner" do
       owner = create_user(organization: create_organization)
       space = create_space(manager: owner)
       queue = Antrikan::Queue.new
       queue.queuer = create_queuer(space: space)
-      queue.channel = create_channel(space: space)
+      queue.space = space
       queue.handler = create_user
 
       queue.valid?.should be_false
-      queue.errors[:handler][0].message.should eq "must be from the same organization as the channel space owner"
+      queue.errors[:handler][0].message.should eq "must be from the same organization as the space owner"
+    end
+  end
+
+  describe "balance accessors" do
+    it "aggregates amount_paid, amount_refunded and paid_balance across payments" do
+      queue = create_queue
+      first_payment = create_payment(queue: queue, amount: BigFloat.new(100))
+      second_payment = create_payment(queue: queue, amount: BigFloat.new(50))
+      create_refund(payment: first_payment, amount: BigFloat.new(20), status: Antrikan::RefundStatus::ACCEPTED)
+      create_refund(payment: second_payment, amount: BigFloat.new(10), status: Antrikan::RefundStatus::PENDING)
+
+      queue.amount_paid.should eq BigFloat.new(150)
+      queue.amount_refunded.should eq BigFloat.new(20)
+      queue.paid_balance.should eq BigFloat.new(130)
+    end
+
+    it "ignores soft-deleted payments" do
+      queue = create_queue
+      payment = create_payment(queue: queue, amount: BigFloat.new(100))
+      payment.deleted_at = Time.utc
+      payment.save!
+
+      queue.amount_paid.should eq BigFloat.new(0)
+      queue.paid_balance.should eq BigFloat.new(0)
+    end
+
+    it "is zero when there are no payments" do
+      queue = create_queue
+
+      queue.amount_paid.should eq BigFloat.new(0)
+      queue.amount_refunded.should eq BigFloat.new(0)
+      queue.paid_balance.should eq BigFloat.new(0)
     end
   end
 
@@ -152,7 +184,7 @@ describe "Antrikan::Queue" do
   describe "when publishing events to redis" do
     it "publishes queue_updated event when status changes during sync" do
       queue = create_queue
-      cid = queue.channel!
+      cid = create_channel(space: queue.space!)
 
       msg = capture_redis_message("socky:channel:antrikan:#{cid.hashed_id}") do
         create_queued_item(
@@ -168,6 +200,33 @@ describe "Antrikan::Queue" do
       msg.should_not be_nil
       json = JSON.parse(msg.not_nil!)
       json["type"].as_s.should eq "queue_updated"
+    end
+
+    it "fans out to every channel represented among the queue's items, not just one" do
+      queue = create_queue
+      channel_a = create_channel(space: queue.space!)
+      channel_b = create_channel(space: queue.space!)
+
+      create_queued_item(queue: queue, channel: channel_a, status: Antrikan::QueueStatus::DONE)
+
+      messages = capture_redis_messages_by_channel(
+        ["socky:channel:antrikan:#{channel_a.hashed_id}", "socky:channel:antrikan:#{channel_b.hashed_id}"],
+      ) do
+        create_queued_item(queue: queue, channel: channel_b, status: Antrikan::QueueStatus::QUEUED)
+      end
+
+      queue.reload
+      queue.status.should eq Antrikan::QueueStatus::ATTENDED.value
+
+      messages.keys.to_set.should eq Set{
+        "socky:channel:antrikan:#{channel_a.hashed_id}",
+        "socky:channel:antrikan:#{channel_b.hashed_id}",
+      }
+      messages.each_value do |payloads|
+        payloads.each do |payload|
+          JSON.parse(payload)["type"].as_s.should eq "queue_updated"
+        end
+      end
     end
   end
 end

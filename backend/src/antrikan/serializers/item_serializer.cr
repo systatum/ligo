@@ -10,7 +10,7 @@ module Antrikan
         order:           record.order,
         daily_cap:       record.daily_cap,
         unit_price:      record.unit_price,
-        unit_currency:   record.unit_currency,
+        unit_currency:   Currency.from_value(record.unit_currency!).to_s,
         is_monitored:    record.is_monitored,
         description:     record.description,
         main_image:      fetch_main_image_url,
@@ -29,15 +29,7 @@ module Antrikan
 
     private def fetch_carousel_images
       record = @record.as(Item)
-
-      ids = record.carousel_image_ids.try(&.ids) || [] of String
-      files_by_id = UploadedFile.filter(
-        id__in: ids.map { |id| UUID.new(id) }
-      ).index_by(&.id.to_s)
-
-      ids.compact_map { |id| files_by_id[id]? }.map do |file|
-        UploadedFileSerializer.soft_serialize(file)
-      end
+      fetch_uploaded_files(record.carousel_image_ids.try(&.ids))
     end
   end
 end

@@ -30,7 +30,7 @@ module Antrikan
         if schema.carousel_images?
           result = CarouselImagesResolverService.new(schema.carousel_images!).run
           return render_invalid_payload(result.errors) unless result.success?
-          it.carousel_image_ids = CarouselImageIds.new(ids: result.data.not_nil!)
+          it.carousel_image_ids = UploadedFileIds.new(ids: result.data.not_nil!)
         end
 
         it.save!

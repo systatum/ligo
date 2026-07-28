@@ -24,7 +24,7 @@ module Antrikan
         data.delete("carousel_images")
         data["logo_file_id"] = logo_file_id if @data.has_key?("logo") && logo_file_id
 
-        @space.carousel_image_ids = CarouselImageIds.new(ids: new_ids) if new_ids
+        @space.carousel_image_ids = UploadedFileIds.new(ids: new_ids) if new_ids
         @space.update!(data)
 
         success(@space)

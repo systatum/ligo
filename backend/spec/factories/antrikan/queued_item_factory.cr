@@ -1,5 +1,6 @@
 require "./queue_factory"
 require "./item_factory"
+require "./channel_factory"
 
 def create_queued_item(
   queue : Antrikan::Queue = create_queue,
@@ -18,7 +19,7 @@ def create_queued_item(
   dispatched_at : Time? = nil,
   delivered_at : Time? = nil,
 ) : Antrikan::QueuedItem
-  item_channel = channel || queue.channel!
+  item_channel = channel || item.try(&.channel) || create_channel(space: queue.space!)
   queue_item = item || create_item(channel: item_channel)
 
   queued_item = Antrikan::QueuedItem.new

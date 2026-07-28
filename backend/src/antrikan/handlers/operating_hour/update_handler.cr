@@ -1,5 +1,4 @@
 class Antrikan::OperatingHourUpdateHandler < RequestHandler
-  include SpaceHelper
   include OperatingHourHelper
 
   protect_from_forgery false
@@ -10,7 +9,7 @@ class Antrikan::OperatingHourUpdateHandler < RequestHandler
   end
 
   def patch
-    raise Marten::HTTP::Errors::PermissionDenied.new unless owner_of_space?
+    raise Marten::HTTP::Errors::PermissionDenied.new unless owner?
 
     normalize_duration_params!
 

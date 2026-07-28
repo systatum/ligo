@@ -8,7 +8,9 @@ module Antrikan
     def post : Marten::HTTP::Response
       raise Marten::HTTP::Errors::PermissionDenied.new unless owner_of_space?
 
-      result = Voucher::CreatorService.new(space, request.data).run
+      voucher = Voucher.new
+      voucher.space = space
+      result = Voucher::UpserterService.new(voucher, request.data).run
 
       if result.success?
         json VoucherSerializer.serialize(result.data.not_nil!), status: 201

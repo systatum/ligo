@@ -6,6 +6,9 @@ module Antrikan
     def run : ServiceResult(Queue)
       return failure(schema.errors) unless schema.valid?
       return failure(:voucher_code, "not authorized") if schema.voucher_code? && !staff?
+      if reopening_to_unpaid? && blocked_by_active_refund?
+        return failure(:payment_status, ErrorCode::REFUND_BLOCKS_REOPEN)
+      end
 
       begin
         was_unpaid = @queue.payment_status! == PaymentStatus::UNPAID.value
@@ -32,7 +35,18 @@ module Antrikan
     private def staff? : Bool
       user = @current_user
       return false if user.nil?
-      @queue.channel!.space!.owned_by?(user)
+      @queue.space!.owned_by?(user)
+    end
+
+    private def reopening_to_unpaid? : Bool
+      return false unless schema.payment_status?
+
+      schema.payment_status! == PaymentStatus::UNPAID && @queue.payment_status! != PaymentStatus::UNPAID.value
+    end
+
+    private def blocked_by_active_refund? : Bool
+      blocking_statuses = [RefundStatus::PENDING.value, RefundStatus::ACCEPTED.value]
+      Refund.filter(payment__queue_id: @queue.id!, status__in: blocking_statuses, deleted_at: nil).exists?
     end
 
     private def attach_voucher!

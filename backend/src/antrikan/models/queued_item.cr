@@ -34,8 +34,8 @@ module Antrikan
     end
 
     private def validate_item
-      return if item!.channel_id == queue!.channel_id
-      errors.add(:item_id, "Item must belong to the same queue channel")
+      return if item!.channel!.space_id == queue!.space_id
+      errors.add(:item_id, "Item must belong to the same space as the queue")
     end
 
     # unit_price * quantity, with every stacked AppliedVoucher applied in

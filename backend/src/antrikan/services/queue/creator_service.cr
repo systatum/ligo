@@ -1,6 +1,6 @@
 module Antrikan
   class Queue::CreatorService < BaseService(Queue)
-    def initialize(@channel : Channel, @data : Marten::HTTP::Params::Data)
+    def initialize(@space : Space, @data : Marten::HTTP::Params::Data)
     end
 
     def run : ServiceResult(Queue)
@@ -34,7 +34,7 @@ module Antrikan
       handler = schema.handler_id? ? Auth::User.get_by_hashed_id!(schema.handler_id!) : nil
 
       queue = Queue.new
-      queue.channel = @channel
+      queue.space = @space
       queue.queuer = queuer
       queue.handler = handler
       queue.note = schema.note if schema.note?

@@ -1,8 +1,9 @@
 require "./queuer_factory"
+require "./space_factory"
 
 def create_queue(
   queuer : Antrikan::Queuer = create_queuer,
-  channel : Antrikan::Channel = create_channel,
+  space : Antrikan::Space = create_space,
   handler : Auth::User? = nil,
   note : String? = nil,
   status : Antrikan::QueueStatus = Antrikan::QueueStatus::QUEUED,
@@ -17,7 +18,7 @@ def create_queue(
 ) : Antrikan::Queue
   queue = Antrikan::Queue.new
   queue.queuer = queuer
-  queue.channel = channel
+  queue.space = space
   queue.handler = handler
   queue.note = note
   queue.status = status.value

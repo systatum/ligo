@@ -143,8 +143,8 @@ if [[ "${1:-}" == "--parallel" ]]; then
   # Running a compiled spec binary is lightweight (~100-200 MB). Once all binaries
   # are built we can run many in parallel without memory pressure.
   #
-  # Override: SPEC_RUN_PARALLEL=6 bash bin/run_specs --parallel
-  MAX_TEST_RUN_PARALLELISM="${SPEC_RUN_PARALLEL:-4}"
+  # Override: SPEC_RUN_PARALLEL=8 bash bin/run_specs --parallel
+  MAX_TEST_RUN_PARALLELISM="${SPEC_RUN_PARALLEL:-6}"
 
   FAILED=0
 

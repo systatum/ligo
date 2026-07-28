@@ -70,6 +70,54 @@ describe Antrikan::SpaceCreateHandler do
         space.email.should eq "space@example.com"
       end
 
+      it "creates a space with a description" do
+        user = create_user
+
+        response = Marten::Spec.client.post(
+          Marten.routes.reverse("antrikan:space:create"),
+          data: {
+            name:        "Described Space",
+            description: "A cozy queue space downtown",
+          }.to_json,
+          headers: {authorization: "Bearer #{user.jwt_token}"},
+          content_type: "application/json"
+        )
+
+        response.status.should eq 201
+
+        space = Antrikan::Space.last!
+        space.description.should eq "A cozy queue space downtown"
+
+        response.content.should eq Antrikan::SpaceSerializer.serialize(space)
+      end
+
+      it "creates a space with geo and postal fields" do
+        user = create_user
+
+        response = Marten::Spec.client.post(
+          Marten.routes.reverse("antrikan:space:create"),
+          data: {
+            name:                "Geolocated Space",
+            address_city_code:   100010001,
+            address_postal_code: "23615",
+            latitude:            5.5577,
+            longitude:           95.3222,
+          }.to_json,
+          headers: {authorization: "Bearer #{user.jwt_token}"},
+          content_type: "application/json"
+        )
+
+        response.status.should eq 201
+
+        space = Antrikan::Space.last!
+        space.address_city_code.should eq 100010001
+        space.address_postal_code.should eq "23615"
+        space.latitude.should eq 5.5577
+        space.longitude.should eq 95.3222
+
+        response.content.should eq Antrikan::SpaceSerializer.serialize(space)
+      end
+
       it "auto-creates a business owned by the creating user, named after the space" do
         user = create_user
 

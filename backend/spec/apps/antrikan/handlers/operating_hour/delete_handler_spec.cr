@@ -60,4 +60,49 @@ describe Antrikan::OperatingHourDeleteHandler do
       response.status.should eq 400
     end
   end
+
+  context "nested under a channel" do
+    it "deletes an operating hour belonging to the channel" do
+      user = create_user
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
+      op_hour = create_operating_hour(channel: channel, day: 1)
+
+      response = Marten::Spec.client.delete(
+        Marten.routes.reverse("antrikan:channel:operating_hour:delete",
+          channel_hashed_id: channel.hashed_id,
+          operating_hour_hashed_id: op_hour.hashed_id
+        ),
+        headers: {authorization: "Bearer #{user.jwt_token}"}
+      )
+
+      response.status.should eq 200
+
+      deleted = Antrikan::OperatingHour.unscoped.get!(id: op_hour.id!)
+      deleted.deleted_at.should be_a Time
+    end
+  end
+
+  context "nested under an item" do
+    it "deletes an operating hour belonging to the item" do
+      user = create_user
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
+      item = create_item(channel: channel)
+      op_hour = create_operating_hour(item: item, day: 1)
+
+      response = Marten::Spec.client.delete(
+        Marten.routes.reverse("antrikan:item:operating_hour:delete",
+          item_slug: item.slug!,
+          operating_hour_hashed_id: op_hour.hashed_id
+        ),
+        headers: {authorization: "Bearer #{user.jwt_token}"}
+      )
+
+      response.status.should eq 200
+
+      deleted = Antrikan::OperatingHour.unscoped.get!(id: op_hour.id!)
+      deleted.deleted_at.should be_a Time
+    end
+  end
 end

@@ -24,6 +24,8 @@ module Antrikan
       @channel.description = description if @data.has_key?("description")
       @channel.logo_file_id = upload_image(schema.logo) if @data.has_key?("logo")
       @channel.predeletable_state = schema.predeletable_state!.value if schema.predeletable_state?
+      @channel.enforce_operating_hours = schema.enforce_operating_hours! if schema.enforce_operating_hours?
+      @channel.max_item_piece = schema.max_item_piece! if schema.max_item_piece?
 
       @channel.save!
     end

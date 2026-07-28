@@ -109,7 +109,7 @@ describe Antrikan::SpaceUpdateHandler do
       space = create_space(manager: user)
       first = create_uploaded_file_metadata
       second = create_uploaded_file_metadata
-      space.carousel_image_ids = Antrikan::CarouselImageIds.new(ids: [first.id.to_s, second.id.to_s])
+      space.carousel_image_ids = UploadedFileIds.new(ids: [first.id.to_s, second.id.to_s])
       space.save!
 
       response = Marten::Spec.client.patch(
@@ -132,7 +132,7 @@ describe Antrikan::SpaceUpdateHandler do
       user = create_user
       space = create_space(manager: user)
       existing = create_uploaded_file_metadata
-      space.carousel_image_ids = Antrikan::CarouselImageIds.new(ids: [existing.id.to_s])
+      space.carousel_image_ids = UploadedFileIds.new(ids: [existing.id.to_s])
       space.save!
 
       response = Marten::Spec.client.patch(

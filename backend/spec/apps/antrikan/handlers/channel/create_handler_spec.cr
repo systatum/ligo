@@ -21,8 +21,26 @@ describe Antrikan::ChannelCreateHandler do
       channel.description.should be_nil
       channel.logo_file_id.should be_nil
       channel.predeletable_state.should eq Antrikan::QueueStatus::ATTENDED.value
+      channel.enforce_operating_hours.should be_false
 
       response.content.should eq Antrikan::ChannelSerializer.serialize(channel)
+    end
+
+    it "creates a channel with enforce_operating_hours enabled" do
+      user = create_user
+      space = create_space(manager: user)
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:space:channel:create", space_hashed_id: space.hashed_id),
+        data: {name: "Consultations", enforce_operating_hours: true}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 201
+
+      channel = Antrikan::Channel.last!
+      channel.enforce_operating_hours.should be_true
     end
 
     it "creates a channel with a description" do

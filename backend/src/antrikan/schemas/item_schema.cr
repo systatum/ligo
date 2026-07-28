@@ -13,11 +13,7 @@ module Antrikan
     validate :validate_carousel_images_size
 
     private def validate_carousel_images_size
-      return unless carousel_images?
-
-      if carousel_images!.size > 6
-        errors.add(:carousel_images, "cannot have more than 6 images")
-      end
+      validate_max_images(:carousel_images, carousel_images, 6)
     end
   end
 end

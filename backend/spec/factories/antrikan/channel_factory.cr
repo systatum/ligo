@@ -7,6 +7,8 @@ def create_channel(
   description : String? = nil,
   logo_file_id : UUID? = nil,
   predeletable_state : Antrikan::QueueStatus? = nil,
+  enforce_operating_hours : Bool = false,
+  max_item_piece : Int32 = -1,
 ) : Antrikan::Channel
   channel = Antrikan::Channel.new
   channel.space = space
@@ -14,6 +16,8 @@ def create_channel(
   channel.description = description
   channel.logo_file_id = logo_file_id
   channel.predeletable_state = predeletable_state.value if predeletable_state
+  channel.enforce_operating_hours = enforce_operating_hours
+  channel.max_item_piece = max_item_piece
   channel.save!
 
   channel

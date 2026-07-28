@@ -4,7 +4,7 @@ describe Antrikan::VoucherRedeemabilityHandler do
   it "returns redeemable: true for a usable voucher" do
     channel = create_channel
     queuer = create_queuer(space: channel.space.not_nil!)
-    queue = create_queue(channel: channel, queuer: queuer)
+    queue = create_queue(space: channel.space!, queuer: queuer)
     voucher = create_voucher(space: channel.space.not_nil!, code: "SAVE10", space_percentage_discount: 10.0)
 
     response = Marten::Spec.client.get(
@@ -21,7 +21,7 @@ describe Antrikan::VoucherRedeemabilityHandler do
   it "returns redeemable: false with ERR_VOUCH_NOT_FOUND for an unknown code" do
     channel = create_channel
     queuer = create_queuer(space: channel.space.not_nil!)
-    queue = create_queue(channel: channel, queuer: queuer)
+    queue = create_queue(space: channel.space!, queuer: queuer)
 
     response = Marten::Spec.client.get(
       Marten.routes.reverse("antrikan:voucher:redeemable"),
@@ -37,7 +37,7 @@ describe Antrikan::VoucherRedeemabilityHandler do
   it "returns redeemable: false with ERR_VOUCH_INACTIVE for a voucher outside its active window" do
     channel = create_channel
     queuer = create_queuer(space: channel.space.not_nil!)
-    queue = create_queue(channel: channel, queuer: queuer)
+    queue = create_queue(space: channel.space!, queuer: queuer)
     voucher = create_voucher(
       space: channel.space.not_nil!,
       code: "EXPIRED",
@@ -61,7 +61,7 @@ describe Antrikan::VoucherRedeemabilityHandler do
   it "returns redeemable: false with ERR_VOUCH_NOANON when the queuer has no registered user" do
     channel = create_channel
     queuer = create_queuer(space: channel.space.not_nil!)
-    queue = create_queue(channel: channel, queuer: queuer)
+    queue = create_queue(space: channel.space!, queuer: queuer)
     voucher = create_voucher(
       space: channel.space.not_nil!,
       code: "MEMBERS10",
@@ -83,7 +83,7 @@ describe Antrikan::VoucherRedeemabilityHandler do
   it "does not create an AppliedVoucher as a side effect" do
     channel = create_channel
     queuer = create_queuer(space: channel.space.not_nil!)
-    queue = create_queue(channel: channel, queuer: queuer)
+    queue = create_queue(space: channel.space!, queuer: queuer)
     voucher = create_voucher(space: channel.space.not_nil!, code: "SAVE10", space_percentage_discount: 10.0)
 
     Marten::Spec.client.get(
@@ -97,7 +97,7 @@ describe Antrikan::VoucherRedeemabilityHandler do
   it "returns 422 when the code query parameter is missing" do
     channel = create_channel
     queuer = create_queuer(space: channel.space.not_nil!)
-    queue = create_queue(channel: channel, queuer: queuer)
+    queue = create_queue(space: channel.space!, queuer: queuer)
 
     response = Marten::Spec.client.get(
       Marten.routes.reverse("antrikan:voucher:redeemable"),

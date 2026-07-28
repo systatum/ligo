@@ -59,6 +59,8 @@ describe Antrikan::ItemCreateHandler do
       item.unit_currency.should eq Antrikan::Currency::USD.value
       item.is_monitored.should eq true
       item.description.should eq "Morning slot"
+
+      response.content.should eq Antrikan::ItemSerializer.serialize(item)
     end
 
     it "creates an item with a negative daily_cap (no cap)" do

@@ -23,6 +23,8 @@ module Antrikan
 
         ch.logo_file_id = upload_image(schema.logo)
         ch.predeletable_state = schema.predeletable_state!.value if schema.predeletable_state?
+        ch.enforce_operating_hours = schema.enforce_operating_hours! if schema.enforce_operating_hours?
+        ch.max_item_piece = schema.max_item_piece! if schema.max_item_piece?
 
         ch.save!
         json ChannelSerializer.serialize(ch), status: 201

@@ -9,7 +9,7 @@ def create_authorized_queue_item(
   owner = create_user(organization: organization)
   space = create_space(manager: owner)
   channel = create_channel(space: space, predeletable_state: predeletable_state)
-  queue = create_queue(channel: channel, queuer: create_queuer(space: space), note: note)
+  queue = create_queue(space: space, queuer: create_queuer(space: space), note: note)
   queued_item = create_queued_item(queue: queue, item: create_item(channel: channel), note: note, status: status)
   user = create_user(organization: organization)
 

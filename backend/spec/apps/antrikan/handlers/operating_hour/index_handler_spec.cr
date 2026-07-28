@@ -72,4 +72,39 @@ describe Antrikan::OperatingHourIndexHandler do
       response.status.should eq 400
     end
   end
+
+  context "nested under a channel" do
+    it "returns operating hours for the channel" do
+      user = create_user
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
+      op_hour = create_operating_hour(channel: channel, day: 1)
+
+      response = Marten::Spec.client.get(
+        Marten.routes.reverse("antrikan:channel:operating_hour:index", channel_hashed_id: channel.hashed_id),
+        headers: {authorization: "Bearer #{user.jwt_token}"}
+      )
+
+      response.status.should eq 200
+      response.content.should contain op_hour.hashed_id
+    end
+  end
+
+  context "nested under an item" do
+    it "returns operating hours for the item" do
+      user = create_user
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
+      item = create_item(channel: channel)
+      op_hour = create_operating_hour(item: item, day: 1)
+
+      response = Marten::Spec.client.get(
+        Marten.routes.reverse("antrikan:item:operating_hour:index", item_slug: item.slug!),
+        headers: {authorization: "Bearer #{user.jwt_token}"}
+      )
+
+      response.status.should eq 200
+      response.content.should contain op_hour.hashed_id
+    end
+  end
 end

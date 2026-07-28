@@ -98,6 +98,8 @@ describe Antrikan::ItemUpdateHandler do
       item.reload
       item.unit_price.should eq 15000
       item.unit_currency.should eq Antrikan::Currency::USD.value
+
+      response.content.should eq Antrikan::ItemSerializer.serialize(item)
     end
 
     it "returns 422 when unit_currency is not a known currency" do
@@ -227,7 +229,7 @@ describe Antrikan::ItemUpdateHandler do
       item = create_item(channel: channel)
       first = create_uploaded_file_metadata
       second = create_uploaded_file_metadata
-      item.carousel_image_ids = Antrikan::CarouselImageIds.new(ids: [first.id.to_s, second.id.to_s])
+      item.carousel_image_ids = UploadedFileIds.new(ids: [first.id.to_s, second.id.to_s])
       item.save!
 
       response = Marten::Spec.client.patch(
@@ -251,7 +253,7 @@ describe Antrikan::ItemUpdateHandler do
       channel = create_channel(space: space)
       item = create_item(channel: channel)
       existing = create_uploaded_file_metadata
-      item.carousel_image_ids = Antrikan::CarouselImageIds.new(ids: [existing.id.to_s])
+      item.carousel_image_ids = UploadedFileIds.new(ids: [existing.id.to_s])
       item.save!
 
       response = Marten::Spec.client.patch(

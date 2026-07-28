@@ -41,6 +41,24 @@ describe Antrikan::ChannelUpdateHandler do
       channel.predeletable_state.should eq Antrikan::QueueStatus::READY.value
     end
 
+    it "updates enforce_operating_hours" do
+      user = create_user
+      space = create_space(manager: user)
+      channel = create_channel(space: space, enforce_operating_hours: false)
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:channel:update", channel_hashed_id: channel.hashed_id),
+        data: {enforce_operating_hours: true}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 200
+
+      channel.reload
+      channel.enforce_operating_hours.should be_true
+    end
+
     it "clears the description when sent as null" do
       user = create_user
       space = create_space(manager: user)

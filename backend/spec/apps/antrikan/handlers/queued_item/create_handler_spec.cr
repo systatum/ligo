@@ -4,7 +4,7 @@ describe Antrikan::QueuedItemCreateHandler do
   context "when the request payload is valid" do
     it "creates queued item with required fields" do
       queue = create_queue
-      item = create_item(channel: queue.channel!)
+      item = create_item(channel: create_channel(space: queue.space!))
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:queue:item:create", queue_slug: queue.slug!),
@@ -29,7 +29,7 @@ describe Antrikan::QueuedItemCreateHandler do
 
     it "accepts optional fields" do
       queue = create_queue
-      item = create_item(channel: queue.channel!)
+      item = create_item(channel: create_channel(space: queue.space!))
       user = create_user(organization: queue.queuer!.space!.manager!.organization!)
 
       response = Marten::Spec.client.post(
@@ -57,7 +57,7 @@ describe Antrikan::QueuedItemCreateHandler do
 
     it "creates a new record even when same item is added repeatedly" do
       queue = create_queue
-      item = create_item(channel: queue.channel!)
+      item = create_item(channel: create_channel(space: queue.space!))
       path = Marten.routes.reverse("antrikan:queue:item:create", queue_slug: queue.slug!)
 
       first = Marten::Spec.client.post(
@@ -85,7 +85,7 @@ describe Antrikan::QueuedItemCreateHandler do
 
     it "allows creating with non-queued status (state jump)" do
       queue = create_queue
-      item = create_item(channel: queue.channel!)
+      item = create_item(channel: create_channel(space: queue.space!))
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:queue:item:create", queue_slug: queue.slug!),
@@ -106,7 +106,7 @@ describe Antrikan::QueuedItemCreateHandler do
 
     it "soft-deletes queued item when creating with CANCELED status" do
       queue = create_queue
-      item = create_item(channel: queue.channel!)
+      item = create_item(channel: create_channel(space: queue.space!))
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:queue:item:create", queue_slug: queue.slug!),
@@ -126,6 +126,26 @@ describe Antrikan::QueuedItemCreateHandler do
       queued_item.deleted_at.should_not be_nil
 
       response.content.should eq Antrikan::QueuedItemSerializer.serialize(queued_item)
+    end
+
+    it "accepts an item from a different channel within the same space as the queue" do
+      space = create_space
+      queue = create_queue(space: space)
+      other_channel = create_channel(space: space)
+      item = create_item(channel: other_channel)
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:queue:item:create", queue_slug: queue.slug!),
+        data: {
+          item_slug: item.slug,
+        }.to_json,
+        content_type: "application/json"
+      )
+
+      response.status.should eq 201
+
+      queued_item = Antrikan::QueuedItem.last!
+      queued_item.channel_id.should eq other_channel.id
     end
   end
 
@@ -158,7 +178,7 @@ describe Antrikan::QueuedItemCreateHandler do
 
     it "returns 422 when cancel_note is provided on create" do
       queue = create_queue
-      item = create_item(channel: queue.channel!)
+      item = create_item(channel: create_channel(space: queue.space!))
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:queue:item:create", queue_slug: queue.slug!),
@@ -172,7 +192,7 @@ describe Antrikan::QueuedItemCreateHandler do
       response.status.should eq 422
     end
 
-    it "returns 422 when the item's channel does not match with queue channel" do
+    it "returns 422 when the item's channel belongs to a different space than the queue" do
       queue = create_queue
       other_channel = create_channel
       item = create_item(channel: other_channel)
@@ -188,9 +208,26 @@ describe Antrikan::QueuedItemCreateHandler do
       response.status.should eq 422
     end
 
+    it "returns 422 when the channel's max_item_piece is already reached" do
+      channel = create_channel(max_item_piece: 1)
+      queue = create_queue(space: channel.space!)
+      item = create_item(channel: channel)
+      create_queued_item(queue: queue, item: item, channel: channel)
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:queue:item:create", queue_slug: queue.slug!),
+        data: {
+          item_slug: item.slug,
+        }.to_json,
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+    end
+
     it "returns 422 when the queue is already paid" do
       queue = create_queue(payment_status: Antrikan::PaymentStatus::PARTIAL)
-      item = create_item(channel: queue.channel!)
+      item = create_item(channel: create_channel(space: queue.space!))
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:queue:item:create", queue_slug: queue.slug!),

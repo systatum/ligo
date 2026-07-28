@@ -110,7 +110,7 @@ describe Antrikan::QueuedItemUpdateHandler do
 
     it "rejects unauthenticated request" do
       queue = create_queue
-      queued_item = create_queued_item(queue: queue, item: create_item(channel: queue.channel!))
+      queued_item = create_queued_item(queue: queue, item: create_item(channel: create_channel(space: queue.space!)))
 
       response = Marten::Spec.client.patch(
         Marten.routes.reverse(
@@ -132,7 +132,7 @@ describe Antrikan::QueuedItemUpdateHandler do
       owner = create_user(organization: organization)
       space = create_space(manager: owner)
       channel = create_channel(space: space)
-      queue = create_queue(channel: channel, queuer: create_queuer(space: space))
+      queue = create_queue(space: space, queuer: create_queuer(space: space))
       queued_item = create_queued_item(queue: queue, item: create_item(channel: channel))
 
       outsider = create_user(organization: create_organization)
@@ -189,8 +189,8 @@ describe Antrikan::QueuedItemUpdateHandler do
       space = create_space(manager: owner)
       channel = create_channel(space: space)
       other_channel = create_channel(space: space, name: "Other")
-      queue_a = create_queue(channel: channel, queuer: create_queuer(space: space))
-      queue_b = create_queue(channel: other_channel, queuer: create_queuer(space: space))
+      queue_a = create_queue(space: space, queuer: create_queuer(space: space))
+      queue_b = create_queue(space: space, queuer: create_queuer(space: space))
       queued_item = create_queued_item(queue: queue_b, item: create_item(channel: other_channel))
 
       user = create_user(organization: organization)

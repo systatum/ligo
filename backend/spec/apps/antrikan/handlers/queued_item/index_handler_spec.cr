@@ -3,7 +3,7 @@ require "./spec_helper"
 describe Antrikan::QueuedItemIndexHandler do
   it "returns queued items ordered by rank then created_at" do
     cid = create_channel
-    queue = create_queue(channel: cid)
+    queue = create_queue(space: cid.space!)
     qi1 = create_queued_item(queue: queue, item: create_item(channel: cid), rank: 2)
     qi2 = create_queued_item(queue: queue, item: create_item(channel: cid), rank: 1)
     qi3 = create_queued_item(queue: queue, item: create_item(channel: cid), rank: 1)
@@ -26,8 +26,8 @@ describe Antrikan::QueuedItemIndexHandler do
   it "scopes items to the requested queue" do
     cid_a = create_channel
     cid_b = create_channel
-    queue_a = create_queue(channel: cid_a)
-    queue_b = create_queue(channel: cid_b)
+    queue_a = create_queue(space: cid_a.space!)
+    queue_b = create_queue(space: cid_b.space!)
     qi_a = create_queued_item(queue: queue_a, item: create_item(channel: cid_a))
     create_queued_item(queue: queue_b, item: create_item(channel: cid_b))
 

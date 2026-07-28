@@ -12,7 +12,7 @@ module Antrikan
 
       queue = Queue.filter_by_slug(queue_slug).get!
 
-      voucher = Voucher.find_by_code(code, queue.channel!.space_id!.as(Int32 | Int64))
+      voucher = Voucher.find_by_code(code, queue.space_id!.as(Int32 | Int64))
       return json(redeemability(false, ErrorCode::VOUCHER_NOT_FOUND), status: 200) if voucher.nil?
 
       result = Voucher::RedemptionValidatorService.new(voucher, queue).run

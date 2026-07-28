@@ -9,7 +9,7 @@ Queue management system for managing spaces, their operating hours, and channels
 > crystal run manage.cr -- seed
 > ```
 
-Add features for: refund, proper permission at queue update handler, max_item_piece, and then order. Unit currency also return in string ie IDR/USD instead of enum value.
+Add features for: refund, proper permission at queue update handler, max_item_piece, and then order. Allow creating sub-channel (so channel now has parent_channel_id), this is needed so that hospital can create sub-queue based on doctor, so the queue estimation will be more proper
 
 - [Entities](#entities)
   - [Space](#space)
@@ -24,6 +24,8 @@ Add features for: refund, proper permission at queue update handler, max_item_pi
   - [Applied Voucher](#applied-voucher)
   - [Queue](#queue)
   - [Queued Item](#queueditem)
+  - [Payment](#payment)
+  - [Refund](#refund)
 - [API Endpoints](#api-endpoints)
   - [Space CRUD](#space-crud)
   - [Space Review CRUD](#space-review-crud)
@@ -36,6 +38,8 @@ Add features for: refund, proper permission at queue update handler, max_item_pi
   - [Voucher CRUD](#voucher-crud)
   - [Queue CRUD](#queue-crud)
   - [Queued Item CRUD](#queued-item-crud)
+  - [Payment CRUD](#payment-crud)
+  - [Refund CRUD](#refund-crud)
 - [Error Responses](#error-responses)
 - [Running Tests](#running-tests)
 - [Dev Scripts](#dev-scripts)
@@ -45,7 +49,7 @@ Add features for: refund, proper permission at queue update handler, max_item_pi
 
 ### Space
 
-A physical or virtual location where queuing or booking occurs. Each space has a unique auto-generated 5-character code used for joining, day-to-day management separate from business-level ownership, contact/location details, a photo gallery, and a live-computed rating summary from its reviews. Can have members, operating hours, and channels.
+A physical or virtual location where queuing or booking occurs. Each space has a unique auto-generated 5-character code used for joining, etc. It has defined operating hours, and channels for which bookable/orderable item entries get defined.
 
 ### Business
 
@@ -61,7 +65,7 @@ Join table representing the membership of a user in a space. Created when a user
 
 ### Operating Hour
 
-Defines the opening and closing times for a space on a specific day of the week. A space can have at most one operating hour entry per day.
+Defines the opening and closing times for a specific day of the week. Each entry belongs to exactly one of a Space, a Channel, or an Item, and there can be at most one entry per day for a given owner. A Channel or Item without its own entry for a day falls back to its parent's hours (Item → Channel → Space), so per-item exceptions only need to be defined where they differ.
 
 ### Channel
 
@@ -85,11 +89,19 @@ An immutable snapshot of a Voucher's rates, taken the moment it's redeemed again
 
 ### Queue
 
-A logical grouping of queued items within a channel. Created when a queuer submits an order or enters a line. Each queue has a unique 8-character slug, the first two characters are the last two digits of the current year (e.g. `26` for 2026) and the rest are randomly generated. Queue status advances through a state machine from `queued` through to `done` (or `canceled`). All status changes are timestamped and logged.
+A cart: a queuer's line-entry into a space, created when a queuer submits an order or enters a line. Its items (see [Queued Item](#queued-item)) can span multiple channels within that space - each item carries its own channel. Each queue has a unique 8-character slug, the first two characters are the last two digits of the current year (e.g. `26` for 2026) and the rest are randomly generated. Queue status advances through a state machine from `queued` through to `done` (or `canceled`). All status changes are timestamped and logged.
 
 ### Queued Item
 
 An individual item entry within a queue. Multiple queued items can reference the same `item_id`, duplicates are allowed and each is treated as a distinct entry. The queued item has its own status state machine that mirrors the parent queue's states. Status transitions on queued items can automatically trigger status changes on the parent queue. All changes are logged. Cancellation can carry a reason - see [Queued Item CRUD](#queued-item-crud).
+
+### Payment
+
+An append-only record of money actually collected against a Queue, essentially just a ledger of what was actually paid.
+
+### Refund
+
+A request, not necessarily always approved, to give back some or all of a specific Payment's amount. The same payment can have more than one refund request, each one needs an explicit accept or reject from staff before it counts against that payment's balance.
 
 ---
 
@@ -109,9 +121,14 @@ Content-Type: application/json
 ```json
 {
   "name": "My Office",
+  "description": "A cozy queue space downtown",
   "need_manual_approval": true,
   "has_operating_hours": false,
   "address": "123 Main St",
+  "address_city_code": 100010001,
+  "address_postal_code": "23615",
+  "latitude": 5.5577,
+  "longitude": 95.3222,
   "phone": "555-1234",
   "email": "office@example.com",
   "logo": { "base64_bytes": "iVBORw0KGgo...", "mimetype": "image/png" },
@@ -125,9 +142,13 @@ Content-Type: application/json
 | Field                     | Required | Description                                                                                                                                  |
 | ------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `name`                    | yes      | Space name (max 255 chars)                                                                                                                   |
+| `description`             | no       | Free-form description                                                                                                                        |
 | `need_manual_approval`    | no       | Whether join requests need manual approval (default: `true`)                                                                                 |
 | `has_operating_hours`     | no       | Whether the space enforces operating hour restrictions (default: `false`)                                                                    |
 | `address`/`phone`/`email` | no       | Optional contact/location details                                                                                                            |
+| `address_city_code`       | no       | An entry id from a `data/countries/<country_code>_<ISO 3166-1 alpha-3>.json` file (e.g. `data/countries/100_IDN.json`) - rejected with `422` if it doesn't match a known entry |
+| `address_postal_code`     | no       | Postal/ZIP code                                                                                                                              |
+| `latitude`/`longitude`    | no       | Geocoordinates                                                                                                                               |
 | `logo`                    | no       | Image payload with `base64_bytes` and `mimetype`                                                                                             |
 | `carousel_images`         | no       | Up to 6 fresh-upload image payloads (`base64_bytes`/`mimetype` each); `keep_id` is rejected here since there's nothing to keep yet on create |
 | `business_name`           | no       | Name for the auto-created owning [Business](#business) (default: same as `name`)                                                             |
@@ -139,6 +160,7 @@ Content-Type: application/json
   "id": "abc123",
   "code": "X7K2Q",
   "name": "My Office",
+  "description": "A cozy queue space downtown",
   "need_manual_approval": true,
   "has_operating_hours": false,
   "require_registered_queuer": false,
@@ -146,6 +168,10 @@ Content-Type: application/json
   "carousel_images": [],
   "business_id": "hashedBusinessId",
   "address": null,
+  "address_city_code": null,
+  "address_postal_code": null,
+  "latitude": null,
+  "longitude": null,
   "phone": null,
   "email": null,
   "average_rating": 0.0,
@@ -189,6 +215,7 @@ Content-Type: application/json
 ```json
 {
   "name": "Updated Office Name",
+  "description": "Now with a rooftop view",
   "need_manual_approval": false,
   "has_operating_hours": true,
   "logo": { "base64_bytes": "iVBORw0KGgo...", "mimetype": "image/png" },
@@ -197,6 +224,10 @@ Content-Type: application/json
     { "base64_bytes": "iVBORw0KGgo...", "mimetype": "image/png" }
   ],
   "address": "456 Side St",
+  "address_city_code": 100010001,
+  "address_postal_code": "23615",
+  "latitude": 5.5577,
+  "longitude": 95.3222,
   "phone": "555-6789",
   "email": "updated@example.com"
 }
@@ -204,11 +235,13 @@ Content-Type: application/json
 
 All fields are optional; only provided fields are changed.
 
-| Field                     | Description                                                                                                                                                                                                                                |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `logo`                    | New image payload; pass `null` to clear it                                                                                                                                                                                                 |
-| `carousel_images`         | Full replacement list (up to 6), in the given order. Each entry is either `{ "keep_id": "<uploaded_file_id>" }` (reuse an image already on this space) or a fresh upload payload. `keep_id` values not currently on the space return `422` |
-| `address`/`phone`/`email` | Contact/location details                                                                                                                                                                                                                   |
+| Field                                                            | Description                                                                                                                                                                                                                                |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `description`                                                    | Free-form description                                                                                                                                                                                                                      |
+| `logo`                                                           | New image payload; pass `null` to clear it                                                                                                                                                                                                 |
+| `carousel_images`                                                | Full replacement list (up to 6), in the given order. Each entry is either `{ "keep_id": "<uploaded_file_id>" }` (reuse an image already on this space) or a fresh upload payload. `keep_id` values not currently on the space return `422` |
+| `address`/`phone`/`email`                                        | Contact/location details                                                                                                                                                                                                                   |
+| `address_city_code`/`address_postal_code`/`latitude`/`longitude` | Geo/postal details - see [Create Space](#create-space)                                                                                                                                                                                     |
 
 **Supported Methods:** `PATCH`, `POST`
 
@@ -380,12 +413,21 @@ Content-Type: application/json
 
 ### Operating Hour CRUD
 
-Operating hours are nested under spaces.
+The same four endpoints are mounted under a Space, a Channel, or an Item - whichever owns the operating hour:
+
+| Owner   | Base path                                                   |
+| ------- | ----------------------------------------------------------- |
+| Space   | `/antrikan/api/space/<space_hashed_id>/operating_hours`     |
+| Channel | `/antrikan/api/channel/<channel_hashed_id>/operating_hours` |
+| Item    | `/antrikan/api/item/<item_slug>/operating_hours`            |
+
+> [!NOTE]
+> An Item or Channel only needs its own entries where its hours differ from its parent's - see [Operating Hour](#operating-hour) for the fallback behavior.
 
 #### Create Operating Hour
 
 ```
-POST /antrikan/api/space/<space_hashed_id>/operating_hours/create
+POST <base path>/create
 Content-Type: application/json
 ```
 
@@ -399,7 +441,7 @@ Content-Type: application/json
 
 | Field        | Required | Description                                                        |
 | ------------ | -------- | ------------------------------------------------------------------ |
-| `day`        | yes      | Day of the week: `0`=Mon, `1`=Tue, ..., `6`=Sun — unique per space |
+| `day`        | yes      | Day of the week: `0`=Mon, `1`=Tue, ..., `6`=Sun — unique per owner |
 | `open_time`  | yes      | Opening time in `HH:MM` format                                     |
 | `close_time` | yes      | Closing time in `HH:MM` format — must be after `open_time`         |
 
@@ -417,7 +459,7 @@ Content-Type: application/json
 #### List Operating Hours
 
 ```
-GET /antrikan/api/space/<space_hashed_id>/operating_hours/index
+GET <base path>/index
 ```
 
 **Response (200 OK):**
@@ -434,7 +476,7 @@ GET /antrikan/api/space/<space_hashed_id>/operating_hours/index
 #### Update Operating Hour
 
 ```
-PATCH /antrikan/api/space/<space_hashed_id>/operating_hours/<operating_hour_hashed_id>/update
+PATCH <base path>/<operating_hour_hashed_id>/update
 Content-Type: application/json
 ```
 
@@ -453,7 +495,7 @@ Content-Type: application/json
 #### Delete Operating Hour (Soft Delete)
 
 ```
-DELETE /antrikan/api/space/<space_hashed_id>/operating_hours/<operating_hour_hashed_id>/delete
+DELETE <base path>/<operating_hour_hashed_id>/delete
 ```
 
 **Response (200 OK):**
@@ -488,16 +530,20 @@ Content-Type: application/json
     "base64_bytes": "iVBORw0KGgo...",
     "mimetype": "image/png"
   },
-  "predeletable_state": "PACKED"
+  "predeletable_state": "PACKED",
+  "enforce_operating_hours": false,
+  "max_item_piece": -1
 }
 ```
 
-| Field                | Required | Description                                                                                                                     |
-| -------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `name`               | yes      | Channel name (max 255 chars)                                                                                                    |
-| `description`        | no       | Short description of the channel                                                                                                |
-| `logo`               | no       | Image payload with `base64_bytes` and `mimetype`                                                                                |
-| `predeletable_state` | no       | Latest [Queue Status](#queue-status) name a queued item on this channel may be in and still be cancelable (default: `ATTENDED`) |
+| Field                     | Required | Description                                                                                                                     |
+| ------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `name`                    | yes      | Channel name (max 255 chars)                                                                                                    |
+| `description`             | no       | Short description of the channel                                                                                                |
+| `logo`                    | no       | Image payload with `base64_bytes` and `mimetype`                                                                                |
+| `predeletable_state`      | no       | Latest [Queue Status](#queue-status) name a queued item on this channel may be in and still be cancelable (default: `ATTENDED`) |
+| `enforce_operating_hours` | no       | Whether adding a queued item is rejected if it's outside its effective operating hours (default: `false`)                       |
+| `max_item_piece`          | no       | Max non-canceled queued items of this channel allowed in a single queue at once (default: `-1`, unlimited)                       |
 
 **Response (201 Created):**
 
@@ -507,7 +553,9 @@ Content-Type: application/json
   "name": "General",
   "description": "General announcements",
   "logo": "/uploaded_file/<uuid>",
-  "predeletable_state": 20
+  "predeletable_state": 20,
+  "enforce_operating_hours": false,
+  "max_item_piece": -1
 }
 ```
 
@@ -543,7 +591,9 @@ Content-Type: application/json
   "name": "Announcements",
   "description": "Official announcements only",
   "logo": { "base64_bytes": "iVBORw0KGgo...", "mimetype": "image/png" },
-  "predeletable_state": "READY"
+  "predeletable_state": "READY",
+  "enforce_operating_hours": true,
+  "max_item_piece": 1
 }
 ```
 
@@ -844,7 +894,7 @@ PATCH /antrikan/api/item/<slug>/undelete
 
 ### Voucher CRUD
 
-**Authentication:** Create requires the space owner/manager. Only create exists today - no list/update/delete yet.
+**Authentication:** Create, list, get, update, delete, and restore all require the space owner/manager.
 
 #### Create Voucher
 
@@ -930,6 +980,56 @@ Content-Type: application/json
 > [!NOTE]
 > Redeeming a voucher (`voucher_code` on [Create Queue](#create-queue)/[Update Queue](#update-queue)) only attaches it - discounts aren't computed until the queue's `payment_status` first leaves `unpaid`. See [Applied Voucher](#applied-voucher).
 
+#### List Vouchers
+
+```
+GET /antrikan/api/space/<space_hashed_id>/voucher/index
+```
+
+Accepts optional query parameter `with_deleted=true` to include soft-deleted vouchers.
+
+**Response (200 OK):** `{ "vouchers": [<Voucher object>, ...] }` - each entry same shape as the [Create Voucher](#create-voucher) response.
+
+#### Get Voucher
+
+```
+GET /antrikan/api/voucher/<voucher_hashed_id>
+```
+
+**Response (200 OK):** Voucher object (same shape as create response).
+
+#### Update Voucher
+
+```
+PATCH /antrikan/api/voucher/<voucher_hashed_id>/update
+Content-Type: application/json
+```
+
+Accepts the same fields as [Create Voucher](#create-voucher). All fields are optional. **Supported Methods:** `PATCH`, `POST`
+
+**Response (200 OK):** Updated voucher object.
+
+> [!NOTE]
+> Editing a voucher never changes discounts already locked in on a queue - see [Applied Voucher](#applied-voucher).
+
+#### Delete Voucher (Soft Delete)
+
+```
+DELETE /antrikan/api/voucher/<voucher_hashed_id>/delete
+```
+
+**Response (200 OK):** Deleted voucher object.
+
+#### Restore Voucher
+
+Restores a soft-deleted voucher.
+
+```
+POST /antrikan/api/voucher/<voucher_hashed_id>/undelete
+```
+
+**Response (200 OK):** Restored voucher object.
+
 #### Check Voucher Redeemability
 
 No authentication required. Lets a client check whether a code is redeemable before actually submitting a queue/order - doesn't attach anything or create an [Applied Voucher](#applied-voucher).
@@ -972,7 +1072,7 @@ Returns `422` if `queue_id` or `code` is missing, `404` if `queue_id` doesn't ma
 #### Create Queue
 
 ```
-POST /antrikan/api/channel/<channel_hashed_id>/queue/create
+POST /antrikan/api/space/<space_hashed_id>/queue/create
 Content-Type: application/json
 ```
 
@@ -1009,7 +1109,7 @@ Content-Type: application/json
 ```json
 {
   "id": "26xK9mQp",
-  "channel_id": "hashedChannelId",
+  "space_id": "hashedSpaceId",
   "queuer_id": "hashedQueuerId",
   "handler_id": "hashedHandlerId",
   "note": "Table 4 — no MSG please",
@@ -1033,10 +1133,10 @@ Content-Type: application/json
 #### List Queues
 
 ```
-GET /antrikan/api/channel/<channel_hashed_id>/queue/index
+GET /antrikan/api/space/<space_hashed_id>/queue/index
 ```
 
-No authentication required.
+No authentication required. Returns every queue in the space, regardless of which channel(s) their items are in.
 
 Accepts optional query parameters:
 
@@ -1053,7 +1153,7 @@ Canceled (soft-deleted) queues are excluded from results.
   "queues": [
     {
       "id": "26xK9mQp",
-      "channel_id": "hashedChannelId",
+      "space_id": "hashedSpaceId",
       "queuer_id": "hashedQueuerId",
       "handler_id": null,
       "note": null,
@@ -1156,7 +1256,7 @@ Content-Type: application/json
 > **Duplicate behavior:** If the same `item_slug` already exists in the queue, a new queued item record is created regardless. No merging or quantity-updating occurs.
 
 > [!WARNING]
-> Rejected with `422` once the queue's `payment_status` is no longer `unpaid` - items can't be added to an already-paid queue.
+> Rejected with `422` once the queue's `payment_status` is no longer `unpaid` - items can't be added to an already-paid queue, or if the channel has `enforce_operating_hours` enabled, and an item falls outside its effective operating hours right (if defined).
 
 **Side effects on the parent queue:**
 
@@ -1236,6 +1336,182 @@ The corresponding timestamp field is set on the parent queue for each automatic 
 
 ---
 
+### Payment CRUD
+
+**Authentication:** Both endpoints require staff access to the queue's space - the manager, the business owner, or any admin-level member of the same organization (not owner-only).
+
+#### Record Payment
+
+```
+POST /antrikan/api/queue/<queue_slug>/payment/create
+Content-Type: application/json
+```
+
+```json
+{
+  "amount": "100000",
+  "method": "cash",
+  "note": "Paid in full at counter"
+}
+```
+
+| Field    | Required | Type   | Description                                            |
+| -------- | -------- | ------ | ------------------------------------------------------ |
+| `amount` | yes      | string | Amount collected, must be greater than 0               |
+| `method` | no       | string | Free-form payment method (e.g. `"cash"`, `"transfer"`) |
+| `note`   | no       | string | Free-form note (max 255 chars)                         |
+
+> [!NOTE]
+> `amount` is a string to represent an exact decimal (via BigFloat), same convention as `total_price` on [Queue](#queue).
+
+There's no review step here - recording a payment is trusted the same way `payment_status` itself is manually asserted by staff today. It's purely additive: nothing here changes `payment_status` or `total_price`.
+
+**Response (201 Created):**
+
+```json
+{
+  "id": "hashedPaymentId",
+  "queue_id": "26xK9mQp",
+  "amount": "100000",
+  "method": "cash",
+  "note": "Paid in full at counter",
+  "recorded_by_id": "hashedUserId",
+  "amount_refunded": "0",
+  "remaining_refundable_amount": "100000",
+  "created_at": "2026-05-31T12:00:00Z",
+  "updated_at": null,
+  "deleted_at": null
+}
+```
+
+`amount_refunded`/`remaining_refundable_amount` are computed live from this payment's accepted [Refund](#refund)s, not stored columns - a refund always draws down against a specific payment, never a vague pool of money against the whole queue.
+
+#### List Payments
+
+```
+GET /antrikan/api/queue/<queue_slug>/payment/list
+```
+
+**Response (200 OK):** `{ "payments": [<Payment object>, ...] }` - each entry same shape as the [Record Payment](#record-payment) response. Soft-deleted payments are excluded.
+
+---
+
+### Refund CRUD
+
+**Authentication:** Create requires no special access - any identified requester can ask for a refund, the same as [Create Queued Item](#create-queued-item). Every other endpoint below requires staff access to the underlying space (the manager, the business owner, or any admin-level member of the same organization).
+
+#### Request Refund
+
+```
+POST /antrikan/api/payment/<payment_hashed_id>/refund/create
+Content-Type: application/json
+```
+
+```json
+{
+  "amount": "20000",
+  "reason": "Item was cold on arrival",
+  "forceful": false,
+  "images": [{ "base64_bytes": "iVBORw0KGgo...", "mimetype": "image/png" }]
+}
+```
+
+| Field      | Required | Type    | Description                                                                                      |
+| ---------- | -------- | ------- | ------------------------------------------------------------------------------------------------ |
+| `amount`   | yes      | string  | Amount to refund, must be greater than 0                                                         |
+| `reason`   | no       | string  | Free-form reason (max 255 chars)                                                                 |
+| `forceful` | no       | boolean | See below (default: `false`)                                                                     |
+| `images`   | no       | array   | Up to 2 evidence photos, same payload shape as `carousel_images` - see [Space CRUD](#space-crud) |
+
+> [!WARNING]
+> Rejected with `422` if the payment's queue is still `unpaid` as there's nothing collected yet to refund, or if this amount would leave the payment's refundable balance negative (i.e. it refunds more than what's left), unless `forceful: true` is set.
+
+**Response (201 Created):**
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "payment_id": "hashedPaymentId",
+  "amount": "20000",
+  "reason": "Item was cold on arrival",
+  "forceful": false,
+  "status": "PENDING",
+  "review_note": null,
+  "images": [],
+  "requested_by_id": "hashedUserId",
+  "reviewed_by_id": null,
+  "reviewed_at": null,
+  "created_at": "2026-05-31T12:00:00Z",
+  "updated_at": null,
+  "deleted_at": null
+}
+```
+
+`requested_by_id` is `null` when the requester isn't an identified/registered user. `images` entries are resolved uploaded files (`id`, `url`, `original_name`, `content_type`, `byte_size`), same shape as `carousel_images` elsewhere.
+
+#### List Refunds For A Payment
+
+```
+GET /antrikan/api/payment/<payment_hashed_id>/refund/list
+```
+
+**Response (200 OK):** `{ "refunds": [<Refund object>, ...] }` - each entry same shape as the [Request Refund](#request-refund) response. Soft-deleted refunds are excluded.
+
+#### List Refunds For A Space
+
+A staff-wide dashboard view across every channel/queue/payment in the space, not scoped to one payment.
+
+```
+GET /antrikan/api/space/<space_hashed_id>/refund/list
+```
+
+**Response (200 OK):** `{ "refunds": [<Refund object>, ...] }`, same shape as above.
+
+#### Get Refund
+
+No authentication required - knowing the refund's slug is enough, the same tradeoff as [Get Queue](#get-queue).
+
+```
+GET /antrikan/api/refund/<refund_slug>
+```
+
+**Response (200 OK):** Refund object (same shape as create response), with `review_note` visible only for a staff viewer.
+
+#### Accept Refund
+
+```
+POST /antrikan/api/refund/<refund_slug>/accept
+Content-Type: application/json
+```
+
+```json
+{ "review_note": "Confirmed with customer" }
+```
+
+| Field         | Required | Description                    |
+| ------------- | -------- | ------------------------------ |
+| `review_note` | no       | Free-form note (max 255 chars) |
+
+The payment's remaining refundable balance is re-checked at this point too, not just at request time - other refunds against the same payment may have been accepted in the meantime. Rejected with `422` if that check fails and the refund wasn't requested with `forceful: true`, or if the refund has already been accepted/rejected.
+
+**Response (200 OK):** Updated refund object, with `status: "ACCEPTED"`, `reviewed_by_id`, and `reviewed_at` set.
+
+#### Reject Refund
+
+```
+POST /antrikan/api/refund/<refund_slug>/reject
+Content-Type: application/json
+```
+
+Same request body as [Accept Refund](#accept-refund). No balance check applies - rejecting never affects a payment's balance.
+
+**Response (200 OK):** Updated refund object, with `status: "REJECTED"`, `reviewed_by_id`, and `reviewed_at` set.
+
+> [!NOTE]
+> A queue's `payment_status` cannot be moved back to `unpaid` while it has any `PENDING` or `ACCEPTED` refund - see [Update Queue](#update-queue). A `REJECTED` refund doesn't block this.
+
+---
+
 ## Enums
 
 > [!WARNING]
@@ -1273,6 +1549,14 @@ Type of `unit_currency` on [Item](#item).
 | ----- | ----- |
 | `100` | `IDR` |
 | `200` | `USD` |
+
+### Refund Status
+
+| Value | Name       | Description                                             |
+| ----- | ---------- | ------------------------------------------------------- |
+| `0`   | `PENDING`  | Requested, awaiting staff review                        |
+| `10`  | `ACCEPTED` | Accepted - counts against the payment's balance         |
+| `20`  | `REJECTED` | Rejected - does not count against the payment's balance |
 
 ## Error Responses
 
@@ -1320,6 +1604,12 @@ crystal spec spec/apps/antrikan/handlers/queue/
 
 # Queued item handlers only
 crystal spec spec/apps/antrikan/handlers/queued_item/
+
+# Payment handlers only
+crystal spec spec/apps/antrikan/handlers/payment/
+
+# Refund handlers only
+crystal spec spec/apps/antrikan/handlers/refund/
 
 # Specific handler
 crystal spec spec/apps/antrikan/handlers/space/qr_handler_spec.cr

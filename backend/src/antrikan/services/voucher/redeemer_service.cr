@@ -4,7 +4,7 @@ module Antrikan
     end
 
     def run : ServiceResult(AppliedVoucher)
-      voucher = Voucher.find_by_code(@code, @queue.channel!.space_id!.as(Int32 | Int64))
+      voucher = Voucher.find_by_code(@code, @queue.space_id!.as(Int32 | Int64))
       return failure(:voucher_code, ErrorCode::VOUCHER_NOT_FOUND) if voucher.nil?
 
       result = Voucher::RedemptionValidatorService.new(voucher, @queue).run

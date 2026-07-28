@@ -7,6 +7,7 @@ module Antrikan
         id:                        record.hashed_id,
         code:                      record.code,
         name:                      record.name,
+        description:               record.description,
         need_manual_approval:      record.need_manual_approval,
         has_operating_hours:       record.has_operating_hours,
         require_registered_queuer: record.require_registered_queuer,
@@ -36,15 +37,7 @@ module Antrikan
 
     private def fetch_carousel_images
       record = @record.as(Space)
-
-      ids = record.carousel_image_ids.try(&.ids) || [] of String
-      files_by_id = UploadedFile.filter(
-        id__in: ids.map { |id| UUID.new(id) }
-      ).index_by(&.id.to_s)
-
-      ids.compact_map { |id| files_by_id[id]? }.map do |file|
-        UploadedFileSerializer.soft_serialize(file)
-      end
+      fetch_uploaded_files(record.carousel_image_ids.try(&.ids))
     end
   end
 end

@@ -36,6 +36,58 @@ describe Antrikan::OperatingHour do
   end
 
   describe "validations" do
+    describe "owner" do
+      it "is invalid with no owner set" do
+        op_hour = Antrikan::OperatingHour.new(
+          day: 0,
+          open_time: Time::Span.new(hours: 9, minutes: 0),
+          close_time: Time::Span.new(hours: 17, minutes: 0)
+        )
+
+        op_hour.valid?.should be_false
+        op_hour.errors[:base].should_not be_empty
+      end
+
+      it "is invalid with more than one owner set" do
+        space = create_space
+        channel = create_channel(space: space)
+        op_hour = Antrikan::OperatingHour.new(
+          space: space,
+          channel: channel,
+          day: 0,
+          open_time: Time::Span.new(hours: 9, minutes: 0),
+          close_time: Time::Span.new(hours: 17, minutes: 0)
+        )
+
+        op_hour.valid?.should be_false
+        op_hour.errors[:base].should_not be_empty
+      end
+
+      it "is valid with only a channel set" do
+        channel = create_channel
+        op_hour = Antrikan::OperatingHour.new(
+          channel: channel,
+          day: 0,
+          open_time: Time::Span.new(hours: 9, minutes: 0),
+          close_time: Time::Span.new(hours: 17, minutes: 0)
+        )
+
+        op_hour.valid?.should be_true
+      end
+
+      it "is valid with only an item set" do
+        item = create_item
+        op_hour = Antrikan::OperatingHour.new(
+          item: item,
+          day: 0,
+          open_time: Time::Span.new(hours: 9, minutes: 0),
+          close_time: Time::Span.new(hours: 17, minutes: 0)
+        )
+
+        op_hour.valid?.should be_true
+      end
+    end
+
     describe "day range" do
       it "is valid with day 0 (Monday)" do
         op_hour = create_operating_hour(day: 0)
@@ -173,6 +225,66 @@ describe Antrikan::OperatingHour do
         op_hour = Antrikan::OperatingHour.new(
           space: space,
           day: 1,
+          open_time: Time::Span.new(hours: 9, minutes: 0),
+          close_time: Time::Span.new(hours: 17, minutes: 0)
+        )
+
+        op_hour.valid?.should be_true
+      end
+
+      it "is invalid when same day exists for same channel" do
+        channel = create_channel
+        create_operating_hour(channel: channel, day: 0)
+
+        duplicate = Antrikan::OperatingHour.new(
+          channel: channel,
+          day: 0,
+          open_time: Time::Span.new(hours: 10, minutes: 0),
+          close_time: Time::Span.new(hours: 18, minutes: 0)
+        )
+
+        duplicate.valid?.should be_false
+        duplicate.errors[:day].should_not be_empty
+      end
+
+      it "is valid when same day exists for different channel" do
+        channel1 = create_channel
+        channel2 = create_channel
+        create_operating_hour(channel: channel1, day: 0)
+
+        op_hour = Antrikan::OperatingHour.new(
+          channel: channel2,
+          day: 0,
+          open_time: Time::Span.new(hours: 9, minutes: 0),
+          close_time: Time::Span.new(hours: 17, minutes: 0)
+        )
+
+        op_hour.valid?.should be_true
+      end
+
+      it "is invalid when same day exists for same item" do
+        item = create_item
+        create_operating_hour(item: item, day: 0)
+
+        duplicate = Antrikan::OperatingHour.new(
+          item: item,
+          day: 0,
+          open_time: Time::Span.new(hours: 10, minutes: 0),
+          close_time: Time::Span.new(hours: 18, minutes: 0)
+        )
+
+        duplicate.valid?.should be_false
+        duplicate.errors[:day].should_not be_empty
+      end
+
+      it "is valid when same day exists for different item" do
+        item1 = create_item
+        item2 = create_item
+        create_operating_hour(item: item1, day: 0)
+
+        op_hour = Antrikan::OperatingHour.new(
+          item: item2,
+          day: 0,
           open_time: Time::Span.new(hours: 9, minutes: 0),
           close_time: Time::Span.new(hours: 17, minutes: 0)
         )
