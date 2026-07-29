@@ -1,7 +1,7 @@
 class FileCommitterService < BaseService(UploadedFile)
   @storage : Marten::Core::Storage::Base
 
-  def initialize(@tmpFile : Marten::HTTP::UploadedFile)
+  def initialize(@tmpFile : Marten::HTTP::UploadedFile, @uploaded_by : Auth::User? = nil)
     @storage = Marten.media_files_storage
   end
 
@@ -17,6 +17,7 @@ class FileCommitterService < BaseService(UploadedFile)
       uploaded.original_name = detect_original_name(key)
       uploaded.content_type = detect_content_type
       uploaded.byte_size = @tmpFile.size.to_i64
+      uploaded.uploaded_by = @uploaded_by || Current.user
 
       uploaded.save!
 

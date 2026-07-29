@@ -16,7 +16,7 @@ describe Antrikan::QueueShowHandler do
       note: "all-fields",
       status: Antrikan::QueueStatus::ATTENDED,
       payment_status: Antrikan::PaymentStatus::PARTIAL,
-      total_price: 125_000_i64,
+      total_price: BigFloat.new(125_000),
       fully_paid_at: Time.utc
     )
 

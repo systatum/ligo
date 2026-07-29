@@ -1,0 +1,11 @@
+{
+  "name": {
+    "en-US": "Iceland"
+  },
+  "cities": {
+    "174010001": "Hafnarfjörður, Capital Region",
+    "174010002": "Kópavogur, Capital Region",
+    "174010003": "Reykjavík, Capital Region",
+    "174020001": "Akureyri, Northeast"
+  }
+}

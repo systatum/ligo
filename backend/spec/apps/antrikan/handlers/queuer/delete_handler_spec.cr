@@ -4,7 +4,7 @@ describe Antrikan::QueuerDeleteHandler do
   context "when the user is an admin and owns the space" do
     it "soft-deletes the queuer" do
       user = create_user
-      space = create_space(owner: user)
+      space = create_space(manager: user)
       queuer = create_queuer(space: space)
       queuer_id = queuer.id!
 
@@ -25,7 +25,7 @@ describe Antrikan::QueuerDeleteHandler do
     it "returns 403 and does not delete the queuer" do
       owner = create_user
       admin = create_user
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
       queuer = create_queuer(space: space)
 
       response = Marten::Spec.client.delete(
@@ -43,7 +43,7 @@ describe Antrikan::QueuerDeleteHandler do
   context "when the user is not an admin" do
     it "returns 403 and does not delete the queuer" do
       user = create_user(role: Auth::Role::SECURITY_STAFF)
-      space = create_space(owner: user)
+      space = create_space(manager: user)
       queuer = create_queuer(space: space)
 
       response = Marten::Spec.client.delete(
@@ -55,6 +55,27 @@ describe Antrikan::QueuerDeleteHandler do
 
       queuer.reload
       queuer.deleted_at.should be_nil
+    end
+  end
+
+  context "when the user has OWNER role in the same organization as the space owner" do
+    it "soft-deletes the queuer" do
+      organization = create_organization
+      space_owner = create_user(organization: organization)
+      space = create_space(manager: space_owner)
+      queuer = create_queuer(space: space)
+      queuer_id = queuer.id!
+      colleague = create_user(organization: organization, role: Auth::Role::OWNER)
+
+      response = Marten::Spec.client.delete(
+        Marten.routes.reverse("antrikan:queuer:delete", queuer_hashed_id: queuer.hashed_id),
+        headers: {authorization: "Bearer #{colleague.jwt_token}"}
+      )
+
+      response.status.should eq 200
+
+      deleted = Antrikan::Queuer.unscoped.get!(id: queuer_id)
+      deleted.deleted_at.should be_a Time
     end
   end
 

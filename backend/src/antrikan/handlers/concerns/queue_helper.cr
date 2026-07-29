@@ -16,6 +16,10 @@ module Antrikan
         .get!
     end
 
+    private def staff?
+      queue.space!.staffed_by?(current_user!)
+    end
+
     private def schema
       @schema ||= QueueSchema.new(request.data)
     end

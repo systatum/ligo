@@ -7,4 +7,10 @@ class UploadedFile < Marten::Model
   field :byte_size, :big_int, null: false, blank: false
   field :created_at, :date_time, null: false, auto_now_add: true
   field :updated_at, :date_time, null: false, auto_now: true
+
+  field :uploaded_by, :many_to_one, to: Auth::User, related: :uploaded_files, null: true, blank: true
+
+  def owned_by?(user : Auth::User) : Bool
+    uploaded_by == user
+  end
 end

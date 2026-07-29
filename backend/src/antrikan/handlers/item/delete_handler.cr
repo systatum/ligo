@@ -6,7 +6,7 @@ module Antrikan
     http_method_names :delete
 
     def delete : Marten::HTTP::Response
-      raise Marten::HTTP::Errors::PermissionDenied.new unless current_user!.admin?
+      raise Marten::HTTP::Errors::PermissionDenied.new unless authorized_for_item?
 
       item.soft_delete!
       json ItemSerializer.serialize(item), status: 200

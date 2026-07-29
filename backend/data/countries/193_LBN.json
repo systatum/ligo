@@ -1,0 +1,20 @@
+{
+  "name": {
+    "en-US": "Lebanon"
+  },
+  "cities": {
+    "193010001": "Baalbek, Baalbek-Hermel",
+    "193020001": "Beirut, Beyrouth",
+    "193020002": "Ra’s Bayrūt, Beyrouth",
+    "193030001": "Zahlé, Béqaa",
+    "193040001": "Bcharré, Liban-Nord",
+    "193040002": "Tripoli, Liban-Nord",
+    "193050001": "En Nâqoûra, Liban-Sud",
+    "193050002": "Sidon, Liban-Sud",
+    "193050003": "Tyre, Liban-Sud",
+    "193060001": "Djounie, Mont-Liban",
+    "193060002": "Jbaïl, Mont-Liban",
+    "193070001": "Habboûch, Nabatîyé",
+    "193070002": "Nabatîyé et Tahta, Nabatîyé"
+  }
+}

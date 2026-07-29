@@ -1,0 +1,25 @@
+{
+  "name": {
+    "en-US": "Botswana"
+  },
+  "cities": {
+    "123010001": "Letlhakane, Central",
+    "123010002": "Mahalapye, Central",
+    "123010003": "Palapye, Central",
+    "123010004": "Selebi-Phikwe, Central",
+    "123010005": "Serowe, Central",
+    "123010006": "Tonota, Central",
+    "123020001": "Mochudi, Kgatleng",
+    "123030001": "Mogoditshane, Kweneng",
+    "123030002": "Molepolole, Kweneng",
+    "123030003": "Thamaga, Kweneng",
+    "123040001": "Francistown, North East",
+    "123050001": "Maun, North West",
+    "123060001": "Gaborone, South East",
+    "123060002": "Janeng, South East",
+    "123060003": "Lobatse, South East",
+    "123060004": "Ramotswa, South East",
+    "123070001": "Kanye, Southern",
+    "123070002": "Mosopa, Southern"
+  }
+}

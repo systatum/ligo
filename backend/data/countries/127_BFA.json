@@ -1,0 +1,39 @@
+{
+  "name": {
+    "en-US": "Burkina Faso"
+  },
+  "cities": {
+    "127010001": "Dédougou, Boucle du Mouhoun",
+    "127010002": "Nouna, Boucle du Mouhoun",
+    "127010003": "Tougan, Boucle du Mouhoun",
+    "127020001": "Banfora, Cascades",
+    "127030001": "Ouagadougou, Centre",
+    "127040001": "Garango, Centre-Est",
+    "127040002": "Koupéla, Centre-Est",
+    "127040003": "Tenkodogo, Centre-Est",
+    "127050001": "Boulsa, Centre-Nord",
+    "127050002": "Kaya, Centre-Nord",
+    "127050003": "Kongoussi, Centre-Nord",
+    "127060001": "Kokologo, Centre-Ouest",
+    "127060002": "Koudougou, Centre-Ouest",
+    "127060003": "Léo, Centre-Ouest",
+    "127060004": "Réo, Centre-Ouest",
+    "127070001": "Kombissiri, Centre-Sud",
+    "127070002": "Manga, Centre-Sud",
+    "127070003": "Pô, Centre-Sud",
+    "127080001": "Diapaga, Est",
+    "127080002": "Fada N'gourma, Est",
+    "127090001": "Bobo-Dioulasso, High-Basins",
+    "127090002": "Houndé, High-Basins",
+    "127090003": "Orodara, High-Basins",
+    "127100001": "Gourcy, Nord",
+    "127100002": "Ouahigouya, Nord",
+    "127100003": "Titao, Nord",
+    "127100004": "Yako, Nord",
+    "127110001": "Boussé, Plateau-Central",
+    "127110002": "Zorgo, Plateau-Central",
+    "127120001": "Djibo, Sahel",
+    "127120002": "Dori, Sahel",
+    "127130001": "Gaoua, Southwest"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": {
+    "en-US": "Liberia"
+  },
+  "cities": {
+    "195010001": "Gbarnga, Bong",
+    "195020001": "Buchanan, Grand Bassa",
+    "195030001": "Zwedru, Grand Gedeh",
+    "195040001": "Voinjama, Lofa",
+    "195050001": "Kakata, Margibi",
+    "195060001": "Harper, Maryland",
+    "195070001": "Bensonville, Montserrado",
+    "195070002": "Monrovia, Montserrado",
+    "195080001": "New Yekepa, Nimba",
+    "195090001": "Greenville, Sinoe"
+  }
+}

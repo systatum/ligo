@@ -1,0 +1,30 @@
+{
+  "name": {
+    "en-US": "Kyrgyzstan"
+  },
+  "cities": {
+    "190010001": "Iradan, Batken",
+    "190010002": "Isfana, Batken",
+    "190010003": "Kyzyl-Kyya, Batken",
+    "190010004": "Suluktu, Batken",
+    "190020001": "Bishkek, Bishkek",
+    "190030001": "Kant, Chüy",
+    "190030002": "Kara-Balta, Chüy",
+    "190030003": "Tokmok, Chüy",
+    "190040001": "Bazar-Korgon, Jalal-Abad",
+    "190040002": "Jalal-Abad, Jalal-Abad",
+    "190040003": "Tash-Kumyr, Jalal-Abad",
+    "190040004": "Toktogul, Jalal-Abad",
+    "190050001": "At-Bashi, Naryn",
+    "190050002": "Naryn, Naryn",
+    "190060001": "Kara Suu, Osh",
+    "190060002": "Osh, Osh",
+    "190060003": "Uzgen, Osh",
+    "190070001": "Osh City, Osh City",
+    "190080001": "Talas, Talas",
+    "190090001": "Balykchy, Ysyk-Köl",
+    "190090002": "Cholpon-Ata, Ysyk-Köl",
+    "190090003": "Karakol, Ysyk-Köl",
+    "190090004": "Kyzyl-Suu, Ysyk-Köl"
+  }
+}

@@ -12,6 +12,10 @@ module Current
     Fiber.current.sys_authenticated_user_id
   end
 
+  def self.user : Auth::User?
+    performer_id.try { |id| Auth::User.get(id: id) }
+  end
+
   def self.ip : String?
     Fiber.current.sys_request_ip
   end

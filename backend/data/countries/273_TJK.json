@@ -1,0 +1,32 @@
+{
+  "name": {
+    "en-US": "Tajikistan"
+  },
+  "cities": {
+    "273010001": "Boshkengash, Dushanbe",
+    "273010002": "Dushanbe, Dushanbe",
+    "273020001": "Ishqoshim, Gorno-Badakhshan",
+    "273020002": "Khorugh, Gorno-Badakhshan",
+    "273030001": "Chubek, Khatlon",
+    "273030002": "Danghara, Khatlon",
+    "273030003": "Farkhor, Khatlon",
+    "273030004": "Kolkhozobod, Khatlon",
+    "273030005": "Kŭlob, Khatlon",
+    "273030006": "Moskovskiy, Khatlon",
+    "273030007": "Norak, Khatlon",
+    "273030008": "Qŭrghonteppa, Khatlon",
+    "273030009": "Vakhsh, Khatlon",
+    "273030010": "Vose’, Khatlon",
+    "273030011": "Yovon, Khatlon",
+    "273040001": "Hisor, Republican Subordination",
+    "273040002": "Tursunzoda, Republican Subordination",
+    "273040003": "Vahdat, Republican Subordination",
+    "273050001": "Chkalov, Viloyati Sughd",
+    "273050002": "Isfara, Viloyati Sughd",
+    "273050003": "Istaravshan, Viloyati Sughd",
+    "273050004": "Khŭjand, Viloyati Sughd",
+    "273050005": "Konibodom, Viloyati Sughd",
+    "273050006": "Panjakent, Viloyati Sughd",
+    "273050007": "Proletar, Viloyati Sughd"
+  }
+}

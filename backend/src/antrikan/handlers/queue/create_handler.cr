@@ -1,6 +1,6 @@
 module Antrikan
   class QueueCreateHandler < RequestHandler
-    include ChannelHelper
+    include SpaceHelper
 
     protect_from_forgery false
     http_method_names :post
@@ -11,7 +11,7 @@ module Antrikan
         keys << queuer_id.not_nil! if queuer_id
       end
 
-      result = Queue::CreatorService.new(channel, request.data).run
+      result = Queue::CreatorService.new(space, request.data).run
 
       if result.success?
         json QueueSerializer.serialize(result.data.not_nil!), status: 201

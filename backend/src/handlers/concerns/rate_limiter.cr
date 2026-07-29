@@ -8,14 +8,16 @@ module RateLimiter
   )
     keys = [IPDetector.client_ip(request)] of String
     block.call(keys)
-    Prorate.with_throttle(
+
+    throttle = Prorate::Throttle.new(
       name: name,
       bucket_capacity: bucket_capacity,
       leak_rate: leak_rate,
-      block_for: block_for
-    ) do |t|
-      keys.each { |id| t << id }
-    end
+      block_for: block_for,
+      redis: RedisPool.client,
+    )
+    keys.each { |id| throttle << id }
+    throttle.throttle!
   end
 
   private def rate_limit(

@@ -1,0 +1,33 @@
+{
+  "name": {
+    "en-US": "Haiti"
+  },
+  "cities": {
+    "171010001": "Désarmes, Artibonite",
+    "171010002": "Gonayiv, Artibonite",
+    "171010003": "Saint-Marc, Artibonite",
+    "171010004": "Verrettes, Artibonite",
+    "171020001": "Hinche, Centre",
+    "171030001": "Jérémie, GrandʼAnse",
+    "171040001": "Miragoâne, Nippes",
+    "171050001": "Lenbe, Nord",
+    "171050002": "Okap, Nord",
+    "171050003": "Saint-Raphaël, Nord",
+    "171060001": "Port-de-Paix, Nord-Ouest",
+    "171060002": "Ti Port-de-Paix, Nord-Ouest",
+    "171070001": "Carrefour, Ouest",
+    "171070002": "Croix des Bouquets, Ouest",
+    "171070003": "Delmas 73, Ouest",
+    "171070004": "Fond Parisien, Ouest",
+    "171070005": "Grangwav, Ouest",
+    "171070006": "Gressier, Ouest",
+    "171070007": "Kenscoff, Ouest",
+    "171070008": "Léogâne, Ouest",
+    "171070009": "Port-au-Prince, Ouest",
+    "171070010": "Pétionville, Ouest",
+    "171070011": "Thomazeau, Ouest",
+    "171070012": "Tigwav, Ouest",
+    "171080001": "Les Cayes, Sud",
+    "171090001": "Jacmel, Sud-Est"
+  }
+}

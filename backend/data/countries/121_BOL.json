@@ -1,0 +1,34 @@
+{
+  "name": {
+    "en-US": "Bolivia"
+  },
+  "cities": {
+    "121010001": "Sucre, Chuquisaca",
+    "121020001": "Cochabamba, Cochabamba",
+    "121020002": "Mizque, Cochabamba",
+    "121020003": "Punata, Cochabamba",
+    "121030001": "Guayaramerín, El Beni",
+    "121030002": "Riberalta, El Beni",
+    "121030003": "San Borja, El Beni",
+    "121030004": "Trinidad, El Beni",
+    "121040001": "La Paz, La Paz",
+    "121050001": "Huanuni, Oruro",
+    "121050002": "Oruro, Oruro",
+    "121060001": "Cobija, Pando",
+    "121070001": "Llallagua, Potosí",
+    "121070002": "Potosí, Potosí",
+    "121070003": "Tupiza, Potosí",
+    "121070004": "Villazón, Potosí",
+    "121080001": "Camiri, Santa Cruz",
+    "121080002": "Cotoca, Santa Cruz",
+    "121080003": "Montero, Santa Cruz",
+    "121080004": "San Ignacio de Velasco, Santa Cruz",
+    "121080005": "Santa Cruz de la Sierra, Santa Cruz",
+    "121080006": "Santiago del Torno, Santa Cruz",
+    "121080007": "Villa Yapacaní, Santa Cruz",
+    "121080008": "Warnes, Santa Cruz",
+    "121090001": "Tarija, Tarija",
+    "121090002": "Villamontes, Tarija",
+    "121090003": "Yacuiba, Tarija"
+  }
+}

@@ -11,7 +11,7 @@ module Antrikan
 
     def patch : Marten::HTTP::Response
       raise Marten::HTTP::Errors::PermissionDenied.new unless current_user!.admin?
-      raise Marten::HTTP::Errors::PermissionDenied.new unless queuer_including_deleted.space!.owner == current_user!
+      raise Marten::HTTP::Errors::PermissionDenied.new unless authorized_for_queuer_including_deleted?
 
       q = queuer_including_deleted
       q.deleted_at = nil

@@ -147,6 +147,51 @@ def capture_redis_messages(channel : String, count : Int, timeout = 2.seconds, &
   collect_redis_messages(channel, count: count, timeout: timeout) { yield }
 end
 
+private def collect_redis_messages_by_channel(
+  channels : Array(String), per_channel_count : Int, timeout : Time::Span, &
+) : Hash(String, Array(String))
+  received = Channel({String, Array(String)}).new(channels.size)
+  subscribed = Channel(Nil).new(channels.size)
+
+  channels.each do |channel|
+    spawn(name: "test_redis_multi_sub") do
+      redis = RedisPool.new_connection
+      messages = [] of String
+      redis.subscribe(channel) do |on|
+        on.subscribe { |_ch, _count| subscribed.send(nil) }
+        on.message do |_ch, payload|
+          messages << payload
+          redis.unsubscribe([] of String) if messages.size >= per_channel_count
+        end
+      end
+      received.send({channel, messages})
+    end
+  end
+
+  channels.size.times { subscribed.receive }
+  yield
+
+  result = Hash(String, Array(String)).new
+  channels.size.times do
+    select
+    when pair = received.receive
+      channel, messages = pair
+      result[channel] = messages unless messages.empty?
+    when timeout(timeout)
+    end
+  end
+  result
+end
+
+# Subscribes to several redis channels at once, returning received payloads keyed by
+# the channel they arrived on - for asserting a single action fans out to multiple
+# channels (e.g. Antrikan's per-channel websocket broadcast for a multi-channel queue).
+def capture_redis_messages_by_channel(
+  channels : Array(String), per_channel_count : Int = 1, timeout = 2.seconds, &
+) : Hash(String, Array(String))
+  collect_redis_messages_by_channel(channels, per_channel_count: per_channel_count, timeout: timeout) { yield }
+end
+
 def expect_no_redis_message(channel : String, wait = 0.1.seconds, &) : Nil
   collect_redis_messages(channel, count: 1, timeout: wait) { yield }.should be_empty
 end

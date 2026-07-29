@@ -4,15 +4,17 @@ module Antrikan
       record = @record.as(Item)
 
       {
-        id:           record.slug,
-        channel_id:   record.channel!.hashed_id,
-        name:         record.name,
-        order:        record.order,
-        daily_cap:    record.daily_cap,
-        unit_price:   record.unit_price,
-        is_monitored: record.is_monitored,
-        description:  record.description,
-        main_image:   fetch_main_image_url,
+        id:              record.slug,
+        channel_id:      record.channel!.hashed_id,
+        name:            record.name,
+        order:           record.order,
+        daily_cap:       record.daily_cap,
+        unit_price:      record.unit_price,
+        unit_currency:   Currency.from_value(record.unit_currency!).to_s,
+        is_monitored:    record.is_monitored,
+        description:     record.description,
+        main_image:      fetch_main_image_url,
+        carousel_images: fetch_carousel_images,
       }
     end
 
@@ -23,6 +25,11 @@ module Antrikan
       return nil unless image_id
 
       Marten.routes.reverse("uploaded_file_show", id: image_id.to_s)
+    end
+
+    private def fetch_carousel_images
+      record = @record.as(Item)
+      fetch_uploaded_files(record.carousel_image_ids.try(&.ids))
     end
   end
 end

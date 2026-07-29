@@ -1,0 +1,29 @@
+{
+  "name": {
+    "en-US": "Georgia"
+  },
+  "cities": {
+    "162010001": "Och’amch’ire, Abkhazia",
+    "162010002": "Sokhumi, Abkhazia",
+    "162010003": "Stantsiya Novyy Afon, Abkhazia",
+    "162010004": "Tqvarch'eli, Abkhazia",
+    "162020001": "Batumi, Ajaria",
+    "162020002": "Kobuleti, Ajaria",
+    "162030001": "Ozurgeti, Guria",
+    "162040001": "Kutaisi, Imereti",
+    "162040002": "Samtredia, Imereti",
+    "162040003": "Tsqaltubo, Imereti",
+    "162040004": "Zestap’oni, Imereti",
+    "162050001": "Telavi, Kakheti",
+    "162060001": "Marneuli, Kvemo Kartli",
+    "162060002": "Rust’avi, Kvemo Kartli",
+    "162070001": "P’ot’i, Samegrelo and Zemo Svaneti",
+    "162070002": "Senak’i, Samegrelo and Zemo Svaneti",
+    "162070003": "Zugdidi, Samegrelo and Zemo Svaneti",
+    "162080001": "Akhaltsikhe, Samtskhe-Javakheti",
+    "162090001": "Gori, Shida Kartli",
+    "162090002": "Khashuri, Shida Kartli",
+    "162090003": "Ts’khinvali, Shida Kartli",
+    "162100001": "Tbilisi, T'bilisi"
+  }
+}

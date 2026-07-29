@@ -15,7 +15,7 @@ module Antrikan::SpaceHelper
   end
 
   private def owner_of_space?
-    space.owner == current_user!
+    space.owned_by?(current_user!)
   end
 
   private def schema

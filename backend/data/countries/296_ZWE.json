@@ -1,0 +1,33 @@
+{
+  "name": {
+    "en-US": "Zimbabwe"
+  },
+  "cities": {
+    "296010001": "Bulawayo, Bulawayo",
+    "296020001": "Chitungwiza, Harare",
+    "296020002": "Epworth, Harare",
+    "296020003": "Harare, Harare",
+    "296030001": "Chipinge, Manicaland",
+    "296030002": "Mutare, Manicaland",
+    "296030003": "Rusape, Manicaland",
+    "296040001": "Bindura, Mashonaland Central",
+    "296050001": "Marondera, Mashonaland East",
+    "296060001": "Chegutu, Mashonaland West",
+    "296060002": "Chinhoyi, Mashonaland West",
+    "296060003": "Kadoma, Mashonaland West",
+    "296060004": "Kariba, Mashonaland West",
+    "296060005": "Karoi, Mashonaland West",
+    "296060006": "Norton, Mashonaland West",
+    "296070001": "Chiredzi, Masvingo",
+    "296070002": "Masvingo, Masvingo",
+    "296070003": "Zvishavane, Masvingo",
+    "296080001": "Hwange, Matabeleland North",
+    "296080002": "Victoria Falls, Matabeleland North",
+    "296090001": "Beitbridge, Matabeleland South",
+    "296100001": "Gokwe, Midlands",
+    "296100002": "Gweru, Midlands",
+    "296100003": "Kwekwe, Midlands",
+    "296100004": "Redcliff, Midlands",
+    "296100005": "Shurugwi, Midlands"
+  }
+}

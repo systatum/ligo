@@ -1,0 +1,33 @@
+{
+  "name": {
+    "en-US": "Cambodia"
+  },
+  "cities": {
+    "129010001": "Paôy Pêt, Banteay Meanchey",
+    "129010002": "Sisŏphŏn, Banteay Meanchey",
+    "129020001": "Battambang, Battambang",
+    "129030001": "Kampong Cham, Kampong Cham",
+    "129040001": "Kampong Chhnang, Kampong Chhnang",
+    "129050001": "Kampong Speu, Kampong Speu",
+    "129060001": "Kampong Thom, Kampong Thom",
+    "129070001": "Kampot, Kampot",
+    "129080001": "Ta Khmau, Kandal",
+    "129090001": "Koh Kong, Koh Kong",
+    "129090002": "Smach Mean Chey, Koh Kong",
+    "129100001": "Kratié, Kratie",
+    "129110001": "Pailin, Pailin",
+    "129120001": "Phnom Penh, Phnom Penh",
+    "129130001": "Sihanoukville, Preah Sihanouk",
+    "129140001": "Tbêng Méanchey, Preah Vihear",
+    "129150001": "Prey Veng, Prey Veng",
+    "129160001": "Pursat, Pursat",
+    "129170001": "Ban Lŭng, Ratanakiri",
+    "129170002": "Lumphăt, Ratanakiri",
+    "129180001": "Siem Reap, Siem Reap",
+    "129190001": "Stung Treng, Stung Treng",
+    "129200001": "Svay Rieng, Svay Rieng",
+    "129210001": "Phumĭ Véal Srê, Takeo",
+    "129210002": "Takeo, Takeo",
+    "129220001": "Sâmraông, Ŏtâr Méanchey"
+  }
+}

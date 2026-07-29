@@ -1,0 +1,16 @@
+{
+  "name": {
+    "en-US": "Gabon"
+  },
+  "cities": {
+    "160010001": "Libreville, Estuaire",
+    "160020001": "Franceville, Haut-Ogooué",
+    "160020002": "Moanda, Haut-Ogooué",
+    "160030001": "Lambaréné, Moyen-Ogooué",
+    "160040001": "Mouila, Ngounié",
+    "160050001": "Tchibanga, Nyanga",
+    "160060001": "Koulamoutou, Ogooué-Lolo",
+    "160070001": "Port-Gentil, Ogooué-Maritime",
+    "160080001": "Oyem, Woleu-Ntem"
+  }
+}

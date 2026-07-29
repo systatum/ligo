@@ -4,7 +4,7 @@ describe Antrikan::QueuerUndeleteHandler do
   context "when the user is an admin and owns the space" do
     it "restores a soft-deleted queuer" do
       user = create_user
-      space = create_space(owner: user)
+      space = create_space(manager: user)
       queuer = create_queuer(space: space)
       queuer.soft_delete!
       queuer_id = queuer.id!
@@ -28,7 +28,7 @@ describe Antrikan::QueuerUndeleteHandler do
     it "returns 403 and the queuer remains deleted" do
       owner = create_user
       admin = create_user
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
       queuer = create_queuer(space: space)
       queuer.soft_delete!
 
@@ -49,7 +49,7 @@ describe Antrikan::QueuerUndeleteHandler do
   context "when the user is not an admin" do
     it "returns 403" do
       user = create_user(role: Auth::Role::SECURITY_STAFF)
-      space = create_space(owner: user)
+      space = create_space(manager: user)
       queuer = create_queuer(space: space)
       queuer.soft_delete!
 
@@ -61,6 +61,29 @@ describe Antrikan::QueuerUndeleteHandler do
       )
 
       response.status.should eq 403
+    end
+  end
+
+  context "when the user has OWNER role in the same organization as the space owner" do
+    it "restores a soft-deleted queuer" do
+      organization = create_organization
+      space_owner = create_user(organization: organization)
+      space = create_space(manager: space_owner)
+      queuer = create_queuer(space: space)
+      queuer.soft_delete!
+      colleague = create_user(organization: organization, role: Auth::Role::OWNER)
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:queuer:undelete", queuer_hashed_id: queuer.hashed_id),
+        data: ({} of String => String).to_json,
+        headers: {authorization: "Bearer #{colleague.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 200
+
+      queuer.reload
+      queuer.deleted_at.should be_nil
     end
   end
 

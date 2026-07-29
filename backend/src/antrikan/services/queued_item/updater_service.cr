@@ -12,7 +12,7 @@ module Antrikan
       items_payload = Array(QueuedItemUpdatePayload).from_json(items_array.to_json)
       return failure(:items, "must be a non-empty array") if items_payload.empty?
 
-      if items_payload.any? { |payload| payload.handler_id.nil? && payload.status.nil? && payload.note.nil? }
+      if items_payload.any? { |payload| payload.handler_id.nil? && payload.status.nil? && payload.note.nil? && payload.cancel_note.nil? }
         return failure(:items, "At least one field must be provided for update")
       end
 
@@ -24,6 +24,13 @@ module Antrikan
       authorize_items!(queue_items)
 
       id_to_queue_item = queue_items.index_by { |qi| qi.id.to_s }
+
+      items_payload.each do |payload|
+        qi = id_to_queue_item[payload.id]
+        return failure(:queue, ErrorCode::QUEUED_ITEM_QUEUE_PAID) unless unpaid?(qi)
+        return failure(:status, ErrorCode::QUEUED_ITEM_PAST_PREDELETABLE_STATE) if past_predeletable_state?(qi, payload)
+      end
+
       updated = [] of QueuedItem
 
       QueuedItem.transaction do
@@ -55,11 +62,28 @@ module Antrikan
       if note = payload.note
         qi.note = note
       end
+      if cancel_note = payload.cancel_note
+        qi.cancel_note = cancel_note if becoming_canceled?(payload)
+      end
       if status = payload.status
         qi.change_status!(status.to_state)
       end
 
       qi.save!
+    end
+
+    private def becoming_canceled?(payload : QueuedItemUpdatePayload) : Bool
+      payload.status == QueueStatus::CANCELED
+    end
+
+    # True when this item is being canceled (deleted), but its current state
+    # is already past the channel's configured predeletable_state cutoff.
+    private def past_predeletable_state?(qi : QueuedItem, payload : QueuedItemUpdatePayload) : Bool
+      becoming_canceled?(payload) && qi.status! > qi.channel!.predeletable_state!
+    end
+
+    private def unpaid?(qi : QueuedItem) : Bool
+      qi.queue!.payment_status! == PaymentStatus::UNPAID.value
     end
 
     private def schema
@@ -71,7 +95,7 @@ module Antrikan
     private def authorize_items!(queue_items)
       authorized_count = QueuedItem.unscoped
         .filter(id__in: queue_items.map(&.id))
-        .filter(queue__channel__space__owner__organization_id: @organization_id.to_i64)
+        .filter(queue__space__manager__organization_id: @organization_id.to_i64)
         .count
 
       raise Auth::AuthorizationError.new unless authorized_count == queue_items.size

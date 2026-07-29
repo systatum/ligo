@@ -4,10 +4,13 @@ module Antrikan
       record = @record.as(Channel)
 
       {
-        id:          record.hashed_id,
-        name:        record.name,
-        description: record.description,
-        logo:        fetch_logo_url,
+        id:                      record.hashed_id,
+        name:                    record.name,
+        description:             record.description,
+        logo:                    fetch_logo_url,
+        predeletable_state:      record.predeletable_state,
+        enforce_operating_hours: record.enforce_operating_hours,
+        max_item_piece:          record.max_item_piece,
       }
     end
 

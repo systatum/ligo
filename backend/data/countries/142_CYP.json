@@ -1,0 +1,14 @@
+{
+  "name": {
+    "en-US": "Cyprus"
+  },
+  "cities": {
+    "142010001": "Famagusta, Ammochostos",
+    "142010002": "Protaras, Ammochostos",
+    "142020001": "Kyrenia, Keryneia",
+    "142030001": "Larnaca, Larnaka",
+    "142040001": "Nicosia, Lefkosia",
+    "142050001": "Limassol, Limassol",
+    "142060001": "Paphos, Pafos"
+  }
+}

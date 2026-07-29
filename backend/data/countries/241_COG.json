@@ -1,0 +1,19 @@
+{
+  "name": {
+    "en-US": "Republic of the Congo"
+  },
+  "cities": {
+    "241010001": "Kayes, Bouenza",
+    "241010002": "Madingou, Bouenza",
+    "241020001": "Brazzaville, Brazzaville",
+    "241030001": "Owando, Cuvette",
+    "241040001": "Impfondo, Likouala",
+    "241050001": "Sibiti, Lékoumou",
+    "241060001": "Dolisie, Niari",
+    "241060002": "Mossendjo, Niari",
+    "241070001": "Gamboma, Plateaux",
+    "241080001": "Loandjili, Pointe-Noire",
+    "241080002": "Pointe-Noire, Pointe-Noire",
+    "241090001": "Ouésso, Sangha"
+  }
+}

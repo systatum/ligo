@@ -1,0 +1,27 @@
+{
+  "name": {
+    "en-US": "Central African Republic"
+  },
+  "cities": {
+    "133010001": "Bangui, Bangui",
+    "133020001": "Mobaye, Basse-Kotto",
+    "133030001": "Bria, Haute-Kotto",
+    "133040001": "Sibut, Kémo",
+    "133050001": "Boda, Lobaye",
+    "133050002": "Mbaïki, Lobaye",
+    "133060001": "Berbérati, Mambéré-Kadéï",
+    "133060002": "Carnot, Mambéré-Kadéï",
+    "133070001": "Bangassou, Mbomou",
+    "133080001": "Kaga Bandoro, Nana-Grébizi",
+    "133090001": "Bouar, Nana-Mambéré",
+    "133100001": "Bimbo, Ombella-Mpoko",
+    "133100002": "Damara, Ombella-Mpoko",
+    "133110001": "Bambari, Ouaka",
+    "133110002": "Ippy, Ouaka",
+    "133120001": "Batangafo, Ouham",
+    "133120002": "Bossangoa, Ouham",
+    "133130001": "Bozoum, Ouham-Pendé",
+    "133130002": "Paoua, Ouham-Pendé",
+    "133140001": "Nola, Sangha-Mbaéré"
+  }
+}

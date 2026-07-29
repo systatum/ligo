@@ -1,0 +1,33 @@
+{
+  "name": {
+    "en-US": "Jordan"
+  },
+  "cities": {
+    "184010001": "‘Ajlūn, Ajlun",
+    "184010002": "‘Anjarah, Ajlun",
+    "184020001": "Al Jubayhah, Amman",
+    "184020002": "Al Quwaysimah, Amman",
+    "184020003": "Amman, Amman",
+    "184020004": "Saḩāb, Amman",
+    "184020005": "Umm as Summāq, Amman",
+    "184020006": "Wādī as Sīr, Amman",
+    "184030001": "Aqaba, Aqaba",
+    "184040001": "As Salţ, Balqa",
+    "184050001": "Ar Ramthā, Irbid",
+    "184050002": "Aydūn, Irbid",
+    "184050003": "Irbid, Irbid",
+    "184050004": "Judita, Irbid",
+    "184050005": "Kurayyimah, Irbid",
+    "184060001": "Jarash, Jerash",
+    "184070001": "Karak City, Karak",
+    "184070002": "Safi, Karak",
+    "184070003": "‘Izrā, Karak",
+    "184080001": "Mādabā, Madaba",
+    "184090001": "Mafraq, Mafraq",
+    "184100001": "Ma'an, Ma’an",
+    "184100002": "Qīr Moāv, Ma’an",
+    "184110001": "Aţ Ţafīlah, Tafielah",
+    "184120001": "Russeifa, Zarqa",
+    "184120002": "Zarqa, Zarqa"
+  }
+}

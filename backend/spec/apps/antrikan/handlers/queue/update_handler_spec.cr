@@ -4,7 +4,7 @@ describe Antrikan::QueueUpdateHandler do
   context "when the request payload is valid" do
     it "updates allowed fields only" do
       queue = create_queue(note: "old", status: Antrikan::QueueStatus::QUEUED)
-      user = create_user(organization: queue.channel!.space!.owner!.organization!)
+      user = create_user(organization: queue.space!.manager!.organization!)
 
       response = Marten::Spec.client.patch(
         Marten.routes.reverse("antrikan:queue:update", queue_slug: queue.slug!),
@@ -51,9 +51,123 @@ describe Antrikan::QueueUpdateHandler do
     end
   end
 
+  context "when supplying voucher_code" do
+    it "attaches the voucher and applies pay-time discounts when the space owner sets payment_status" do
+      organization = create_organization
+      owner = create_user(organization: organization)
+      space = create_space(manager: owner)
+      channel = create_channel(space: space)
+      item = create_item(channel: channel)
+      queue = create_queue(space: space, queuer: create_queuer(space: space))
+      queued_item = create_queued_item(queue: queue, item: item, unit_price: 100_i64)
+      voucher = create_voucher(space: space, code: "TENOFF", space_percentage_discount: 10.0)
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:queue:update", queue_slug: queue.slug!),
+        data: {
+          voucher_code:   voucher.code,
+          payment_status: Antrikan::PaymentStatus::FULL,
+        }.to_json,
+        headers: {authorization: "Bearer #{owner.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 200
+
+      Antrikan::AppliedVoucher.filter(queue_id: queue.id!).exists?.should be_true
+
+      queued_item.reload
+      queued_item.applied_voucher_ids.not_nil!.ids.size.should eq 1
+
+      queue.reload
+      queue.total_price.should eq "90.0"
+    end
+
+    it "rejects when the requester is not the space owner" do
+      space = create_space
+      queue = create_queue(space: space, queuer: create_queuer(space: space))
+      voucher = create_voucher(space: space, code: "TENOFF", space_percentage_discount: 10.0)
+      outsider = create_user
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:queue:update", queue_slug: queue.slug!),
+        data: {
+          voucher_code: voucher.code,
+        }.to_json,
+        headers: {authorization: "Bearer #{outsider.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+      Antrikan::AppliedVoucher.filter(queue_id: queue.id!).exists?.should be_false
+    end
+  end
+
+  context "when reopening payment_status back to UNPAID" do
+    it "rejects when the queue has a pending refund" do
+      queue = create_queue(payment_status: Antrikan::PaymentStatus::FULL)
+      payment = create_payment(queue: queue, amount: BigFloat.new(100))
+      create_refund(payment: payment, amount: BigFloat.new(10))
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:queue:update", queue_slug: queue.slug!),
+        data: {payment_status: Antrikan::PaymentStatus::UNPAID}.to_json,
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+
+      queue.reload
+      queue.payment_status.should eq Antrikan::PaymentStatus::FULL.value
+    end
+
+    it "rejects when the queue has an accepted refund" do
+      queue = create_queue(payment_status: Antrikan::PaymentStatus::FULL)
+      payment = create_payment(queue: queue, amount: BigFloat.new(100))
+      create_refund(payment: payment, amount: BigFloat.new(10), status: Antrikan::RefundStatus::ACCEPTED)
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:queue:update", queue_slug: queue.slug!),
+        data: {payment_status: Antrikan::PaymentStatus::UNPAID}.to_json,
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+    end
+
+    it "allows it when the queue only has a rejected refund" do
+      queue = create_queue(payment_status: Antrikan::PaymentStatus::FULL)
+      payment = create_payment(queue: queue, amount: BigFloat.new(100))
+      create_refund(payment: payment, amount: BigFloat.new(10), status: Antrikan::RefundStatus::REJECTED)
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:queue:update", queue_slug: queue.slug!),
+        data: {payment_status: Antrikan::PaymentStatus::UNPAID}.to_json,
+        content_type: "application/json"
+      )
+
+      response.status.should eq 200
+
+      queue.reload
+      queue.payment_status.should eq Antrikan::PaymentStatus::UNPAID.value
+    end
+
+    it "allows it when the queue has no refunds at all" do
+      queue = create_queue(payment_status: Antrikan::PaymentStatus::FULL)
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:queue:update", queue_slug: queue.slug!),
+        data: {payment_status: Antrikan::PaymentStatus::UNPAID}.to_json,
+        content_type: "application/json"
+      )
+
+      response.status.should eq 200
+    end
+  end
+
   context "when the request payload is invalid" do
     it "does not update disallowed fields" do
-      queue = create_queue(total_price: 33_000_i64)
+      queue = create_queue(total_price: BigFloat.new(33_000))
 
       response = Marten::Spec.client.patch(
         Marten.routes.reverse("antrikan:queue:update", queue_slug: queue.slug!),
@@ -67,7 +181,7 @@ describe Antrikan::QueueUpdateHandler do
       response.status.should eq 422
 
       queue.reload
-      queue.total_price.should eq 33_000_i64
+      queue.total_price.should eq "33000.0"
     end
 
     it "returns 404 when queue does not exist" do
@@ -83,9 +197,8 @@ describe Antrikan::QueueUpdateHandler do
     it "returns 422 when handler organization does not match queue organization" do
       organization = create_organization
       owner = create_user(organization: organization)
-      space = create_space(owner: owner)
-      channel = create_channel(space: space)
-      queue = create_queue(channel: channel, queuer: create_queuer(space: space))
+      space = create_space(manager: owner)
+      queue = create_queue(space: space, queuer: create_queuer(space: space))
 
       outsider = create_user(organization: create_organization)
 

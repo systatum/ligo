@@ -1,0 +1,19 @@
+{
+  "name": {
+    "en-US": "South Sudan"
+  },
+  "cities": {
+    "263010001": "Juba, Central Equatoria",
+    "263010002": "Yei, Central Equatoria",
+    "263020001": "Pajok, Eastern Equatoria",
+    "263020002": "Torit, Eastern Equatoria",
+    "263030001": "Bor, Jonglei",
+    "263040001": "Rumbek, Lakes",
+    "263050001": "Aweil, Northern Bahr al Ghazal",
+    "263060001": "Malakal, Upper Nile",
+    "263070001": "Gogrial, Warrap",
+    "263070002": "Tonj, Warrap",
+    "263080001": "Wau, Western Bahr al Ghazal",
+    "263090001": "Yambio, Western Equatoria"
+  }
+}

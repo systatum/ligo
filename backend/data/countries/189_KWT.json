@@ -1,0 +1,25 @@
+{
+  "name": {
+    "en-US": "Kuwait"
+  },
+  "cities": {
+    "189010001": "Ad Dasmah, Al Asimah",
+    "189010002": "Ar Rābiyah, Al Asimah",
+    "189010003": "Kuwait City, Al Asimah",
+    "189020001": "Al Aḩmadī, Al Aḩmadī",
+    "189020002": "Al Faḩāḩīl, Al Aḩmadī",
+    "189020003": "Al Finţās, Al Aḩmadī",
+    "189020004": "Al Mahbūlah, Al Aḩmadī",
+    "189020005": "Al Manqaf, Al Aḩmadī",
+    "189020006": "Ar Riqqah, Al Aḩmadī",
+    "189030001": "Al Farwānīyah, Al Farwaniyah",
+    "189030002": "Janūb as Surrah, Al Farwaniyah",
+    "189040001": "Al Jahrā’, Al Jahrāʼ",
+    "189050001": "Şabāḩ as Sālim, Mubārak al Kabīr",
+    "189060001": "Ar Rumaythīyah, Muḩāfaz̧at Ḩawallī",
+    "189060002": "As Sālimīyah, Muḩāfaz̧at Ḩawallī",
+    "189060003": "Bayān, Muḩāfaz̧at Ḩawallī",
+    "189060004": "Salwá, Muḩāfaz̧at Ḩawallī",
+    "189060005": "Ḩawallī, Muḩāfaz̧at Ḩawallī"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": {
+    "en-US": "Kosovo"
+  },
+  "cities": {
+    "188010001": "Ferizaj, Ferizaj",
+    "188010002": "Shtime, Ferizaj",
+    "188020001": "Deçan, Gjakova",
+    "188020002": "Gjakovë, Gjakova",
+    "188020003": "Orahovac, Gjakova",
+    "188030001": "Gjilan, Gjilan",
+    "188030002": "Vitina, Gjilan",
+    "188040001": "Leposaviq, Mitrovica",
+    "188040002": "Mitrovicë, Mitrovica",
+    "188040003": "Vushtrri, Mitrovica",
+    "188040004": "Zvečan, Mitrovica",
+    "188050001": "Istok, Pec",
+    "188050002": "Pejë, Pec",
+    "188060001": "Glogovac, Pristina",
+    "188060002": "Kosovo Polje, Pristina",
+    "188060003": "Podujeva, Pristina",
+    "188060004": "Pristina, Pristina",
+    "188070001": "Dragash, Prizren",
+    "188070002": "Llazicë, Prizren",
+    "188070003": "Prizren, Prizren",
+    "188070004": "Suva Reka, Prizren"
+  }
+}

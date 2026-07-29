@@ -5,10 +5,14 @@ module Antrikan
 
     def run : ServiceResult(QueuedItem)
       return failure(schema.errors) unless schema.valid?
+      return failure(:queue, "Cannot add items to a paid queue") unless unpaid?
+
+      item = Item.get_by_slug!(slug: schema.item_slug!)
+      return failure(:item, "Item is outside its operating hours") unless within_operating_hours?(item)
+      return failure(:channel, "Channel item limit reached for this queue") unless within_item_piece_limit?(item.channel!)
 
       begin
         handler = schema.handler_id? ? Auth::User.get_by_hashed_id!(schema.handler_id!) : nil
-        item = Item.get_by_slug!(slug: schema.item_slug!)
 
         qi = QueuedItem.new
         qi.id = UUID.random
@@ -37,6 +41,23 @@ module Antrikan
       rescue ex : Marten::DB::Errors::InvalidRecord
         failure(ex.record.errors)
       end
+    end
+
+    private def unpaid? : Bool
+      @queue.payment_status! == PaymentStatus::UNPAID.value
+    end
+
+    private def within_operating_hours?(item : Item) : Bool
+      return true unless item.channel!.enforce_operating_hours
+
+      item.open_at?
+    end
+
+    private def within_item_piece_limit?(channel : Channel) : Bool
+      return true if channel.max_item_piece! == -1
+
+      current_count = QueuedItem.filter(queue_id: @queue.id, channel_id: channel.id!).count
+      current_count < channel.max_item_piece!
     end
 
     private def schema

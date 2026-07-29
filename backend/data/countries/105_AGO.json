@@ -1,0 +1,34 @@
+{
+  "name": {
+    "en-US": "Angola"
+  },
+  "cities": {
+    "105010001": "Caxito, Bengo",
+    "105020001": "Benguela, Benguela",
+    "105020002": "Catumbela, Benguela",
+    "105020003": "Lobito, Benguela",
+    "105030001": "Camacupa, Bié",
+    "105030002": "Catabola, Bié",
+    "105030003": "Cuito, Bié",
+    "105040001": "Cabinda, Cabinda",
+    "105050001": "Menongue, Cuando Cubango",
+    "105060001": "N’dalatando, Cuanza Norte",
+    "105070001": "Sumbe, Cuanza Sul",
+    "105080001": "Caála, Huambo",
+    "105080002": "Huambo, Huambo",
+    "105080003": "Longonjo, Huambo",
+    "105090001": "Caluquembe, Huíla",
+    "105090002": "Lubango, Huíla",
+    "105100001": "Luanda, Luanda",
+    "105110001": "Lucapa, Lunda Norte",
+    "105120001": "Saurimo, Lunda Sul",
+    "105130001": "Malanje, Malanje",
+    "105140001": "Luau, Moxico",
+    "105140002": "Luena, Moxico",
+    "105150001": "Namibe, Namibe",
+    "105160001": "Uíge, Uíge",
+    "105170001": "Mbanza Congo, Zaire",
+    "105170002": "Nzeto, Zaire",
+    "105170003": "Soio, Zaire"
+  }
+}

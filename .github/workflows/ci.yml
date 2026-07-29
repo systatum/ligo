@@ -228,7 +228,7 @@ jobs:
       - name: Cache shards
         uses: actions/cache@v6
         with:
-          path: "**/lib"
+          path: backend/lib
           key: ${{ runner.os }}-shards-${{ hashFiles('**/shard.lock') }}
 
       - name: Cache Crystal build cache
@@ -250,13 +250,6 @@ jobs:
           mkdir -p mybin
           crystal build manage.cr -o mybin/manage
           crystal build src/server.cr -o mybin/ligo-server --release
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: ligo-binaries-${{ github.sha }}
-          path: backend/mybin/
-          retention-days: 1
 
       - name: Wait for MySQL
         run: |
@@ -296,6 +289,14 @@ jobs:
 
       - name: Run Spec
         run: bash bin/run_specs --parallel
+
+      - name: Upload build artifacts
+        if: github.ref_name == 'main'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ligo-binaries-${{ github.sha }}
+          path: backend/mybin/
+          retention-days: 1
 
   deploy:
     name: Ligo Deployment

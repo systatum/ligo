@@ -5,7 +5,7 @@ module Antrikan
 
       {
         id:             record.slug,
-        channel_id:     record.channel!.hashed_id,
+        space_id:       record.space!.hashed_id,
         queuer_id:      record.queuer!.hashed_id,
         handler_id:     record.handler.try(&.hashed_id),
         note:           record.note,

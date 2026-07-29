@@ -1,0 +1,31 @@
+{
+  "name": {
+    "en-US": "Honduras"
+  },
+  "cities": {
+    "172010001": "La Ceiba, Atlántida",
+    "172010002": "Tela, Atlántida",
+    "172020001": "Ciudad Choluteca, Choluteca",
+    "172030001": "Tocoa, Colón",
+    "172040001": "Comayagua, Comayagua",
+    "172040002": "Siguatepeque, Comayagua",
+    "172050001": "Santa Rosa de Copán, Copán",
+    "172060001": "Choloma, Cortés",
+    "172060002": "Cofradía, Cortés",
+    "172060003": "La Lima, Cortés",
+    "172060004": "Potrerillos, Cortés",
+    "172060005": "Puerto Cortez, Cortés",
+    "172060006": "San Pedro Sula, Cortés",
+    "172060007": "Villanueva, Cortés",
+    "172070001": "Danlí, El Paraíso",
+    "172070002": "El Paraíso, El Paraíso",
+    "172080001": "Tegucigalpa, Francisco Morazán",
+    "172090001": "La Paz, La Paz",
+    "172100001": "Juticalpa, Olancho",
+    "172110001": "Santa Bárbara, Santa Bárbara",
+    "172120001": "San Lorenzo, Valle",
+    "172130001": "El Progreso, Yoro",
+    "172130002": "Olanchito, Yoro",
+    "172130003": "Yoro, Yoro"
+  }
+}

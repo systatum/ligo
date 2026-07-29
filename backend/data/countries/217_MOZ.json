@@ -1,0 +1,32 @@
+{
+  "name": {
+    "en-US": "Mozambique"
+  },
+  "cities": {
+    "217010001": "Mocímboa, Cabo Delgado",
+    "217010002": "Montepuez, Cabo Delgado",
+    "217010003": "Pemba, Cabo Delgado",
+    "217020001": "Chibuto, Gaza",
+    "217020002": "Chokwé, Gaza",
+    "217020003": "Macia, Gaza",
+    "217020004": "Manjacaze, Gaza",
+    "217020005": "Xai-Xai, Gaza",
+    "217030001": "Inhambane, Inhambane",
+    "217030002": "Maxixe, Inhambane",
+    "217040001": "Chimoio, Manica",
+    "217050001": "Matola, Maputo",
+    "217050002": "Ressano Garcia, Maputo",
+    "217060001": "Maputo, Maputo City",
+    "217070001": "António Enes, Nampula",
+    "217070002": "Ilha de Moçambique, Nampula",
+    "217070003": "Mutuáli, Nampula",
+    "217070004": "Nacala, Nampula",
+    "217070005": "Nampula, Nampula",
+    "217080001": "Cuamba, Niassa",
+    "217080002": "Lichinga, Niassa",
+    "217090001": "Beira, Sofala",
+    "217090002": "Dondo, Sofala",
+    "217100001": "Tete, Tete",
+    "217110001": "Quelimane, Zambézia"
+  }
+}

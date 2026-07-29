@@ -8,16 +8,14 @@ module Antrikan
     def authorize_queued_item_manipulation_request!(queue : Queue)
       raise Auth::AuthorizationError.new unless current_user
 
-      queue_org_id = queue.channel!.space!.owner!.organization_id
-      unless current_user!.organization_id == queue_org_id
-        raise Auth::AuthorizationError.new
-      end
+      queue_org_id = queue.space!.manager!.organization_id
+      raise Auth::AuthorizationError.new unless current_user!.organization_id == queue_org_id
     end
 
     def authorize_queued_item_access!(queued_item : QueuedItem)
       raise Auth::AuthorizationError.new unless current_user
 
-      org_id = queued_item.queue!.channel!.space!.owner!.organization_id
+      org_id = queued_item.queue!.space!.manager!.organization_id
       raise Auth::AuthorizationError.new unless current_user!.organization_id == org_id
     end
 

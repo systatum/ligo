@@ -1,0 +1,43 @@
+{
+  "name": {
+    "en-US": "Nicaragua"
+  },
+  "cities": {
+    "224010001": "Puerto Cabezas, Atlántico Norte (RAAN)",
+    "224010002": "Siuna, Atlántico Norte (RAAN)",
+    "224020001": "Bluefields, Atlántico Sur",
+    "224020002": "Nueva Guinea, Atlántico Sur",
+    "224020003": "Rama, Atlántico Sur",
+    "224030001": "Boaco, Boaco",
+    "224030002": "Camoapa, Boaco",
+    "224040001": "Diriamba, Carazo",
+    "224040002": "Jinotepe, Carazo",
+    "224040003": "San Marcos, Carazo",
+    "224050001": "Chichigalpa, Chinandega",
+    "224050002": "Chinandega, Chinandega",
+    "224050003": "Corinto, Chinandega",
+    "224050004": "El Viejo, Chinandega",
+    "224050005": "Somotillo, Chinandega",
+    "224060001": "Juigalpa, Chontales",
+    "224070001": "Estelí, Estelí",
+    "224080001": "Granada, Granada",
+    "224080002": "Nandaime, Granada",
+    "224090001": "Jinotega, Jinotega",
+    "224100001": "La Paz Centro, León",
+    "224100002": "León, León",
+    "224100003": "Nagarote, León",
+    "224110001": "Somoto, Madriz",
+    "224120001": "Ciudad Sandino, Managua",
+    "224120002": "El Crucero, Managua",
+    "224120003": "Managua, Managua",
+    "224120004": "San Rafael del Sur, Managua",
+    "224120005": "Tipitapa, Managua",
+    "224130001": "Masatepe, Masaya",
+    "224130002": "Masaya, Masaya",
+    "224140001": "Matagalpa, Matagalpa",
+    "224140002": "Río Blanco, Matagalpa",
+    "224150001": "Jalapa, Nueva Segovia",
+    "224150002": "Ocotal, Nueva Segovia",
+    "224160001": "Rivas, Rivas"
+  }
+}

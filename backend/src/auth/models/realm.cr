@@ -38,6 +38,9 @@ module Auth
     field :app_id, :string, max_size: 255
     # Upstream OAuth provider's application secret.
     field :app_secret, :string, max_size: 255
+    # Role assigned to a user who self-registers by founding a brand-new
+    # organization under this realm (see Auth::User::CreatorService).
+    field :default_role, :int, null: false, blank: false, default: Auth::Role::OWNER
     field :created_at, :date_time, null: false, auto_now_add: true
     field :updated_at, :date_time, null: false, auto_now: true
   end

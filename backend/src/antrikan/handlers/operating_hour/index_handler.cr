@@ -1,14 +1,13 @@
 class Antrikan::OperatingHourIndexHandler < RequestHandler
-  include SpaceHelper
   include OperatingHourHelper
 
   protect_from_forgery false
   http_method_names :get
 
   def get
-    raise Marten::HTTP::Errors::PermissionDenied.new unless owner_of_space?
+    raise Marten::HTTP::Errors::PermissionDenied.new unless owner?
 
-    op_hours = OperatingHour.filter(space_id: space.id, deleted_at: nil).map do |op_hour|
+    op_hours = op_hour_scope.map do |op_hour|
       OperatingHourSerializer.soft_serialize(op_hour)
     end
     json({

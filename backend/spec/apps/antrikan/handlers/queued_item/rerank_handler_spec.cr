@@ -7,8 +7,8 @@ describe Antrikan::QueuedItemRerankHandler do
       queue = ctx[:queue]
       user = ctx[:user]
       item_a = ctx[:queued_item]
-      item_b = create_queued_item(queue: queue, item: create_item(channel: queue.channel!))
-      item_c = create_queued_item(queue: queue, item: create_item(channel: queue.channel!))
+      item_b = create_queued_item(queue: queue, item: create_item(channel: create_channel(space: queue.space!)))
+      item_c = create_queued_item(queue: queue, item: create_item(channel: create_channel(space: queue.space!)))
 
       payload = {
         items: [
@@ -172,9 +172,9 @@ describe Antrikan::QueuedItemRerankHandler do
     it "rejects authenticated user from different organization" do
       organization = create_organization
       owner = create_user(organization: organization)
-      space = create_space(owner: owner)
+      space = create_space(manager: owner)
       channel = create_channel(space: space)
-      queue = create_queue(channel: channel, queuer: create_queuer(space: space))
+      queue = create_queue(space: space, queuer: create_queuer(space: space))
       qi = create_queued_item(queue: queue, item: create_item(channel: channel))
       outsider = create_user(organization: create_organization)
 
@@ -226,7 +226,7 @@ describe Antrikan::QueuedItemRerankHandler do
       queue = ctx[:queue]
       user = ctx[:user]
       other_channel = create_channel
-      other_queue = create_queue(channel: other_channel)
+      other_queue = create_queue(space: other_channel.space!)
       other_item = create_queued_item(queue: other_queue, item: create_item(channel: other_channel))
 
       payload = {
@@ -281,8 +281,8 @@ describe Antrikan::QueuedItemRerankHandler do
       queue = ctx[:queue]
       user = ctx[:user]
       item_a = ctx[:queued_item]
-      item_b = create_queued_item(queue: queue, item: create_item(channel: queue.channel!))
-      cid = queue.channel!
+      cid = ctx[:channel]
+      item_b = create_queued_item(queue: queue, item: create_item(channel: cid))
 
       payload = {
         items: [

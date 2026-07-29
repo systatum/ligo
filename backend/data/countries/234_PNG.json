@@ -1,0 +1,20 @@
+{
+  "name": {
+    "en-US": "Papua New Guinea"
+  },
+  "cities": {
+    "234010001": "Arawa, Bougainville",
+    "234020001": "Kokopo, East New Britain",
+    "234030001": "Wewak, East Sepik",
+    "234040001": "Goroka, Eastern Highlands",
+    "234050001": "Madang, Madang",
+    "234060001": "Bulolo, Morobe",
+    "234060002": "Lae, Morobe",
+    "234070001": "Port Moresby, National Capital",
+    "234080001": "Popondetta, Northern Province",
+    "234090001": "Mendi, Southern Highlands",
+    "234100001": "Kimbe, West New Britain",
+    "234110001": "Mount Hagen, Western Highlands",
+    "234120001": "Daru, Western Province"
+  }
+}

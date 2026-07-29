@@ -44,6 +44,26 @@ Then, you can use your database admin app of choice (ie TablePlus or BeeKeeper S
 - User: ligo_db_user
 - Password: ligo_db_password
 
+### Clearing/resetting the database
+
+There's no single built-in command for this (Marten has `resetmigrations`, but that only squashes migration history - it doesn't touch data). Two options, from heaviest to lightest:
+
+1. **Full reset (containers + volume)**: `docker compose down --volumes` (as above) removes the MySQL container's data volume entirely. On the next `docker compose up`, `backend/dev_init.sql` re-runs against the fresh empty volume, recreating the `ligo_development`/`ligo_test` databases and the `devroot` user from scratch.
+2. **Schema-only reset (keep the container running)**: drop and recreate just the database(s) via the MySQL client, without touching the container/volume:
+
+   ```bash
+   mysql -h127.0.0.1 -P3366 -uligo_db_user -pligo_db_password \
+     -e "DROP DATABASE IF EXISTS ligo_development; CREATE DATABASE ligo_development;"
+   ```
+
+Either way, the database comes back empty - you must re-run migrations and on-demand seed commands afterward:
+
+```bash
+mybin/manage migrate
+mybin/manage migrate_system_fields
+mybin/manage create_default_realms
+```
+
 ## Setup
 
 Before moving forward, please install `asdf` and `asdf crystal` or `vfox` as sdk manager. Then call the following script to install the Crystal and Marten binaries. You will be asked to enter password for permission upgrade.
@@ -115,6 +135,11 @@ marten migrate main <migration-date-to-unapply>
 marten serve -p 3003 # to run the server
 marten play -p 8080 -b 0.0.0.0 # to run playground
 
+# One-time, on-demand setup, recommended to-do on first-time use
+mkdir -p mybin && crystal build manage.cr -o mybin/manage
+mybin/manage migrate_system_fields
+mybin/manage create_default_realms
+
 # Sidekiq worker and dashboard
 crystal run src/cli/sidekiq.cr -- -e development -q default
 crystal run src/cli/sidekiq_dashboard.cr -- -p 3010 -b 0.0.0.0
@@ -137,6 +162,17 @@ export LIGO_SIDEKIQ_DASHBOARD_SESSION_SECRET=replace-with-long-random-secret
 ```
 
 In local development, docker-compose configures Redis with password `devredis`.
+
+### Default Dev Realms
+
+Sign-up (and the webhook ack flow) requires a registered `Auth::Realm` - normally created by hand via `POST /api/realm/create` and copying the one-time secrets out of the response. For local development, `mybin/manage create_default_realms` does this for you, idempotently seeding two Realms with fixed, publicly-known dev-only credentials (never use these outside local dev - the command refuses to run when `MARTEN_ENV=production`):
+
+| Realm id   | api_client_key            | api_secret_key            | webhook_secret    |
+| ---------- | ------------------------- | ------------------------- | ----------------- |
+| `antrikan` | `antrikan_dev_client_key` | `antrikan_dev_secret_key` | `antrikan_dev_wh` |
+| `workaty`  | `workaty_dev_client_key`  | `workaty_dev_secret_key`  | `workaty_dev_whk` |
+
+This is on-demand only - it is **not** run automatically by `migrate`, `migrate_system_fields`, or CI. Run it yourself after setting up (or resetting) your local database. Running it again is safe; it skips any realm id that already exists.
 
 ## Webhook Delivery
 
@@ -228,6 +264,8 @@ POST /auth/api/user/signup
 Content-Type: application/json
 
 {
+  "realm_id": "antrikan",
+  "api_client_key": "antrikan_dev_client_key",
   "email": "user@example.com",
   "password": "securepassword",
   "first_name": "Jane",
@@ -236,7 +274,7 @@ Content-Type: application/json
 }
 ```
 
-Either `organization_id` (join existing) or `organization_name` (create new) must be provided.
+`realm_id` + `api_client_key` identify which app is signing the user up (see [Default Dev Realms](#default-dev-realms) for local dev values) and are always required. Either `organization_id` (join existing - role stays `FULL_TIME_STAFF`) or `organization_name` (create new - role is set to that realm's `default_role`, `OWNER` by default) must be provided.
 
 **Response (200 OK):**
 
@@ -246,7 +284,7 @@ Either `organization_id` (join existing) or `organization_name` (create new) mus
   "first_name": "Jane",
   "last_name": "Doe",
   "email": "user@example.com",
-  "role": "FULL_TIME_STAFF"
+  "role": "OWNER"
 }
 ```
 
@@ -386,6 +424,15 @@ Next release (for hospital):
 - Add DailyStock model, which allows for setting the maximum items availability per day. The rationale is for example, in a clinic, we can only serve up to 5 people per day. So we can set the daily items to 5 purchases per day, and set to 0 on saturday and sunday. Perhaps, this can be attached to Pricing
 
 ## Convention
+
+### Models vs schemas vs serializers vs structs
+
+Four kinds of plain-data classes show up across the codebase, each in its own directory. Which one a piece of code belongs in follows from what it's for, not from where it's convenient to put it:
+
+- **`models/`**: ORM models. A `Marten::Model` subclass backed by an actual database table (e.g. `Antrikan::Space`, `UploadedFile`).
+- **`schemas/`**: to receive and validate request data (mostly a subclass of `Marten::Schema`).
+- **`serializers/`**: to send our record/data out to the world for consumption, normally in JSON format.
+- **`structs/`**: everything else, alias plain data carriers.
 
 - Before committing, please run:
 

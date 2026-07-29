@@ -10,13 +10,27 @@ module Antrikan
 
       begin
         logo_file_id = upload_image(schema.logo)
+        business_name = schema.business_name? ? schema.business_name! : schema.name!
+
+        carousel_image_ids = nil
+        if schema.carousel_images?
+          result = CarouselImagesResolverService.new(schema.carousel_images!).run
+          return failure(result.errors) unless result.success?
+          carousel_image_ids = result.data
+        end
 
         data = schema.validated_data
         data.delete("logo")
+        data.delete("business_name")
+        data.delete("carousel_images")
         data["logo_file_id"] = logo_file_id if logo_file_id
 
+        business = Business.create!(name: business_name, owner: @user)
+
         space = Space.new(data)
-        space.owner = @user
+        space.manager = @user
+        space.owner = business
+        space.carousel_image_ids = UploadedFileIds.new(ids: carousel_image_ids) if carousel_image_ids
         space.save!
 
         success(space)
@@ -28,7 +42,7 @@ module Antrikan
     end
 
     private def schema
-      @schema ||= SpaceSchema.new(@data)
+      @schema ||= SpaceSchema.new(JsonArrayMapper.map(@data, "carousel_images"))
     end
   end
 end

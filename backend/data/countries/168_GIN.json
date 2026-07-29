@@ -1,0 +1,25 @@
+{
+  "name": {
+    "en-US": "Guinea"
+  },
+  "cities": {
+    "168010001": "Boké, Boke",
+    "168010002": "Fria, Boke",
+    "168010003": "Kamsar, Boke",
+    "168020001": "Camayenne, Conakry",
+    "168020002": "Conakry, Conakry",
+    "168030001": "Kissidougou, Faranah",
+    "168040001": "Kankan, Kankan",
+    "168040002": "Siguiri, Kankan",
+    "168050001": "Coyah, Kindia",
+    "168050002": "Kindia, Kindia",
+    "168050003": "Télimélé, Kindia",
+    "168060001": "Labé, Labe",
+    "168060002": "Tougué, Labe",
+    "168070001": "Mamou, Mamou",
+    "168070002": "Pita, Mamou",
+    "168080001": "Gueckedou, Nzerekore",
+    "168080002": "Macenta, Nzerekore",
+    "168080003": "Nzérékoré, Nzerekore"
+  }
+}

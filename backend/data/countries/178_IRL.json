@@ -1,0 +1,39 @@
+{
+  "name": {
+    "en-US": "Ireland"
+  },
+  "cities": {
+    "178010001": "Gaillimh, Connaught",
+    "178010002": "Sligo, Connaught",
+    "178020001": "An Muileann gCearr, Leinster",
+    "178020002": "Athlone, Leinster",
+    "178020003": "Balbriggan, Leinster",
+    "178020004": "Blanchardstown, Leinster",
+    "178020005": "Carlow, Leinster",
+    "178020006": "Celbridge, Leinster",
+    "178020007": "Donaghmede, Leinster",
+    "178020008": "Drogheda, Leinster",
+    "178020009": "Droichead Nua, Leinster",
+    "178020010": "Dublin, Leinster",
+    "178020011": "Dundalk, Leinster",
+    "178020012": "Dún Laoghaire, Leinster",
+    "178020013": "Finglas, Leinster",
+    "178020014": "Kilkenny, Leinster",
+    "178020015": "Leixlip, Leinster",
+    "178020016": "Loch Garman, Leinster",
+    "178020017": "Lucan, Leinster",
+    "178020018": "Malahide, Leinster",
+    "178020019": "Naas, Leinster",
+    "178020020": "Navan, Leinster",
+    "178020021": "Sandyford, Leinster",
+    "178020022": "Swords, Leinster",
+    "178020023": "Tallaght, Leinster",
+    "178030001": "Cluain Meala, Munster",
+    "178030002": "Cork, Munster",
+    "178030003": "Ennis, Munster",
+    "178030004": "Luimneach, Munster",
+    "178030005": "Tralee, Munster",
+    "178030006": "Waterford, Munster",
+    "178040001": "Letterkenny, Ulster"
+  }
+}

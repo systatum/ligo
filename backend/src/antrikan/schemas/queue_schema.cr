@@ -7,6 +7,7 @@ module Antrikan
       status:         {type: :enum, values: QueueStatus},
       payment_status: {type: :enum, values: PaymentStatus},
       fully_paid_at:  {type: :date_time},
+      voucher_code:   {type: :string, strip: true},
     },
     variants: {
       QueueSchema:       {required: [:queuer_id]},

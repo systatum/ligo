@@ -6,5 +6,6 @@ module Antrikan
     property handler_id : String? # the user's hashed ID
     property status : QueueStatus?
     property note : String?
+    property cancel_note : String?
   end
 end

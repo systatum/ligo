@@ -1,12 +1,12 @@
 module Antrikan
   enum QueueStatus
-    CANCELED    = 0
-    QUEUED      = 1
-    ATTENDED    = 2
-    PACKED      = 3
-    READY       = 4
-    DISPATCHING = 5
-    DONE        = 6
+    CANCELED    =  0
+    QUEUED      = 10
+    ATTENDED    = 20
+    PACKED      = 30
+    READY       = 40
+    DISPATCHING = 50
+    DONE        = 60
 
     def self.from_event(event_name : Symbol) : QueueStatus
       case event_name

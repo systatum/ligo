@@ -21,8 +21,12 @@ class Antrikan::OperatingHour < Marten::Model
   field :created_at, :date_time, null: false, auto_now_add: true
   field :updated_at, :date_time, null: false, auto_now: true
 
-  field :space, :many_to_one, to: Antrikan::Space, related: :operating_hours
+  # Exactly one of space/channel/item is set - see validate_exactly_one_owner.
+  field :space, :many_to_one, to: Antrikan::Space, related: :operating_hours, null: true, blank: true
+  field :channel, :many_to_one, to: Antrikan::Channel, related: :operating_hours, null: true, blank: true
+  field :item, :many_to_one, to: Antrikan::Item, related: :operating_hours, null: true, blank: true
 
+  validate :validate_exactly_one_owner
   validate :validate_day_range
   validate :validate_time_range
   validate :validate_uniqueness_per_day
@@ -35,10 +39,32 @@ class Antrikan::OperatingHour < Marten::Model
     current >= open_time! && current < close_time!
   end
 
-  private def validate_day_range
-    return unless day?
+  private def resolved_space_id
+    space_id? ? space_id! : nil
+  end
 
-    unless day! >= 0 && day! <= 6
+  private def resolved_channel_id
+    channel_id? ? channel_id! : nil
+  end
+
+  private def resolved_item_id
+    item_id? ? item_id! : nil
+  end
+
+  private def validate_exactly_one_owner
+    owner_count = [resolved_space_id, resolved_channel_id, resolved_item_id].count { |id| !id.nil? }
+
+    if owner_count != 1
+      errors.add(:base, "Exactly one of space, channel, or item must be set")
+    end
+  end
+
+  private def validate_day_range
+    # Marten's day? accessor treats 0 (Monday) as absent, so check @day directly.
+    day_value = @day
+    return if day_value.nil?
+
+    unless day_value >= 0 && day_value <= 6
       errors.add(:day, "Day must be between 0 (Monday) and 6 (Sunday)")
     end
   end
@@ -52,25 +78,33 @@ class Antrikan::OperatingHour < Marten::Model
   end
 
   private def validate_uniqueness_per_day
-    # Use nil check instead of day? because day?/space_id? return false for 0 values
+    # Same day? gotcha as validate_day_range - use @day directly.
     day_value = @day
     return if day_value.nil?
 
-    # Get space_id from either direct assignment or relationship
-    sid = space_id? ? space_id! : (space? ? space!.id : nil)
-    return unless sid
+    scope = uniqueness_scope(day_value)
+    return unless scope
 
-    existing = Antrikan::OperatingHour.filter(
-      space_id: sid,
-      day: day_value,
-      deleted_at: nil
-    )
+    scope = scope.exclude(id: id!) if persisted?
 
-    # Exclude self when updating
-    existing = existing.exclude(id: id!) if persisted?
-
-    if existing.exists?
-      errors.add(:day, "Operating hours for this day already exist for this space")
+    if scope.exists?
+      errors.add(:day, "Operating hours for this day already exist for this owner")
     end
+  end
+
+  private def uniqueness_scope(day_value)
+    if (sid = resolved_space_id)
+      return Antrikan::OperatingHour.filter(space_id: sid, day: day_value, deleted_at: nil)
+    end
+
+    if (cid = resolved_channel_id)
+      return Antrikan::OperatingHour.filter(channel_id: cid, day: day_value, deleted_at: nil)
+    end
+
+    if (iid = resolved_item_id)
+      return Antrikan::OperatingHour.filter(item_id: iid, day: day_value, deleted_at: nil)
+    end
+
+    nil
   end
 end

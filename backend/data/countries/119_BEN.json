@@ -1,0 +1,36 @@
+{
+  "name": {
+    "en-US": "Benin"
+  },
+  "cities": {
+    "119010001": "Banikoara, Alibori",
+    "119010002": "Kandi, Alibori",
+    "119020001": "Malanville, Atakora",
+    "119020002": "Natitingou, Atakora",
+    "119020003": "Tanguiéta, Atakora",
+    "119030001": "Abomey-Calavi, Atlantique",
+    "119030002": "Allada, Atlantique",
+    "119030003": "Ouidah, Atlantique",
+    "119040001": "Bembèrèkè, Borgou",
+    "119040002": "Nikki, Borgou",
+    "119040003": "Parakou, Borgou",
+    "119040004": "Tchaourou, Borgou",
+    "119050001": "Dassa-Zoumé, Collines",
+    "119050002": "Savalou, Collines",
+    "119050003": "Savé, Collines",
+    "119060001": "Bassila, Donga",
+    "119060002": "Djougou, Donga",
+    "119070001": "Aplahoué, Kouffo",
+    "119070002": "Dogbo, Kouffo",
+    "119080001": "Cotonou, Littoral",
+    "119090001": "Comé, Mono",
+    "119090002": "Lokossa, Mono",
+    "119100001": "Kétou, Plateau",
+    "119100002": "Pobé, Plateau",
+    "119100003": "Sakété, Plateau",
+    "119110001": "Porto-Novo, Quémé",
+    "119120001": "Abomey, Zou",
+    "119120002": "Bohicon, Zou",
+    "119120003": "Cové, Zou"
+  }
+}

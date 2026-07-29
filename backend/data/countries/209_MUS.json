@@ -1,0 +1,18 @@
+{
+  "name": {
+    "en-US": "Mauritius"
+  },
+  "cities": {
+    "209010001": "Bel Air Rivière Sèche, Flacq",
+    "209010002": "Centre de Flacq, Flacq",
+    "209020001": "Mahébourg, Grand Port",
+    "209030001": "Saint Pierre, Moka",
+    "209040001": "Le Hochet, Pamplemousses",
+    "209040002": "Triolet, Pamplemousses",
+    "209050001": "Curepipe, Plaines Wilhems",
+    "209050002": "Quatre Bornes, Plaines Wilhems",
+    "209050003": "Vacoas, Plaines Wilhems",
+    "209060001": "Port Louis, Port Louis",
+    "209070001": "Goodlands, Rivière du Rempart"
+  }
+}

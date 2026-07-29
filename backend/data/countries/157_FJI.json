@@ -1,0 +1,11 @@
+{
+  "name": {
+    "en-US": "Fiji"
+  },
+  "cities": {
+    "157010001": "Suva, Central",
+    "157020001": "Labasa, Northern",
+    "157030001": "Lautoka, Western",
+    "157030002": "Nadi, Western"
+  }
+}

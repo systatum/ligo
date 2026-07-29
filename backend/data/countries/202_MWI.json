@@ -1,0 +1,24 @@
+{
+  "name": {
+    "en-US": "Malawi"
+  },
+  "cities": {
+    "202010001": "Dedza, Central Region",
+    "202010002": "Kasungu, Central Region",
+    "202010003": "Lilongwe, Central Region",
+    "202010004": "Mchinji, Central Region",
+    "202010005": "Nkhotakota, Central Region",
+    "202010006": "Salima, Central Region",
+    "202020001": "Karonga, Northern Region",
+    "202020002": "Mzimba, Northern Region",
+    "202020003": "Mzuzu, Northern Region",
+    "202020004": "Rumphi, Northern Region",
+    "202030001": "Balaka, Southern Region",
+    "202030002": "Blantyre, Southern Region",
+    "202030003": "Liwonde, Southern Region",
+    "202030004": "Mangochi, Southern Region",
+    "202030005": "Mulanje, Southern Region",
+    "202030006": "Nsanje, Southern Region",
+    "202030007": "Zomba, Southern Region"
+  }
+}

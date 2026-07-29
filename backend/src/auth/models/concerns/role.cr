@@ -40,6 +40,11 @@ module Auth::Role
     user.role! >= Auth::Role::CHIEF_STAFF
   end
 
+  def self.owner?(user : User?)
+    return false unless user
+    user.role! == Auth::Role::OWNER
+  end
+
   def self.must_at_least_bizdev!(user : User?)
     raise Auth::AuthorizationError.new unless at_least_bizdev?(user)
   end

@@ -1,4 +1,5 @@
 # Third party requirements.
+require "big"
 require "envy"
 require "http/web_socket"
 require "marten"

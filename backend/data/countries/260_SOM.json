@@ -1,0 +1,34 @@
+{
+  "name": {
+    "en-US": "Somalia"
+  },
+  "cities": {
+    "260010001": "Baki, Awdal",
+    "260020001": "Mogadishu, Banaadir",
+    "260030001": "Bosaso, Bari",
+    "260030002": "Qandala, Bari",
+    "260040001": "Baidoa, Bay",
+    "260040002": "Buurhakaba, Bay",
+    "260050001": "Ceeldheer, Galguduud",
+    "260060001": "Baardheere, Gedo",
+    "260060002": "Luuq, Gedo",
+    "260070001": "Beledweyne, Hiiraan",
+    "260070002": "Buulobarde, Hiiraan",
+    "260080001": "Jamaame, Lower Juba",
+    "260080002": "Kismayo, Lower Juba",
+    "260090001": "Afgooye, Lower Shabeelle",
+    "260090002": "Marka, Lower Shabeelle",
+    "260090003": "Qoryooley, Lower Shabeelle",
+    "260090004": "Wanlaweyn, Lower Shabeelle",
+    "260100001": "Jilib, Middle Juba",
+    "260110001": "Jawhar, Middle Shabele",
+    "260120001": "Gaalkacyo, Mudug",
+    "260130001": "Eyl, Nugaal",
+    "260130002": "Garoowe, Nugaal",
+    "260140001": "Ceerigaabo, Sanaag",
+    "260150001": "Laascaanood, Sool",
+    "260160001": "Burao, Togdheer",
+    "260170001": "Berbera, Woqooyi Galbeed",
+    "260170002": "Hargeysa, Woqooyi Galbeed"
+  }
+}

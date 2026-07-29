@@ -1,0 +1,32 @@
+{
+  "name": {
+    "en-US": "Oman"
+  },
+  "cities": {
+    "229010001": "Al Khābūrah, Al Batinah North Governorate",
+    "229010002": "Al Liwā’, Al Batinah North Governorate",
+    "229010003": "As Suwayq, Al Batinah North Governorate",
+    "229010004": "Shināş, Al Batinah North Governorate",
+    "229010005": "Sohar, Al Batinah North Governorate",
+    "229010006": "Şaḩam, Al Batinah North Governorate",
+    "229020001": "Barkā’, Al Batinah South Governorate",
+    "229020002": "Rustaq, Al Batinah South Governorate",
+    "229030001": "Al Buraymī, Al Buraimi",
+    "229040001": "Badīyah, Ash Sharqiyah North Governorate",
+    "229040002": "Ibrā’, Ash Sharqiyah North Governorate",
+    "229050001": "Sur, Ash Sharqiyah South Governorate",
+    "229060001": "Yanqul, Az̧ Z̧āhirah",
+    "229060002": "‘Ibrī, Az̧ Z̧āhirah",
+    "229070001": "Khasab, Musandam",
+    "229080001": "Bawshar, Muḩāfaz̧at Masqaţ",
+    "229080002": "Muscat, Muḩāfaz̧at Masqaţ",
+    "229080003": "Seeb, Muḩāfaz̧at Masqaţ",
+    "229090001": "Bahlā’, Muḩāfaz̧at ad Dākhilīyah",
+    "229090002": "Bidbid, Muḩāfaz̧at ad Dākhilīyah",
+    "229090003": "Izkī, Muḩāfaz̧at ad Dākhilīyah",
+    "229090004": "Nizwá, Muḩāfaz̧at ad Dākhilīyah",
+    "229090005": "Sufālat Samā’il, Muḩāfaz̧at ad Dākhilīyah",
+    "229090006": "Ādam, Muḩāfaz̧at ad Dākhilīyah",
+    "229100001": "Şalālah, Z̧ufār"
+  }
+}

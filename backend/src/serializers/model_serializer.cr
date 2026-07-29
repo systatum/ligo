@@ -34,6 +34,19 @@ class ModelSerializer
     NamedTuple.new
   end
 
+  # Resolves an ordered list of UploadedFile id strings (e.g. from a
+  # UploadedFileIds field) into their serialized form, in order.
+  protected def fetch_uploaded_files(ids : Array(String)?)
+    ids = ids || [] of String
+    files_by_id = UploadedFile.filter(
+      id__in: ids.map { |id| UUID.new(id) }
+    ).index_by(&.id.to_s)
+
+    ids.compact_map { |id| files_by_id[id]? }.map do |file|
+      UploadedFileSerializer.soft_serialize(file)
+    end
+  end
+
   private def timing_fields
     local_values = @record.local_field_db_values
     has_created_at = local_values.has_key? "created_at"

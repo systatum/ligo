@@ -1,0 +1,27 @@
+{
+  "name": {
+    "en-US": "Albania"
+  },
+  "cities": {
+    "102010001": "Berat, Berat",
+    "102010002": "Kuçovë, Berat",
+    "102020001": "Burrel, Dibër",
+    "102030001": "Durrës, Durrës",
+    "102030002": "Krujë, Durrës",
+    "102040001": "Elbasan, Elbasan",
+    "102050001": "Fier, Fier",
+    "102050002": "Fier-Çifçi, Fier",
+    "102050003": "Lushnjë, Fier",
+    "102050004": "Patos Fshat, Fier",
+    "102060001": "Gjirokastër, Gjirokastër",
+    "102070001": "Korçë, Korçë",
+    "102080001": "Kukës, Kukës",
+    "102090001": "Laç, Lezhë",
+    "102090002": "Lezhë, Lezhë",
+    "102100001": "Shkodër, Shkodër",
+    "102110001": "Kavajë, Tiranë",
+    "102110002": "Tirana, Tiranë",
+    "102120001": "Sarandë, Vlorë",
+    "102120002": "Vlorë, Vlorë"
+  }
+}

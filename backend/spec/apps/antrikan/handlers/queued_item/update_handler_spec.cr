@@ -29,9 +29,10 @@ describe Antrikan::QueuedItemUpdateHandler do
     it "updates multiple items at once" do
       ctx = create_authorized_queue_item
       queue = ctx[:queue]
+      channel = ctx[:channel]
       user = ctx[:user]
       qi_a = ctx[:queued_item]
-      qi_b = create_queued_item(queue: queue, item: create_item(channel: queue.channel!))
+      qi_b = create_queued_item(queue: queue, item: create_item(channel: channel))
 
       response = Marten::Spec.client.post(
         Marten.routes.reverse("antrikan:queued_item:update"),
@@ -94,6 +95,67 @@ describe Antrikan::QueuedItemUpdateHandler do
 
       deleted_qi = Antrikan::QueuedItem.unscoped.get!(id: qi.id)
       response.content.should eq({items: [Antrikan::QueuedItemSerializer.soft_serialize(deleted_qi)]}.to_json)
+    end
+
+    it "persists cancel_note when applying CANCELED status" do
+      ctx = create_authorized_queue_item
+      qi = ctx[:queued_item]
+      user = ctx[:user]
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:queued_item:update"),
+        data: {items: [
+          {id: qi.id.to_s, status: Antrikan::QueueStatus::CANCELED, cancel_note: "customer changed their mind"},
+        ]}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 200
+
+      deleted_qi = Antrikan::QueuedItem.unscoped.get!(id: qi.id)
+      deleted_qi.cancel_note.should eq "customer changed their mind"
+    end
+
+    it "ignores cancel_note when not canceling" do
+      ctx = create_authorized_queue_item
+      qi = ctx[:queued_item]
+      user = ctx[:user]
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:queued_item:update"),
+        data: {items: [
+          {id: qi.id.to_s, note: "updated", cancel_note: "should be ignored, not canceling"},
+        ]}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 200
+
+      qi.reload
+      qi.cancel_note.should be_nil
+    end
+
+    it "allows canceling when the item is exactly at the channel's predeletable_state" do
+      ctx = create_authorized_queue_item(
+        status: Antrikan::QueueStatus::ATTENDED,
+        predeletable_state: Antrikan::QueueStatus::ATTENDED
+      )
+      qi = ctx[:queued_item]
+      user = ctx[:user]
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:queued_item:update"),
+        data: {items: [{id: qi.id.to_s, status: Antrikan::QueueStatus::CANCELED}]}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 200
+
+      deleted_qi = Antrikan::QueuedItem.unscoped.get!(id: qi.id)
+      deleted_qi.deleted_at.should_not be_nil
     end
 
     it "allows further edits to an already-canceled (soft-deleted) item" do
@@ -225,6 +287,48 @@ describe Antrikan::QueuedItemUpdateHandler do
 
       qi.reload
       qi.status.should eq Antrikan::QueueStatus::DONE.value
+    end
+
+    it "returns 422 when the item is past the channel's predeletable_state" do
+      ctx = create_authorized_queue_item(
+        status: Antrikan::QueueStatus::PACKED,
+        predeletable_state: Antrikan::QueueStatus::ATTENDED
+      )
+      qi = ctx[:queued_item]
+      user = ctx[:user]
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:queued_item:update"),
+        data: {items: [{id: qi.id.to_s, status: Antrikan::QueueStatus::CANCELED}]}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+
+      qi.reload
+      qi.status.should eq Antrikan::QueueStatus::PACKED.value
+      qi.deleted_at.should be_nil
+    end
+
+    it "returns 422 when the queue is already paid" do
+      ctx = create_authorized_queue_item
+      ctx[:queue].payment_status = Antrikan::PaymentStatus::PARTIAL.value
+      ctx[:queue].save!
+      qi = ctx[:queued_item]
+      user = ctx[:user]
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:queued_item:update"),
+        data: {items: [{id: qi.id.to_s, note: "should not apply"}]}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+
+      qi.reload
+      qi.note.should_not eq "should not apply"
     end
   end
 end

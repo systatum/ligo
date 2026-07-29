@@ -1,0 +1,20 @@
+{
+  "name": {
+    "en-US": "Trinidad and Tobago"
+  },
+  "cities": {
+    "278010001": "Arima, Borough of Arima",
+    "278020001": "Chaguanas, Chaguanas",
+    "278030001": "Port of Spain, City of Port of Spain",
+    "278040001": "Marabella, City of San Fernando",
+    "278040002": "Mon Repos, City of San Fernando",
+    "278040003": "San Fernando, City of San Fernando",
+    "278050001": "Rio Claro, Mayaro",
+    "278060001": "Point Fortin, Point Fortin",
+    "278070001": "Laventille, San Juan/Laventille",
+    "278080001": "Sangre Grande, Sangre Grande",
+    "278090001": "Scarborough, Tobago",
+    "278100001": "Paradise, Tunapuna/Piarco",
+    "278100002": "Tunapuna, Tunapuna/Piarco"
+  }
+}

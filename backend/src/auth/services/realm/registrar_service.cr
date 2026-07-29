@@ -30,6 +30,7 @@ module Auth
         realm.hashed_api_client_key = Digest::SHA256.hexdigest(credentials[:api_client_key])
         realm.webhook_secret = credentials[:webhook_secret]
         realm.ack_semantic = schema.ack_semantic
+        realm.default_role = schema.default_role! if schema.default_role?
         realm.registration_redirection_uri = schema.registration_redirection_uri if schema.registration_redirection_uri?
         realm.registration_ack_uri = schema.registration_ack_uri if schema.registration_ack_uri?
         realm.max_ack_retry_attempts = schema.max_ack_retry_attempts if schema.max_ack_retry_attempts?

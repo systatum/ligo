@@ -1,0 +1,10 @@
+{
+  "name": {
+    "en-US": "Guyana"
+  },
+  "cities": {
+    "170010001": "Georgetown, Demerara-Mahaica",
+    "170020001": "New Amsterdam, East Berbice-Corentyne",
+    "170030001": "Linden, Upper Demerara-Berbice"
+  }
+}

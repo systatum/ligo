@@ -1,0 +1,42 @@
+{
+  "name": {
+    "en-US": "El Salvador"
+  },
+  "cities": {
+    "152010001": "Ahuachapán, Ahuachapán",
+    "152020001": "Sensuntepeque, Cabañas",
+    "152030001": "Chalatenango, Chalatenango",
+    "152040001": "Cojutepeque, Cuscatlán",
+    "152040002": "San Martín, Cuscatlán",
+    "152050001": "Antiguo Cuscatlán, La Libertad",
+    "152050002": "La Libertad, La Libertad",
+    "152050003": "Quezaltepeque, La Libertad",
+    "152050004": "Santa Tecla, La Libertad",
+    "152060001": "Zacatecoluca, La Paz",
+    "152070001": "La Unión, La Unión",
+    "152080001": "San Francisco, Morazán",
+    "152090001": "San Miguel, San Miguel",
+    "152090002": "San Rafael Oriente, San Miguel",
+    "152100001": "Aguilares, San Salvador",
+    "152100002": "Apopa, San Salvador",
+    "152100003": "Ayutuxtepeque, San Salvador",
+    "152100004": "Cuscatancingo, San Salvador",
+    "152100005": "Delgado, San Salvador",
+    "152100006": "Ilopango, San Salvador",
+    "152100007": "Mejicanos, San Salvador",
+    "152100008": "San Marcos, San Salvador",
+    "152100009": "San Salvador, San Salvador",
+    "152100010": "Soyapango, San Salvador",
+    "152110001": "San Vicente, San Vicente",
+    "152120001": "Chalchuapa, Santa Ana",
+    "152120002": "Metapán, Santa Ana",
+    "152120003": "Santa Ana, Santa Ana",
+    "152130001": "Acajutla, Sonsonate",
+    "152130002": "Izalco, Sonsonate",
+    "152130003": "Sonsonate, Sonsonate",
+    "152130004": "Sonzacate, Sonsonate",
+    "152140001": "Puerto El Triunfo, Usulután",
+    "152140002": "Santiago de María, Usulután",
+    "152140003": "Usulután, Usulután"
+  }
+}

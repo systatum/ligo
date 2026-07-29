@@ -1,0 +1,40 @@
+{
+  "name": {
+    "en-US": "Norway"
+  },
+  "cities": {
+    "228010001": "Arendal, Aust-Agder",
+    "228020001": "Drammen, Buskerud",
+    "228020002": "Kongsberg, Buskerud",
+    "228030001": "Hamar, Hedmark",
+    "228040001": "Askøy, Hordaland",
+    "228040002": "Bergen, Hordaland",
+    "228040003": "Ytrebygda, Hordaland",
+    "228050001": "Kristiansund, Møre og Romsdal",
+    "228050002": "Molde, Møre og Romsdal",
+    "228050003": "Ålesund, Møre og Romsdal",
+    "228060001": "Steinkjer, Nord-Trøndelag",
+    "228070001": "Bodø, Nordland",
+    "228070002": "Mo i Rana, Nordland",
+    "228080001": "Gjøvik, Oppland",
+    "228080002": "Lillehammer, Oppland",
+    "228090001": "Oslo, Oslo",
+    "228100001": "Haugesund, Rogaland",
+    "228100002": "Sandnes, Rogaland",
+    "228100003": "Stavanger, Rogaland",
+    "228110001": "Trondheim, Sør-Trøndelag",
+    "228120001": "Porsgrunn, Telemark",
+    "228120002": "Skien, Telemark",
+    "228130001": "Harstad, Troms",
+    "228130002": "Tromsø, Troms",
+    "228140001": "Kristiansand, Vest-Agder",
+    "228150001": "Horten, Vestfold",
+    "228150002": "Larvik, Vestfold",
+    "228150003": "Sandefjord, Vestfold",
+    "228150004": "Tønsberg, Vestfold",
+    "228160001": "Fredrikstad, Østfold",
+    "228160002": "Halden, Østfold",
+    "228160003": "Moss, Østfold",
+    "228160004": "Sarpsborg, Østfold"
+  }
+}

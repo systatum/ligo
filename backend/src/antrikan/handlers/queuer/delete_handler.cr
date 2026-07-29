@@ -7,7 +7,7 @@ module Antrikan
 
     def delete : Marten::HTTP::Response
       raise Marten::HTTP::Errors::PermissionDenied.new unless current_user!.admin?
-      raise Marten::HTTP::Errors::PermissionDenied.new unless queuer.space!.owner == current_user!
+      raise Marten::HTTP::Errors::PermissionDenied.new unless authorized_for_queuer?
 
       queuer.soft_delete!
       json QueuerSerializer.serialize(queuer), status: 200

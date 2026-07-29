@@ -6,7 +6,7 @@ describe Antrikan::QueuedItem::UpdaterService do
       it "updates note and publishes event" do
         qi = create_queued_item(note: "old note")
         cid = qi.channel!
-        org_id = qi.queue!.channel!.space!.owner!.organization_id
+        org_id = qi.queue!.space!.manager!.organization_id
 
         raw = Marten::HTTP::Params::Data::RawHash.new
         items_json = JSON.parse([{id: qi.id.to_s, note: "new note"}].to_json)
@@ -34,7 +34,7 @@ describe Antrikan::QueuedItem::UpdaterService do
           status: Antrikan::QueueStatus::QUEUED,
         )
         cid = qi.channel!
-        org_id = qi.queue!.channel!.space!.owner!.organization_id
+        org_id = qi.queue!.space!.manager!.organization_id
 
         raw = Marten::HTTP::Params::Data::RawHash.new
         items_json = JSON.parse([{id: qi.id.to_s, status: "attended"}].to_json)
@@ -61,7 +61,7 @@ describe Antrikan::QueuedItem::UpdaterService do
     context "with invalid schema" do
       it "returns failure for empty data" do
         qi = create_queued_item
-        org_id = qi.queue!.channel!.space!.owner!.organization_id
+        org_id = qi.queue!.space!.manager!.organization_id
         raw = Marten::HTTP::Params::Data::RawHash.new
 
         result = Antrikan::QueuedItem::UpdaterService.new(
@@ -74,7 +74,7 @@ describe Antrikan::QueuedItem::UpdaterService do
 
       it "returns failure instead of raising when items is not an array" do
         qi = create_queued_item
-        org_id = qi.queue!.channel!.space!.owner!.organization_id
+        org_id = qi.queue!.space!.manager!.organization_id
 
         raw = Marten::HTTP::Params::Data::RawHash.new
         raw["items"] = [JSON.parse({id: qi.id.to_s}.to_json)]

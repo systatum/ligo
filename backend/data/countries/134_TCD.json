@@ -1,0 +1,31 @@
+{
+  "name": {
+    "en-US": "Chad"
+  },
+  "cities": {
+    "134010001": "Moussoro, Barh el Gazel",
+    "134020001": "Ati, Batha",
+    "134020002": "Oum Hadjer, Batha",
+    "134030001": "Dourbali, Chari-Baguirmi",
+    "134030002": "N'Djamena, Chari-Baguirmi",
+    "134040001": "Fada, Ennedi-Ouest",
+    "134050001": "Bitkine, Guéra",
+    "134050002": "Mongo, Guéra",
+    "134060001": "Massaguet, Hadjer-Lamis",
+    "134060002": "Massakory, Hadjer-Lamis",
+    "134070001": "Mao, Kanem",
+    "134080001": "Benoy, Logone Occidental",
+    "134080002": "Moundou, Logone Occidental",
+    "134090001": "Doba, Logone Oriental",
+    "134100001": "Koumra, Mandoul",
+    "134110001": "Bongor, Mayo-Kebbi Est",
+    "134120001": "Mboursou Léré, Mayo-Kebbi Ouest",
+    "134120002": "Pala, Mayo-Kebbi Ouest",
+    "134130001": "Kyabé, Moyen-Chari",
+    "134130002": "Sagh, Moyen-Chari",
+    "134140001": "Abéché, Ouaddaï",
+    "134150001": "Am Timan, Salamat",
+    "134160001": "Kelo, Tandjilé",
+    "134160002": "Laï, Tandjilé"
+  }
+}

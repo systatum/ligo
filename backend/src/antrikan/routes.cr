@@ -34,6 +34,26 @@ module Antrikan
         path "/update", QueuerUpdateHandler, name: "update"
       end
       path "/<space_hashed_id:str>/queuer", queuer_space_routes
+
+      space_review_routes = Marten::Routing::Map.draw(:space_review) do
+        path "/create", SpaceReviewCreateHandler, name: "create"
+        path "/index", SpaceReviewIndexHandler, name: "index"
+      end
+      path "/<space_hashed_id:str>/reviews", space_review_routes
+
+      voucher_routes = Marten::Routing::Map.draw(:voucher) do
+        path "/create", VoucherCreateHandler, name: "create"
+        path "/index", VoucherIndexHandler, name: "index"
+      end
+      path "/<space_hashed_id:str>/voucher", voucher_routes
+
+      path "/<space_hashed_id:str>/refund/list", RefundSpaceListHandler, name: "refund_list"
+
+      queue_space_routes = Marten::Routing::Map.draw(:queue) do
+        path "/create", QueueCreateHandler, name: "create"
+        path "/index", QueueIndexHandler, name: "index"
+      end
+      path "/<space_hashed_id:str>/queue", queue_space_routes
     end
 
     channel_routes = Marten::Routing::Map.draw(:channel) do
@@ -48,11 +68,13 @@ module Antrikan
       end
       path "/<channel_hashed_id:str>/items", item_routes
 
-      queue_routes = Marten::Routing::Map.draw(:queue) do
-        path "/create", QueueCreateHandler, name: "create"
-        path "/index", QueueIndexHandler, name: "index"
+      operating_hour_routes = Marten::Routing::Map.draw(:operating_hour) do
+        path "/create", OperatingHourCreateHandler, name: "create"
+        path "/index", OperatingHourIndexHandler, name: "index"
+        path "/<operating_hour_hashed_id:str>/update", OperatingHourUpdateHandler, name: "update"
+        path "/<operating_hour_hashed_id:str>/delete", OperatingHourDeleteHandler, name: "delete"
       end
-      path "/<channel_hashed_id:str>/queue", queue_routes
+      path "/<channel_hashed_id:str>/operating_hours", operating_hour_routes
     end
 
     queuer_routes = Marten::Routing::Map.draw(:queuer) do
@@ -68,10 +90,15 @@ module Antrikan
 
       item_routes = Marten::Routing::Map.draw(:item) do
         path "/create", QueuedItemCreateHandler, name: "create"
-        path "/<queued_item_slug:str>/update", QueuedItemUpdateHandler, name: "update"
         path "/rerank", QueuedItemRerankHandler, name: "rerank"
       end
       path "/<queue_slug:str>/item", item_routes
+
+      payment_routes = Marten::Routing::Map.draw(:payment) do
+        path "/create", PaymentCreateHandler, name: "create"
+        path "/list", PaymentListHandler, name: "list"
+      end
+      path "/<queue_slug:str>/payment", payment_routes
     end
 
     item_routes = Marten::Routing::Map.draw(:item) do
@@ -79,6 +106,42 @@ module Antrikan
       path "/<slug:str>/update", ItemUpdateHandler, name: "update"
       path "/<slug:str>/delete", ItemDeleteHandler, name: "delete"
       path "/<slug:str>/undelete", ItemUndeleteHandler, name: "undelete"
+
+      operating_hour_routes = Marten::Routing::Map.draw(:operating_hour) do
+        path "/create", OperatingHourCreateHandler, name: "create"
+        path "/index", OperatingHourIndexHandler, name: "index"
+        path "/<operating_hour_hashed_id:str>/update", OperatingHourUpdateHandler, name: "update"
+        path "/<operating_hour_hashed_id:str>/delete", OperatingHourDeleteHandler, name: "delete"
+      end
+      path "/<item_slug:str>/operating_hours", operating_hour_routes
+    end
+
+    space_review_routes = Marten::Routing::Map.draw(:space_review) do
+      path "/<space_review_hashed_id:str>", SpaceReviewShowHandler, name: "show"
+      path "/<space_review_hashed_id:str>/update", SpaceReviewUpdateHandler, name: "update"
+      path "/<space_review_hashed_id:str>/delete", SpaceReviewDeleteHandler, name: "delete"
+    end
+
+    voucher_routes = Marten::Routing::Map.draw(:voucher) do
+      path "/redeemable", VoucherRedeemabilityHandler, name: "redeemable"
+      path "/<voucher_hashed_id:str>", VoucherShowHandler, name: "show"
+      path "/<voucher_hashed_id:str>/update", VoucherUpdateHandler, name: "update"
+      path "/<voucher_hashed_id:str>/delete", VoucherDeleteHandler, name: "delete"
+      path "/<voucher_hashed_id:str>/undelete", VoucherUndeleteHandler, name: "undelete"
+    end
+
+    payment_routes = Marten::Routing::Map.draw(:payment) do
+      refund_routes = Marten::Routing::Map.draw(:refund) do
+        path "/create", RefundCreateHandler, name: "create"
+        path "/list", RefundListHandler, name: "list"
+      end
+      path "/<payment_hashed_id:str>/refund", refund_routes
+    end
+
+    refund_routes = Marten::Routing::Map.draw(:refund) do
+      path "/<refund_slug:str>", RefundShowHandler, name: "show"
+      path "/<refund_slug:str>/accept", RefundAcceptHandler, name: "accept"
+      path "/<refund_slug:str>/reject", RefundRejectHandler, name: "reject"
     end
 
     queued_item_routes = Marten::Routing::Map.draw(:queued_item) do
@@ -91,6 +154,10 @@ module Antrikan
     path "/api/queuer", queuer_routes
     path "/api/queue", queue_routes
     path "/api/item", item_routes
+    path "/api/space_review", space_review_routes
+    path "/api/voucher", voucher_routes
+    path "/api/payment", payment_routes
+    path "/api/refund", refund_routes
     path "/api/queued_item", queued_item_routes
   end
 end
