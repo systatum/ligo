@@ -12,7 +12,7 @@ module Antrikan
         QueuedItemSerializer.soft_serialize(qi)
       end
 
-      json({items: result}, status: 200)
+      json(result, status: 200)
     end
   end
 end

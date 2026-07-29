@@ -14,7 +14,7 @@ module Antrikan
       vouchers = vouchers.filter(space_id: space.id)
 
       result = vouchers.map { |v| VoucherSerializer.soft_serialize(v) }
-      json({vouchers: result}, status: 200)
+      json(result, status: 200)
     end
   end
 end

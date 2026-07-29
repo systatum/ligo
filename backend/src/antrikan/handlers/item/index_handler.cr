@@ -12,7 +12,7 @@ module Antrikan
       items = items.filter(channel_id: channel.id).order(:order)
 
       result = items.map { |item| ItemSerializer.soft_serialize(item) }
-      json({items: result}, status: 200)
+      json(result, status: 200)
     end
   end
 end

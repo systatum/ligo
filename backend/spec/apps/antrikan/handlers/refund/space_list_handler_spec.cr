@@ -24,7 +24,7 @@ describe Antrikan::RefundSpaceListHandler do
       response.status.should eq 200
 
       body = JSON.parse(response.content)
-      ids = body["refunds"].as_a.map(&.["id"].as_s)
+      ids = body.as_a.map(&.["id"].as_s)
 
       ids.size.should eq 2
       ids.should contain first_refund.id.to_s

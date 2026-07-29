@@ -20,7 +20,7 @@ describe Antrikan::QueuerIndexHandler do
     response.status.should eq 200
 
     json_response = JSON.parse(response.content)
-    records = json_response["queuers"].as_a
+    records = json_response.as_a
     records.size.should eq 2
 
     records[0]["id"].should eq q1.hashed_id
@@ -52,7 +52,7 @@ describe Antrikan::QueuerIndexHandler do
 
     response.status.should eq 200
 
-    ids = JSON.parse(response.content)["queuers"].as_a.map { |q| q["id"].as_s }.to_set
+    ids = JSON.parse(response.content).as_a.map { |q| q["id"].as_s }.to_set
     ids.should contain active.hashed_id
     ids.should_not contain deleted.hashed_id
   end
@@ -71,7 +71,7 @@ describe Antrikan::QueuerIndexHandler do
 
       response.status.should eq 200
 
-      ids = JSON.parse(response.content)["queuers"].as_a.map { |q| q["id"].as_s }.to_set
+      ids = JSON.parse(response.content).as_a.map { |q| q["id"].as_s }.to_set
       ids.should contain active.hashed_id
       ids.should contain deleted.hashed_id
     end
@@ -85,6 +85,6 @@ describe Antrikan::QueuerIndexHandler do
     )
 
     response.status.should eq 200
-    response.content.should eq({queuers: [] of String}.to_json)
+    response.content.should eq(([] of String).to_json)
   end
 end

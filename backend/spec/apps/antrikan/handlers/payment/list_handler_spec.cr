@@ -17,7 +17,7 @@ describe Antrikan::PaymentListHandler do
       )
 
       response.status.should eq 200
-      response.content.should eq({payments: [Antrikan::PaymentSerializer.soft_serialize(kept)]}.to_json)
+      response.content.should eq([Antrikan::PaymentSerializer.soft_serialize(kept)].to_json)
     end
   end
 

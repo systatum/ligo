@@ -17,7 +17,7 @@ module Antrikan
         QueueSerializer.soft_serialize(queue)
       end
 
-      json({queues: result}, status: 200)
+      json(result, status: 200)
     end
   end
 end

@@ -13,7 +13,7 @@ describe Antrikan::ItemIndexHandler do
     response.status.should eq 200
 
     json_response = JSON.parse(response.content)
-    records = json_response["items"].as_a
+    records = json_response.as_a
     records.size.should eq 2
 
     records[0]["id"].should eq item1.slug!
@@ -43,7 +43,7 @@ describe Antrikan::ItemIndexHandler do
     response.status.should eq 200
 
     json_response = JSON.parse(response.content)
-    records = json_response["items"].as_a
+    records = json_response.as_a
 
     records[0]["id"].should eq item_a.slug!
     records[1]["id"].should eq item_b.slug!
@@ -62,7 +62,7 @@ describe Antrikan::ItemIndexHandler do
     response.status.should eq 200
 
     json_response = JSON.parse(response.content)
-    records = json_response["items"].as_a
+    records = json_response.as_a
     records.size.should eq 1
 
     records[0]["id"].should eq active.slug!
@@ -82,7 +82,7 @@ describe Antrikan::ItemIndexHandler do
     response.status.should eq 200
 
     json_response = JSON.parse(response.content)
-    records = json_response["items"].as_a
+    records = json_response.as_a
     records.size.should eq 2
 
     item_ids = records.map { |r| r["id"].as_s }.to_set
@@ -113,6 +113,6 @@ describe Antrikan::ItemIndexHandler do
     )
 
     response.status.should eq 200
-    response.content.should eq({items: [] of String}.to_json)
+    response.content.should eq(([] of String).to_json)
   end
 end

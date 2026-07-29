@@ -13,8 +13,8 @@ describe Antrikan::SpaceReviewIndexHandler do
     response.status.should eq 200
 
     body = JSON.parse(response.content)
-    body["reviews"].as_a.size.should eq 2
-    ids = body["reviews"].as_a.map(&.["id"].as_s)
+    body.as_a.size.should eq 2
+    ids = body.as_a.map(&.["id"].as_s)
     ids.should contain review1.hashed_id
     ids.should contain review2.hashed_id
   end
@@ -29,7 +29,7 @@ describe Antrikan::SpaceReviewIndexHandler do
     )
 
     response.status.should eq 200
-    JSON.parse(response.content)["reviews"].as_a.should be_empty
+    JSON.parse(response.content).as_a.should be_empty
   end
 
   it "does not return deleted reviews by default" do
@@ -42,7 +42,7 @@ describe Antrikan::SpaceReviewIndexHandler do
     )
 
     response.status.should eq 200
-    JSON.parse(response.content)["reviews"].as_a.should be_empty
+    JSON.parse(response.content).as_a.should be_empty
   end
 
   it "includes deleted reviews when ?with_deleted=true" do
@@ -55,7 +55,7 @@ describe Antrikan::SpaceReviewIndexHandler do
     )
 
     response.status.should eq 200
-    JSON.parse(response.content)["reviews"].as_a.size.should eq 1
+    JSON.parse(response.content).as_a.size.should eq 1
   end
 
   it "returns an empty list when there are no reviews" do
@@ -66,6 +66,6 @@ describe Antrikan::SpaceReviewIndexHandler do
     )
 
     response.status.should eq 200
-    JSON.parse(response.content)["reviews"].as_a.should be_empty
+    JSON.parse(response.content).as_a.should be_empty
   end
 end

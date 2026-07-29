@@ -8,8 +8,6 @@ class Antrikan::SpaceIndexHandler < RequestHandler
     spaces = Antrikan::Space.filter(manager_id: current_user!.id, deleted_at: nil).map do |space|
       Antrikan::SpaceSerializer.soft_serialize(space)
     end
-    json({
-      spaces: spaces,
-    }, status: 200)
+    json(spaces, status: 200)
   end
 end

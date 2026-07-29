@@ -18,7 +18,7 @@ describe Antrikan::RefundListHandler do
       )
 
       response.status.should eq 200
-      response.content.should eq({refunds: [Antrikan::RefundSerializer.soft_serialize(kept, viewer_is_staff: true)]}.to_json)
+      response.content.should eq([Antrikan::RefundSerializer.soft_serialize(kept, viewer_is_staff: true)].to_json)
     end
   end
 

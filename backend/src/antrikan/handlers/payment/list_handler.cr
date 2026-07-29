@@ -11,7 +11,7 @@ module Antrikan
       payments = queue.payments.filter(deleted_at: nil)
       result = payments.map { |payment| PaymentSerializer.soft_serialize(payment) }
 
-      json({payments: result}, status: 200)
+      json(result, status: 200)
     end
   end
 end

@@ -19,10 +19,7 @@ describe Antrikan::OperatingHourIndexHandler do
         Antrikan::OperatingHourSerializer.soft_serialize(op_hour)
       end
 
-      parsed = JSON.parse(response.content)
-      response.content.should eq({
-        op_hours: op_hours,
-      }.to_json)
+      response.content.should eq op_hours.to_json
     end
 
     it "does not return operating hours from other spaces" do

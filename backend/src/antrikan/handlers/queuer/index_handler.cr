@@ -12,7 +12,7 @@ module Antrikan
       queuers = queuers.filter(space_id: space.id)
 
       result = queuers.map { |q| QueuerSerializer.soft_serialize(q) }
-      json({queuers: result}, status: 200)
+      json(result, status: 200)
     end
   end
 end

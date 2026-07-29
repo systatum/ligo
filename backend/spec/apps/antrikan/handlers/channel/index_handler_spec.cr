@@ -13,7 +13,7 @@ describe Antrikan::ChannelIndexHandler do
     response.status.should eq 200
 
     json_response = JSON.parse(response.content)
-    records = json_response["channels"].as_a
+    records = json_response.as_a
     records.size.should eq 2
 
     records[0]["id"].should eq ch1.hashed_id
@@ -40,7 +40,7 @@ describe Antrikan::ChannelIndexHandler do
     response.status.should eq 200
 
     json_response = JSON.parse(response.content)
-    records = json_response["channels"].as_a
+    records = json_response.as_a
     records.size.should eq 1
 
     records[0]["id"].should eq active.hashed_id
@@ -63,7 +63,7 @@ describe Antrikan::ChannelIndexHandler do
     response.status.should eq 200
 
     json_response = JSON.parse(response.content)
-    records = json_response["channels"].as_a
+    records = json_response.as_a
     records.size.should eq 2
 
     channel_ids = records.map { |r| r["id"].as_s }.to_set
@@ -94,6 +94,6 @@ describe Antrikan::ChannelIndexHandler do
     )
 
     response.status.should eq 200
-    response.content.should eq({channels: [] of String}.to_json)
+    response.content.should eq(([] of String).to_json)
   end
 end

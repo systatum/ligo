@@ -15,7 +15,7 @@ describe Antrikan::QueuedItemIndexHandler do
     response.status.should eq 200
 
     json_response = JSON.parse(response.content)
-    records = json_response["items"].as_a
+    records = json_response.as_a
     records.size.should eq 3
 
     records[0]["id"].should eq qi2.id.to_s
@@ -38,7 +38,7 @@ describe Antrikan::QueuedItemIndexHandler do
     response.status.should eq 200
 
     json_response = JSON.parse(response.content)
-    records = json_response["items"].as_a
+    records = json_response.as_a
     records.size.should eq 1
     records[0]["id"].should eq qi_a.id.to_s
   end
@@ -61,6 +61,6 @@ describe Antrikan::QueuedItemIndexHandler do
     response.status.should eq 200
 
     json_response = JSON.parse(response.content)
-    json_response["items"].as_a.size.should eq 0
+    json_response.as_a.size.should eq 0
   end
 end

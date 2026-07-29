@@ -39,7 +39,7 @@ describe Antrikan::QueueIndexHandler do
       response.status.should eq 200
 
       json_response = JSON.parse(response.content)
-      records = json_response["queues"].as_a
+      records = json_response.as_a
       records.size.should eq 3
 
       records[0]["id"].should eq q1.slug!
@@ -84,7 +84,7 @@ describe Antrikan::QueueIndexHandler do
       response.status.should eq 200
 
       json_response = JSON.parse(response.content)
-      records = json_response["queues"].as_a
+      records = json_response.as_a
       records.size.should eq 1
 
       records[0]["id"].should eq ready.slug!
@@ -112,7 +112,7 @@ describe Antrikan::QueueIndexHandler do
       response.status.should eq 200
 
       json_response = JSON.parse(response.content)
-      records = json_response["queues"].as_a
+      records = json_response.as_a
       records.size.should eq 1
       records[0]["id"].should eq ready.slug!
     end

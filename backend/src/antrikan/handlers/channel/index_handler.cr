@@ -12,7 +12,7 @@ module Antrikan
       channels = channels.filter(space_id: space.id)
 
       result = channels.map { |ch| ChannelSerializer.soft_serialize(ch) }
-      json({channels: result}, status: 200)
+      json(result, status: 200)
     end
   end
 end

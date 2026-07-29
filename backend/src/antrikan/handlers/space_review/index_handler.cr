@@ -12,7 +12,7 @@ module Antrikan
       reviews = reviews.filter(space_id: space.id)
 
       result = reviews.map { |review| SpaceReviewSerializer.soft_serialize(review) }
-      json({reviews: result}, status: 200)
+      json(result, status: 200)
     end
   end
 end

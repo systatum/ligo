@@ -19,10 +19,7 @@ describe Antrikan::SpaceIndexHandler do
           Antrikan::SpaceSerializer.soft_serialize(space)
         end
 
-        parsed = JSON.parse(response.content)
-        response.content.should eq({
-          spaces: spaces,
-        }.to_json)
+        response.content.should eq spaces.to_json
       end
 
       context "when a space belong to other user" do
