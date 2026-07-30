@@ -10,22 +10,9 @@ module Antrikan
     variants: {
       SpaceReviewSchema:       {required: [:rating]},
       SpaceReviewUpdateSchema: {required: [] of Symbol},
+    },
+    validations: {
+      validate_images_size: -> { validate_max_images(:images, images, 4) },
     }
   )
-
-  class SpaceReviewSchema
-    validate :validate_images_size
-
-    private def validate_images_size
-      validate_max_images(:images, images, 4)
-    end
-  end
-
-  class SpaceReviewUpdateSchema
-    validate :validate_images_size
-
-    private def validate_images_size
-      validate_max_images(:images, images, 4)
-    end
-  end
 end

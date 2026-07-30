@@ -1,9 +1,11 @@
 module SchemaDefiner
   # Defines arbitrary number of schema variants with one shared fields shape.
   # Each variant can then specifically define which fields are "required" or "disallowed".
+  # `validations` (optional) maps a validation method name to a `-> { ... }` proc literal
+  # whose body becomes that method's body, applied to every variant.
   # See example in src/antrikan/schemas/channel_schema and
   # src/antrikan/schemas/queue_schema.
-  macro with_fields(fields, variants)
+  macro with_fields(fields, variants, validations = nil)
     {% for variant, variant_config in variants %}
       class {{variant.id}} < BaseSchema
         {% required_fields = nil %}
@@ -63,6 +65,16 @@ module SchemaDefiner
           {% kwargs << "required: #{is_req && !is_disallowed}".id %}
 
           field :{{field_name.id}}, :{{type.id}}, {{ kwargs.join(", ").id }}
+        {% end %}
+
+        {% if validations %}
+          {% for validation_name, validation_proc in validations %}
+            validate :{{validation_name.id}}
+
+            private def {{validation_name.id}}
+              {{ validation_proc.body }}
+            end
+          {% end %}
         {% end %}
       end
     {% end %}
