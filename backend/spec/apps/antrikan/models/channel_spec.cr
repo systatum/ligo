@@ -36,6 +36,73 @@ describe Antrikan::Channel do
 
       channel.operating_hour_for(1).should be_nil
     end
+
+    it "falls back to the parent channel's operating hour before the space's" do
+      space = create_space
+      parent = create_channel(space: space)
+      sub_channel = create_channel(space: space, parent_channel: parent)
+      parent_op_hour = create_operating_hour(channel: parent, day: 1)
+      create_operating_hour(space: space, day: 1)
+
+      sub_channel.operating_hour_for(1).should eq parent_op_hour
+    end
+
+    it "uses its own operating hour over the parent's when both are set" do
+      space = create_space
+      parent = create_channel(space: space)
+      sub_channel = create_channel(space: space, parent_channel: parent)
+      own_op_hour = create_operating_hour(channel: sub_channel, day: 1)
+      create_operating_hour(channel: parent, day: 1)
+
+      sub_channel.operating_hour_for(1).should eq own_op_hour
+    end
+  end
+
+  describe "#parent_channel validations" do
+    it "allows a sub-channel whose parent has no parent of its own" do
+      space = create_space
+      parent = create_channel(space: space)
+      sub_channel = Antrikan::Channel.new
+      sub_channel.space = space
+      sub_channel.name = "Dr. Siti"
+      sub_channel.parent_channel = parent
+
+      sub_channel.valid?.should be_true
+    end
+
+    it "rejects a channel being its own parent" do
+      channel = create_channel
+      channel.parent_channel = channel
+
+      channel.valid?.should be_false
+      channel.errors[:parent_channel][0].message.should eq "cannot be its own parent"
+    end
+
+    it "rejects a parent channel from a different space" do
+      other_space_parent = create_channel(space: create_space)
+      channel = Antrikan::Channel.new
+      channel.space = create_space
+      channel.name = "Dr. Siti"
+      channel.parent_channel = other_space_parent
+
+      channel.valid?.should be_false
+      channel.errors[:parent_channel][0].message.should eq "must belong to the same space"
+    end
+
+    it "rejects nesting a channel under a channel that is itself a sub-channel" do
+      space = create_space
+      grandparent = create_channel(space: space)
+      parent = create_channel(space: space, parent_channel: grandparent)
+      channel = Antrikan::Channel.new
+      channel.space = space
+      channel.name = "Too deep"
+      channel.parent_channel = parent
+
+      channel.valid?.should be_false
+      channel.errors[:parent_channel][0].message.should eq(
+        "cannot itself be a sub-channel (only one level of nesting is allowed)"
+      )
+    end
   end
 
   describe "#open_at?" do

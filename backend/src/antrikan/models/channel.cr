@@ -6,9 +6,7 @@ module Antrikan
 
     field :id, :big_int, primary_key: true, auto: true
     field :space, :many_to_one, to: Antrikan::Space, related: :channels
-    # One level deep only - see validate_single_level_nesting. Used so a
-    # doctor can be its own channel (own operating hours, own line) nested
-    # under its specialty channel (e.g. Orthodontics).
+    # One level deep only, e.g. a doctor channel under a specialty channel.
     field :parent_channel, :many_to_one, to: Antrikan::Channel, related: :sub_channels, null: true, blank: true
     field :name, :string, max_size: 255, null: false, blank: false
     field :logo_file_id, :uuid, null: true, blank: true

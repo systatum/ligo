@@ -132,6 +132,57 @@ describe Antrikan::ChannelCreateHandler do
 
       response.status.should eq 422
     end
+
+    it "creates a sub-channel under a parent channel in the same space" do
+      user = create_user
+      space = create_space(manager: user)
+      parent = create_channel(space: space, name: "Orthodontics")
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:space:channel:create", space_hashed_id: space.hashed_id),
+        data: {name: "Dr. Siti", parent_channel_id: parent.hashed_id}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 201
+
+      channel = Antrikan::Channel.last!
+      channel.parent_channel_id.should eq parent.id
+
+      response.content.should eq Antrikan::ChannelSerializer.serialize(channel)
+    end
+
+    it "returns 422 when parent_channel_id belongs to a different space" do
+      user = create_user
+      space = create_space(manager: user)
+      other_space_parent = create_channel(name: "Other space's channel")
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:space:channel:create", space_hashed_id: space.hashed_id),
+        data: {name: "Dr. Siti", parent_channel_id: other_space_parent.hashed_id}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+    end
+
+    it "returns 422 when parent_channel_id is itself a sub-channel" do
+      user = create_user
+      space = create_space(manager: user)
+      grandparent = create_channel(space: space)
+      parent = create_channel(space: space, parent_channel: grandparent)
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:space:channel:create", space_hashed_id: space.hashed_id),
+        data: {name: "Too deep", parent_channel_id: parent.hashed_id}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+    end
   end
 
   context "when the user is not an admin" do

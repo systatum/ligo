@@ -26,6 +26,7 @@ module Antrikan
       @channel.predeletable_state = schema.predeletable_state!.value if schema.predeletable_state?
       @channel.enforce_operating_hours = schema.enforce_operating_hours! if schema.enforce_operating_hours?
       @channel.max_item_piece = schema.max_item_piece! if schema.max_item_piece?
+      @channel.parent_channel = Channel.get_by_hashed_id!(schema.parent_channel_id!) if schema.parent_channel_id?
 
       @channel.save!
     end

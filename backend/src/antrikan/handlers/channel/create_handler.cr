@@ -25,6 +25,7 @@ module Antrikan
         ch.predeletable_state = schema.predeletable_state!.value if schema.predeletable_state?
         ch.enforce_operating_hours = schema.enforce_operating_hours! if schema.enforce_operating_hours?
         ch.max_item_piece = schema.max_item_piece! if schema.max_item_piece?
+        ch.parent_channel = Channel.get_by_hashed_id!(schema.parent_channel_id!) if schema.parent_channel_id?
 
         ch.save!
         json ChannelSerializer.serialize(ch), status: 201
@@ -33,6 +34,8 @@ module Antrikan
       end
     rescue ex : ::Errors::LogoUploadException
       render_invalid_payload(ex.errors)
+    rescue ex : Marten::DB::Errors::InvalidRecord
+      render_invalid_payload(ex.record.errors)
     end
   end
 end

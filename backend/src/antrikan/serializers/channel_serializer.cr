@@ -11,6 +11,7 @@ module Antrikan
         predeletable_state:      record.predeletable_state,
         enforce_operating_hours: record.enforce_operating_hours,
         max_item_piece:          record.max_item_piece,
+        parent_channel_id:       record.parent_channel.try(&.hashed_id),
       }
     end
 

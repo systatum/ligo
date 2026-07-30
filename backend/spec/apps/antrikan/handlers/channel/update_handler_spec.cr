@@ -187,6 +187,56 @@ describe Antrikan::ChannelUpdateHandler do
 
       response.status.should eq 422
     end
+
+    it "assigns a parent channel from the same space" do
+      user = create_user
+      space = create_space(manager: user)
+      parent = create_channel(space: space, name: "Orthodontics")
+      channel = create_channel(space: space, name: "Dr. Siti")
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:channel:update", channel_hashed_id: channel.hashed_id),
+        data: {parent_channel_id: parent.hashed_id}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 200
+
+      channel.reload
+      channel.parent_channel_id.should eq parent.id
+    end
+
+    it "returns 422 when assigning a parent channel from a different space" do
+      user = create_user
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
+      other_space_parent = create_channel(name: "Other space's channel")
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:channel:update", channel_hashed_id: channel.hashed_id),
+        data: {parent_channel_id: other_space_parent.hashed_id}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+    end
+
+    it "returns 422 when assigning itself as parent" do
+      user = create_user
+      space = create_space(manager: user)
+      channel = create_channel(space: space)
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:channel:update", channel_hashed_id: channel.hashed_id),
+        data: {parent_channel_id: channel.hashed_id}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+    end
   end
 
   context "when the user has an insufficient role and does not own the space" do
