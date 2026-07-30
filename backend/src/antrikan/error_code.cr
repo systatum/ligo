@@ -16,6 +16,11 @@ module Antrikan
     # The redeemer already redeemed this voucher max_redeem_per_user times.
     VOUCHER_REDEEMER_MAXED_QUOTA = "ERR_VOUCH_REDEEMER_MAXED_QUOTA"
 
+    # -- Space Review --
+
+    # The space requires an authenticated reviewer and none was provided.
+    SPACE_REVIEW_NOT_ANON_ALLOWED = "ERR_SPACEREVIEW_NOANON"
+
     # -- Payment / Refund --
 
     # A refund was requested against a payment whose queue is still UNPAID -

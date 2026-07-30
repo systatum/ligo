@@ -11,6 +11,7 @@ module Antrikan
         need_manual_approval:      record.need_manual_approval,
         has_operating_hours:       record.has_operating_hours,
         require_registered_queuer: record.require_registered_queuer,
+        allow_anonymous_reviewer:  record.allow_anonymous_reviewer,
         logo:                      fetch_logo_url,
         carousel_images:           fetch_carousel_images,
         business_id:               record.owner!.hashed_id,

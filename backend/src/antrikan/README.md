@@ -127,6 +127,8 @@ Content-Type: application/json
   "description": "A cozy queue space downtown",
   "need_manual_approval": true,
   "has_operating_hours": false,
+  "require_registered_queuer": false,
+  "allow_anonymous_reviewer": false,
   "address": "123 Main St",
   "address_city_code": 100010001,
   "address_postal_code": "23615",
@@ -142,19 +144,24 @@ Content-Type: application/json
 }
 ```
 
-| Field                     | Required | Description                                                                                                                                  |
-| ------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`                    | yes      | Space name (max 255 chars)                                                                                                                   |
-| `description`             | no       | Free-form description                                                                                                                        |
-| `need_manual_approval`    | no       | Whether join requests need manual approval (default: `true`)                                                                                 |
-| `has_operating_hours`     | no       | Whether the space enforces operating hour restrictions (default: `false`)                                                                    |
-| `address`/`phone`/`email` | no       | Optional contact/location details                                                                                                            |
-| `address_city_code`       | no       | An entry id from a `data/countries/<country_code>_<ISO 3166-1 alpha-3>.json` file (e.g. `data/countries/100_IDN.json`) - rejected with `422` if it doesn't match a known entry |
-| `address_postal_code`     | no       | Postal/ZIP code                                                                                                                              |
-| `latitude`/`longitude`    | no       | Geocoordinates                                                                                                                               |
-| `logo`                    | no       | Image payload with `base64_bytes` and `mimetype`                                                                                             |
-| `carousel_images`         | no       | Up to 6 fresh-upload image payloads (`base64_bytes`/`mimetype` each); `keep_id` is rejected here since there's nothing to keep yet on create |
-| `business_name`           | no       | Name for the auto-created owning [Business](#business) (default: same as `name`)                                                             |
+| Field                      | Required | Description                                                                                                                                                                    |
+| -------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `name`                     | yes      | Space name (max 255 chars)                                                                                                                                                     |
+| `description`              | no       | Free-form description                                                                                                                                                          |
+| `need_manual_approval`     | no       | Whether join requests need manual approval (default: `true`)                                                                                                                   |
+| `has_operating_hours`      | no       | Whether the space enforces operating hour restrictions (default: `false`)                                                                                                      |
+| `require_registered_queuer` | no      | Whether a [Queuer](#queuer) must be linked to a registered user to be created in this space (default: `false`)                                                                 |
+| `allow_anonymous_reviewer` | no       | Whether a [Space Review](#space-review-crud) may be created without an authenticated reviewer (default: `false`)                                                               |
+| `address`                  | no       | Street address                                                                                                                                                                 |
+| `phone`                    | no       | Contact phone number                                                                                                                                                           |
+| `email`                    | no       | Contact email address                                                                                                                                                          |
+| `address_city_code`        | no       | An entry id from a `data/countries/<country_code>_<ISO 3166-1 alpha-3>.json` file (e.g. `data/countries/100_IDN.json`) - rejected with `422` if it doesn't match a known entry |
+| `address_postal_code`      | no       | Postal/ZIP code                                                                                                                                                                |
+| `latitude`                 | no       | Geocoordinate                                                                                                                                                                  |
+| `longitude`                | no       | Geocoordinate                                                                                                                                                                  |
+| `logo`                     | no       | Image payload with `base64_bytes` and `mimetype`                                                                                                                               |
+| `carousel_images`          | no       | Up to 6 fresh-upload image payloads (`base64_bytes`/`mimetype` each); `keep_id` is rejected here since there's nothing to keep yet on create                                   |
+| `business_name`            | no       | Name for the auto-created owning [Business](#business) (default: same as `name`)                                                                                               |
 
 **Response (201 Created):**
 
@@ -167,6 +174,7 @@ Content-Type: application/json
   "need_manual_approval": true,
   "has_operating_hours": false,
   "require_registered_queuer": false,
+  "allow_anonymous_reviewer": false,
   "logo": null,
   "carousel_images": [],
   "business_id": "hashedBusinessId",
@@ -221,6 +229,8 @@ Content-Type: application/json
   "description": "Now with a rooftop view",
   "need_manual_approval": false,
   "has_operating_hours": true,
+  "require_registered_queuer": true,
+  "allow_anonymous_reviewer": false,
   "logo": { "base64_bytes": "iVBORw0KGgo...", "mimetype": "image/png" },
   "carousel_images": [
     { "keep_id": "550e8400-e29b-41d4-a716-446655440000" },
@@ -238,13 +248,23 @@ Content-Type: application/json
 
 All fields are optional; only provided fields are changed.
 
-| Field                                                            | Description                                                                                                                                                                                                                                |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `description`                                                    | Free-form description                                                                                                                                                                                                                      |
-| `logo`                                                           | New image payload; pass `null` to clear it                                                                                                                                                                                                 |
-| `carousel_images`                                                | Full replacement list (up to 6), in the given order. Each entry is either `{ "keep_id": "<uploaded_file_id>" }` (reuse an image already on this space) or a fresh upload payload. `keep_id` values not currently on the space return `422` |
-| `address`/`phone`/`email`                                        | Contact/location details                                                                                                                                                                                                                   |
-| `address_city_code`/`address_postal_code`/`latitude`/`longitude` | Geo/postal details - see [Create Space](#create-space)                                                                                                                                                                                     |
+| Field                                                             | Description                                                                                                                                                                                                                                |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`                                                            | Space name (max 255 chars)                                                                                                                                                                                                                 |
+| `description`                                                     | Free-form description                                                                                                                                                                                                                      |
+| `need_manual_approval`                                            | Same as [Create Space](#create-space)                                                                                                                                                                                                      |
+| `has_operating_hours`                                             | Same as [Create Space](#create-space)                                                                                                                                                                                                      |
+| `require_registered_queuer`                                       | Same as [Create Space](#create-space)                                                                                                                                                                                                      |
+| `allow_anonymous_reviewer`                                        | Same as [Create Space](#create-space)                                                                                                                                                                                                      |
+| `logo`                                                            | New image payload; pass `null` to clear it                                                                                                                                                                                                 |
+| `carousel_images`                                                 | Full replacement list (up to 6), in the given order. Each entry is either `{ "keep_id": "<uploaded_file_id>" }` (reuse an image already on this space) or a fresh upload payload. `keep_id` values not currently on the space return `422` |
+| `address`                                                         | Contact/location detail - see [Create Space](#create-space)                                                                                                                                                                                |
+| `phone`                                                           | Contact/location detail - see [Create Space](#create-space)                                                                                                                                                                                |
+| `email`                                                           | Contact/location detail - see [Create Space](#create-space)                                                                                                                                                                                |
+| `address_city_code`                                               | Geo/postal detail - see [Create Space](#create-space)                                                                                                                                                                                      |
+| `address_postal_code`                                             | Geo/postal detail - see [Create Space](#create-space)                                                                                                                                                                                      |
+| `latitude`                                                        | Geo/postal detail - see [Create Space](#create-space)                                                                                                                                                                                      |
+| `longitude`                                                       | Geo/postal detail - see [Create Space](#create-space)                                                                                                                                                                                      |
 
 **Supported Methods:** `PATCH`, `POST`
 

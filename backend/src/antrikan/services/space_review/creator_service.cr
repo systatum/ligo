@@ -1,10 +1,13 @@
 module Antrikan
   class SpaceReview::CreatorService < BaseService(SpaceReview)
-    def initialize(@space : Space, @reviewer : Auth::User, @data : Marten::HTTP::Params::Data)
+    def initialize(@space : Space, @reviewer : Auth::User?, @data : Marten::HTTP::Params::Data)
     end
 
     def run : ServiceResult(SpaceReview)
       return failure(schema.errors) unless schema.valid?
+      if @reviewer.nil? && !@space.allow_anonymous_reviewer?
+        return failure(:reviewer, ErrorCode::SPACE_REVIEW_NOT_ANON_ALLOWED)
+      end
 
       begin
         review = SpaceReview.new

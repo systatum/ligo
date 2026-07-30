@@ -35,6 +35,13 @@ describe Antrikan::SpaceReview do
         review.valid?.should be_false
       end
     end
+
+    context "when reviewer is nil" do
+      it "is valid" do
+        review = Antrikan::SpaceReview.new(space: create_space, reviewer: nil, rating: 6.0)
+        review.valid?.should be_true
+      end
+    end
   end
 
   describe "soft delete" do

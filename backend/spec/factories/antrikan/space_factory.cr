@@ -9,6 +9,7 @@ def create_space(
   need_manual_approval : Bool = true,
   has_operating_hours : Bool = false,
   require_registered_queuer : Bool = false,
+  allow_anonymous_reviewer : Bool = false,
   address : String? = nil,
   latitude : Float64? = nil,
   longitude : Float64? = nil,
@@ -23,6 +24,7 @@ def create_space(
   space.need_manual_approval = need_manual_approval
   space.has_operating_hours = has_operating_hours
   space.require_registered_queuer = require_registered_queuer
+  space.allow_anonymous_reviewer = allow_anonymous_reviewer
   space.address = address
   space.latitude = latitude
   space.longitude = longitude

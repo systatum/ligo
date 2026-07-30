@@ -88,5 +88,24 @@ describe Antrikan::SpaceReviewCreateHandler do
 
       response.status.should eq 400
     end
+
+    context "when the space allows anonymous reviewers" do
+      it "creates a review with no reviewer" do
+        space = create_space(allow_anonymous_reviewer: true)
+
+        response = Marten::Spec.client.post(
+          Marten.routes.reverse("antrikan:space:space_review:create", space_hashed_id: space.hashed_id),
+          data: {rating: 5.0}.to_json,
+          content_type: "application/json"
+        )
+
+        response.status.should eq 201
+
+        review = Antrikan::SpaceReview.last!
+        review.reviewer_id.should be_nil
+
+        response.content.should eq Antrikan::SpaceReviewSerializer.serialize(review)
+      end
+    end
   end
 end

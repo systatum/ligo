@@ -6,7 +6,7 @@ module Antrikan
       {
         id:          record.hashed_id,
         space_id:    record.space!.hashed_id,
-        reviewer_id: record.reviewer!.hashed_id,
+        reviewer_id: record.reviewer.try(&.hashed_id),
         rating:      record.rating,
         review:      record.review,
       }

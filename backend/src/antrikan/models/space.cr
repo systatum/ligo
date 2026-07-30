@@ -10,6 +10,8 @@ class Antrikan::Space < Marten::Model
   field :need_manual_approval, :bool, null: false, default: true
   field :has_operating_hours, :bool, null: false, default: false
   field :require_registered_queuer, :bool, null: false, default: false
+  # If true, a SpaceReview may be created without an authenticated reviewer.
+  field :allow_anonymous_reviewer, :bool, null: false, default: false
   field :logo_file_id, :uuid, null: true, blank: true
   field :carousel_image_ids, :json, null: true, blank: true, serializable: UploadedFileIds
   field :address, :string, max_size: 255, null: true, blank: true

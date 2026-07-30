@@ -11,7 +11,7 @@ module Antrikan
     field :updated_at, :date_time, null: false, auto_now: true
 
     field :space, :many_to_one, to: Antrikan::Space, related: :reviews
-    field :reviewer, :many_to_one, to: Auth::User, related: :space_reviews
+    field :reviewer, :many_to_one, to: Auth::User, related: :space_reviews, null: true, blank: true
 
     db_unique_constraint :idx_space_review_space_reviewer_unique, field_names: [:space, :reviewer]
 

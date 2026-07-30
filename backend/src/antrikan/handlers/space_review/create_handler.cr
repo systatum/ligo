@@ -6,7 +6,8 @@ module Antrikan
     http_method_names :post
 
     def post : Marten::HTTP::Response
-      result = SpaceReview::CreatorService.new(space, current_user!, request.data).run
+      reviewer = space.allow_anonymous_reviewer? ? current_user : current_user!
+      result = SpaceReview::CreatorService.new(space, reviewer, request.data).run
 
       if result.success?
         json SpaceReviewSerializer.serialize(result.data.not_nil!), status: 201

@@ -5,6 +5,7 @@ module Antrikan
     field :need_manual_approval, :bool, required: false
     field :has_operating_hours, :bool, required: false
     field :require_registered_queuer, :bool, required: false
+    field :allow_anonymous_reviewer, :bool, required: false
     field :logo, :json, required: false, serializable: FilePayload
     field :carousel_images, :array, required: false, of: :json, serializable: CarouselImagePayload
     field :address, :string, max_size: 255, required: false

@@ -3,7 +3,7 @@ require "./space_factory"
 
 def create_space_review(
   space : Antrikan::Space = create_space,
-  reviewer : Auth::User = create_user,
+  reviewer : Auth::User? = create_user,
   rating : Float64 = 8.0,
   review : String? = "Great space!",
 ) : Antrikan::SpaceReview
