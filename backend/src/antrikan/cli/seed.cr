@@ -127,6 +127,20 @@ module Antrikan
       item_c.daily_cap = 150
       item_c.save!
 
+      disabled_channel = Channel.new(space: space, name: "Fries")
+      disabled_channel.description = "Crispy fries and side dishes."
+      disabled_channel.max_item_piece = 0
+      disabled_channel.save!
+
+      disabled_item = Item.new(
+        channel: disabled_channel,
+        name: "Classic Fries",
+        unit_price: 20_000_i64,
+      )
+      disabled_item.description = "Golden crispy fries with seasoning."
+      disabled_item.daily_cap = 0
+      disabled_item.save!
+
       seed_operating_hours!(space, open_hour: 9, close_hour: 21, saturday_open_hour: 10, saturday_close_hour: 22)
 
       voucher = Voucher.new(space: space, channel: channel, code: "CHANNELWIDE", channel_percentage_discount: 10.0)
@@ -144,6 +158,7 @@ module Antrikan
       stdout.puts "Seeded #{space.carousel_image_ids!.ids.size} carousel images for '#{space.name!}'."
       stdout.puts "Seeded channel '#{channel.name!}' (id: #{channel.hashed_id}) with items '#{item_a.name!}' and '#{item_b.name!}'."
       stdout.puts "Seeded channel '#{hotdog_channel.name!}' (id: #{hotdog_channel.hashed_id}, enforce_operating_hours: false) with item '#{item_c.name!}'."
+      stdout.puts "Seeded channel '#{disabled_channel.name!}' (id: #{disabled_channel.hashed_id}, max_item_piece: 0 - disabled) with item '#{disabled_item.name!}'."
       stdout.puts "Seeded operating hours Mon-Sat for '#{space.name!}' (closed Sunday - no entry seeded for that day)."
       stdout.puts "Seeded voucher '#{voucher.code!}' - #{voucher.channel_percentage_discount!}% off '#{channel.name!}'."
       stdout.puts "Seeded a review from '#{customer.email!}' (rating: #{review.rating!})."
