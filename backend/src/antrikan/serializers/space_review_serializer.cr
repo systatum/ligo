@@ -7,6 +7,8 @@ module Antrikan
         id:          record.hashed_id,
         space_id:    record.space!.hashed_id,
         reviewer_id: record.reviewer.try(&.hashed_id),
+        channel_id:  record.channel.try(&.hashed_id),
+        item_id:     record.item.try(&.slug),
         rating:      record.rating,
         review:      record.review,
       }

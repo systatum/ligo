@@ -9,6 +9,8 @@ module Antrikan
       begin
         @space_review.rating = schema.rating if schema.rating?
         @space_review.review = schema.review if @data.has_key?("review")
+        @space_review.channel = Channel.get_by_hashed_id!(schema.channel_id!) if schema.channel_id?
+        @space_review.item = Item.get_by_slug!(slug: schema.item_id!) if schema.item_id?
         @space_review.save!
 
         success(@space_review)

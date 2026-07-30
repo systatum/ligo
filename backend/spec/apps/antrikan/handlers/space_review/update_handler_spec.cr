@@ -36,6 +36,42 @@ describe Antrikan::SpaceReviewUpdateHandler do
       review.reload
       review.rating.should eq 5.0
     end
+
+    it "attaches a channel from the same space" do
+      author = create_user
+      space = create_space
+      channel = create_channel(space: space)
+      review = create_space_review(space: space, reviewer: author, rating: 5.0)
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:space_review:update", space_review_hashed_id: review.hashed_id),
+        data: {channel_id: channel.hashed_id}.to_json,
+        headers: {authorization: "Bearer #{author.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 200
+
+      review.reload
+      review.channel_id.should eq channel.id
+    end
+
+    it "returns 422 when channel_id and item_id are both given" do
+      author = create_user
+      space = create_space
+      channel = create_channel(space: space)
+      item = create_item(channel: channel)
+      review = create_space_review(space: space, reviewer: author, rating: 5.0)
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:space_review:update", space_review_hashed_id: review.hashed_id),
+        data: {channel_id: channel.hashed_id, item_id: item.slug}.to_json,
+        headers: {authorization: "Bearer #{author.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+    end
   end
 
   context "when the user is not the review's author" do

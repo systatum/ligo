@@ -15,6 +15,8 @@ module Antrikan
         review.reviewer = @reviewer
         review.rating = schema.rating!
         review.review = schema.review if schema.review?
+        review.channel = Channel.get_by_hashed_id!(schema.channel_id!) if schema.channel_id?
+        review.item = Item.get_by_slug!(slug: schema.item_id!) if schema.item_id?
         review.save!
 
         success(review)

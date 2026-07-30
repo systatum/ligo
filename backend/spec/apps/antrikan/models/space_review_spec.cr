@@ -42,6 +42,59 @@ describe Antrikan::SpaceReview do
         review.valid?.should be_true
       end
     end
+
+    context "when only channel is set" do
+      it "is valid when the channel belongs to the same space" do
+        space = create_space
+        channel = create_channel(space: space)
+        review = Antrikan::SpaceReview.new(space: space, reviewer: create_user, rating: 7.0, channel: channel)
+
+        review.valid?.should be_true
+      end
+
+      it "is invalid when the channel belongs to a different space" do
+        space = create_space
+        other_channel = create_channel
+        review = Antrikan::SpaceReview.new(space: space, reviewer: create_user, rating: 7.0, channel: other_channel)
+
+        review.valid?.should be_false
+        review.errors[:channel][0].message.should eq "must belong to the same space as the review"
+      end
+    end
+
+    context "when only item is set" do
+      it "is valid when the item's channel belongs to the same space" do
+        space = create_space
+        channel = create_channel(space: space)
+        item = create_item(channel: channel)
+        review = Antrikan::SpaceReview.new(space: space, reviewer: create_user, rating: 7.0, item: item)
+
+        review.valid?.should be_true
+      end
+
+      it "is invalid when the item's channel belongs to a different space" do
+        space = create_space
+        other_item = create_item
+        review = Antrikan::SpaceReview.new(space: space, reviewer: create_user, rating: 7.0, item: other_item)
+
+        review.valid?.should be_false
+        review.errors[:item][0].message.should eq "must belong to the same space as the review"
+      end
+    end
+
+    context "when both channel and item are set" do
+      it "is invalid" do
+        space = create_space
+        channel = create_channel(space: space)
+        item = create_item(channel: channel)
+        review = Antrikan::SpaceReview.new(
+          space: space, reviewer: create_user, rating: 7.0, channel: channel, item: item
+        )
+
+        review.valid?.should be_false
+        review.errors[:item][0].message.should eq "cannot be set together with channel"
+      end
+    end
   end
 
   describe "soft delete" do

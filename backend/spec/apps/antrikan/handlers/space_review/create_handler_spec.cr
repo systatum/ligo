@@ -40,6 +40,78 @@ describe Antrikan::SpaceReviewCreateHandler do
       review = Antrikan::SpaceReview.last!
       review.review.should be_nil
     end
+
+    it "attaches a channel from the same space" do
+      user = create_user
+      space = create_space
+      channel = create_channel(space: space)
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:space:space_review:create", space_hashed_id: space.hashed_id),
+        data: {rating: 7.0, channel_id: channel.hashed_id}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 201
+
+      review = Antrikan::SpaceReview.last!
+      review.channel_id.should eq channel.id
+    end
+
+    it "attaches an item from the same space" do
+      user = create_user
+      space = create_space
+      channel = create_channel(space: space)
+      item = create_item(channel: channel)
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:space:space_review:create", space_hashed_id: space.hashed_id),
+        data: {rating: 7.0, item_id: item.slug}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 201
+
+      review = Antrikan::SpaceReview.last!
+      review.item_id.should eq item.id
+    end
+  end
+
+  context "when channel_id and item_id are both given" do
+    it "returns 422" do
+      user = create_user
+      space = create_space
+      channel = create_channel(space: space)
+      item = create_item(channel: channel)
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:space:space_review:create", space_hashed_id: space.hashed_id),
+        data: {rating: 7.0, channel_id: channel.hashed_id, item_id: item.slug}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+    end
+  end
+
+  context "when channel_id belongs to a different space" do
+    it "returns 422" do
+      user = create_user
+      space = create_space
+      other_channel = create_channel
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:space:space_review:create", space_hashed_id: space.hashed_id),
+        data: {rating: 7.0, channel_id: other_channel.hashed_id}.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+    end
   end
 
   context "when the rating is out of range" do

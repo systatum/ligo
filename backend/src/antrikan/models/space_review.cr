@@ -12,11 +12,14 @@ module Antrikan
 
     field :space, :many_to_one, to: Antrikan::Space, related: :reviews
     field :reviewer, :many_to_one, to: Auth::User, related: :space_reviews, null: true, blank: true
+    field :channel, :many_to_one, to: Antrikan::Channel, related: :reviews, null: true, blank: true
+    field :item, :many_to_one, to: Antrikan::Item, related: :reviews, null: true, blank: true
 
     db_unique_constraint :idx_space_review_space_reviewer_unique, field_names: [:space, :reviewer]
 
     validate :validate_rating
     validate :validate_uniqueness
+    validate :validate_channel_and_item
 
     private def validate_rating
       return if rating.nil?
@@ -33,6 +36,21 @@ module Antrikan
       existing = existing.reject { |r| r.id == id } unless new_record?
 
       errors.add(:reviewer, "You have already reviewed this space") unless existing.empty?
+    end
+
+    private def validate_channel_and_item
+      if channel? && item?
+        errors.add(:item, "cannot be set together with channel")
+        return
+      end
+
+      if channel? && channel!.space_id != space_id
+        errors.add(:channel, "must belong to the same space as the review")
+      end
+
+      if item? && item!.channel!.space_id != space_id
+        errors.add(:item, "must belong to the same space as the review")
+      end
     end
   end
 end

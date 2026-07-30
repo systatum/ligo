@@ -282,7 +282,7 @@ DELETE /antrikan/api/space/<hashed_id>/delete
 
 ### Space Review CRUD
 
-Reviews are nested under spaces. Creating a review requires authentication (the authenticated user becomes `reviewer_id`); no ownership check beyond that.
+Reviews are nested under spaces. Creating a review requires authentication (the authenticated user becomes `reviewer_id`) unless the space has `allow_anonymous_reviewer` enabled, in which case an unauthenticated request is also accepted and `reviewer_id` is left `null`. No ownership check beyond that.
 
 #### Create Space Review
 
@@ -292,13 +292,18 @@ Content-Type: application/json
 ```
 
 ```json
-{ "rating": 8.5, "review": "Great service!" }
+{ "rating": 8.5, "review": "Great service!", "channel_id": null, "item_id": null }
 ```
 
-| Field    | Required | Description                    |
-| -------- | -------- | ------------------------------ |
-| `rating` | yes      | Float between `0.0` and `10.0` |
-| `review` | no       | Free-form text                 |
+| Field        | Required | Description                                                                                        |
+| ------------ | -------- | --------------------------------------------------------------------------------------------------- |
+| `rating`     | yes      | Float between `0.0` and `10.0`                                                                       |
+| `review`     | no       | Free-form text                                                                                        |
+| `channel_id` | no       | Hashed ID of a channel in the same space, scoping the review to that channel                          |
+| `item_id`    | no       | Slug of an item whose channel is in the same space, scoping the review to that item                   |
+
+> [!IMPORTANT]
+> `channel_id` and `item_id` are mutually exclusive - providing both returns `422`. Whichever one is given must belong to the same space as the review.
 
 **Response (201 Created):**
 
@@ -307,6 +312,8 @@ Content-Type: application/json
   "id": "hashedReviewId",
   "space_id": "hashedSpaceId",
   "reviewer_id": "hashedUserId",
+  "channel_id": null,
+  "item_id": null,
   "rating": 8.5,
   "review": "Great service!"
 }
