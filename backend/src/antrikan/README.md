@@ -66,11 +66,13 @@ Join table representing the membership of a user in a space. Created when a user
 
 ### Operating Hour
 
-Defines the opening and closing times for a specific day of the week. Each entry belongs to exactly one of a Space, a Channel, or an Item, and there can be at most one entry per day for a given owner. A Channel or Item without its own entry for a day falls back to its parent's hours (Item → Channel → Space), so per-item exceptions only need to be defined where they differ.
+Defines the opening and closing times for a specific day of the week. Each entry belongs to exactly one of a Space, a Channel, or an Item, and there can be at most one entry per day for a given owner. A Channel or Item without its own entry for a day falls back to its parent's hours (Item → Channel → parent Channel, if any → Space), so per-item exceptions only need to be defined where they differ.
 
 ### Channel
 
 A named sub-queue or category within a space (e.g. "General", "VIP"). Supports an optional description and logo. Configurable cancellation cutoff - see [Queued Item CRUD](#queued-item-crud). Can be soft-deleted and restored.
+
+A channel may optionally have a `parent_channel_id`, making it a sub-channel - for example, each doctor at a hospital can be its own channel nested under a specialty channel (e.g. "Orthodontics"), giving that doctor an independent line and operating hours instead of sharing the specialty's. Nesting is one level deep only: a channel that already has a parent cannot itself be set as another channel's parent, and a parent must belong to the same space as its sub-channel. A sub-channel without its own operating hours for a day falls back to its parent channel's hours for that day (before falling back further to the space's).
 
 ### Queuer
 
@@ -533,7 +535,8 @@ Content-Type: application/json
   },
   "predeletable_state": "PACKED",
   "enforce_operating_hours": false,
-  "max_item_piece": -1
+  "max_item_piece": -1,
+  "parent_channel_id": null
 }
 ```
 
@@ -544,7 +547,8 @@ Content-Type: application/json
 | `logo`                    | no       | Image payload with `base64_bytes` and `mimetype`                                                                                |
 | `predeletable_state`      | no       | Latest [Queue Status](#queue-status) name a queued item on this channel may be in and still be cancelable (default: `ATTENDED`) |
 | `enforce_operating_hours` | no       | Whether adding a queued item is rejected if it's outside its effective operating hours (default: `false`)                       |
-| `max_item_piece`          | no       | Max non-canceled queued items of this channel allowed in a single queue at once (default: `-1`, unlimited)                       |
+| `max_item_piece`          | no       | Max non-canceled queued items of this channel allowed in a single queue at once (default: `-1`, unlimited)                      |
+| `parent_channel_id`       | no       | Hashed ID of a parent channel in the same space, making this a sub-channel (see below)                                          |
 
 **Response (201 Created):**
 
@@ -556,11 +560,12 @@ Content-Type: application/json
   "logo": "/uploaded_file/<uuid>",
   "predeletable_state": 20,
   "enforce_operating_hours": false,
-  "max_item_piece": -1
+  "max_item_piece": -1,
+  "parent_channel_id": null
 }
 ```
 
-`logo` is `null` when no logo has been uploaded.
+`logo` is `null` when no logo has been uploaded. `parent_channel_id` is `null` unless this channel is a sub-channel.
 
 #### List Channels
 
@@ -594,7 +599,8 @@ Content-Type: application/json
   "logo": { "base64_bytes": "iVBORw0KGgo...", "mimetype": "image/png" },
   "predeletable_state": "READY",
   "enforce_operating_hours": true,
-  "max_item_piece": 1
+  "max_item_piece": 1,
+  "parent_channel_id": "hashedParentChannelId"
 }
 ```
 
@@ -1184,6 +1190,23 @@ No authentication required. Returns `404` if the queue has been canceled (status
 
 **Response (200 OK):** Queue object (same shape as create response).
 
+#### Get Queue Estimation
+
+```
+GET /antrikan/api/queue/<queue_slug>/estimation
+```
+
+No authentication required. Scans the queue's own active (not yet `done`, not canceled) queued items, groups them by channel, and for each channel reports how many other active items - from any queue - arrived in that channel before this queue's did. Position-only: no derived wait-time-in-minutes is returned. A channel is omitted entirely once every item this queue has there is `done`.
+
+**Response (200 OK):**
+
+```json
+[
+  { "channel_id": "hashedChannelId", "items_ahead": 3 },
+  { "channel_id": "hashedOtherChannelId", "items_ahead": 0 }
+]
+```
+
 #### Update Queue
 
 ```
@@ -1462,7 +1485,7 @@ GET /antrikan/api/queue/<queue_slug>/payment/list
 
 ### Refund CRUD
 
-**Authentication:** Create requires no special access - any identified requester can ask for a refund, the same as [Create Queued Item](#create-queued-item). Every other endpoint below requires staff access to the underlying space (the manager, the business owner, or any admin-level member of the same organization).
+**Authentication:** Create and Get Refund require no special access - any identified requester can ask for a refund (same as [Create Queued Item](#create-queued-item)), and knowing a refund's slug is enough to check on it (same as [Get Queue](#get-queue)), since requesters are often anonymous. Every other endpoint below requires staff access to the underlying space (the manager, the business owner, or any admin-level member of the same organization).
 
 #### Request Refund
 
