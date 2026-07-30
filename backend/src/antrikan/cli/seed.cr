@@ -199,8 +199,8 @@ module Antrikan
       seed_hospital_doctors!(pediatrics, ["Dr. Maya Kusuma, Sp.A", "Dr. Rudi Hartono, Sp.A"])
 
       cardiology = seed_hospital_channel!(space, "Cardiology", max_item_piece: 1)
-      seed_hospital_doctors!(cardiology, ["Dr. Fajar Nugroho, Sp.JP", "Dr. Linda Susanti, Sp.JP"])
-      seed_cardiology_hours!(cardiology)
+      cardiologists = seed_hospital_doctors!(cardiology, ["Dr. Fajar Nugroho, Sp.JP", "Dr. Linda Susanti, Sp.JP"])
+      seed_cardiologist_hours!(cardiologists)
 
       checkup = seed_hospital_channel!(space, "Checkup", max_item_piece: -1)
       checkup_items = seed_checkup_packages!(checkup)
@@ -212,7 +212,9 @@ module Antrikan
       ])
       item_voucher.save!
 
-      channel_voucher = Voucher.new(space: space, channel: orthodontics, code: "ORTHOOFF", channel_percentage_discount: 15.0)
+      # Orthodontics itself holds no items anymore (its doctors do), so this
+      # channel-wide voucher targets one doctor's sub-channel instead.
+      channel_voucher = Voucher.new(space: space, channel: orthodontists[0], code: "ORTHOOFF", channel_percentage_discount: 15.0)
       channel_voucher.save!
 
       space_voucher = Voucher.new(space: space, code: "HOSPITALWIDE", space_percentage_discount: 5.0)
@@ -222,10 +224,10 @@ module Antrikan
       stdout.puts "Seeded #{space.carousel_image_ids!.ids.size} carousel images for '#{space.name!}'."
       stdout.puts "Seeded channels: #{[orthodontics, internal_medicine, pediatrics, cardiology, checkup].map { |c| "#{c.name!} (id: #{c.hashed_id})" }.join(", ")}."
       stdout.puts "Seeded hospital-wide operating hours 10AM-5PM Mon-Sat for '#{space.name!}'."
-      stdout.puts "Seeded #{orthodontists.size} non-overlapping per-doctor hours for '#{orthodontics.name!}' (no channel-level hours - only per-doctor)."
-      stdout.puts "Seeded '#{cardiology.name!}' hours: Mon 11AM-3PM, Wed & Fri 2:00PM-4:30PM only."
+      stdout.puts "Seeded #{orthodontists.size} doctors as sub-channels of '#{orthodontics.name!}', each with their own non-overlapping hours."
+      stdout.puts "Seeded #{cardiologists.size} doctors as sub-channels of '#{cardiology.name!}', each with Mon 11AM-3PM, Wed & Fri 2:00PM-4:30PM."
       stdout.puts "Seeded #{checkup_items.size} checkup packages under '#{checkup.name!}'."
-      stdout.puts "Seeded vouchers '#{item_voucher.code!}' (item-specific), '#{channel_voucher.code!}' (channel-wide), '#{space_voucher.code!}' (space-wide)."
+      stdout.puts "Seeded vouchers '#{item_voucher.code!}' (item-specific), '#{channel_voucher.code!}' (channel-wide, on #{orthodontists[0].name!}), '#{space_voucher.code!}' (space-wide)."
       stdout.puts "Hospital admin user: #{HOSPITAL_ADMIN_EMAIL} / #{HOSPITAL_ADMIN_PASSWORD}"
       stdout.puts "Test owner user (email-verified): #{HOSPITAL_TEST_OWNER_EMAIL} / #{TEST_OWNER_PASSWORD}"
     end
@@ -253,19 +255,26 @@ module Antrikan
       channel
     end
 
-    private def seed_hospital_doctors!(channel : Channel, doctor_names : Array(String)) : Array(Item)
+    # Each doctor is its own sub-channel under the specialty channel, so their
+    # queue (and its operating hours) is independent of their colleagues'.
+    private def seed_hospital_doctors!(channel : Channel, doctor_names : Array(String)) : Array(Channel)
       doctor_names.map do |doctor_name|
-        item = Item.new(channel: channel, name: doctor_name, unit_price: 150_000_i64)
+        doctor_channel = Channel.new(space: channel.space!, name: doctor_name, parent_channel: channel)
+        doctor_channel.max_item_piece = 1
+        doctor_channel.save!
+
+        item = Item.new(channel: doctor_channel, name: "Consultation", unit_price: 150_000_i64)
         item.description = "Consultation slot with #{doctor_name}."
         item.daily_cap = 20
         item.save!
-        item
+
+        doctor_channel
       end
     end
 
-    # Each doctor gets their own non-overlapping slot, Monday-Saturday. No
-    # channel-level operating hour for Orthodontics itself - only per-doctor.
-    private def seed_orthodontist_hours!(doctors : Array(Item))
+    # Each doctor channel gets its own non-overlapping slot, Monday-Saturday.
+    # Orthodontics itself (the parent channel) has no dedicated hours.
+    private def seed_orthodontist_hours!(doctors : Array(Channel))
       slots = [
         {8, 11},  # 08:00-11:00
         {11, 14}, # 11:00-14:00
@@ -277,7 +286,7 @@ module Antrikan
 
         (0..5).each do |day|
           op_hour = OperatingHour.new(
-            item: doctor,
+            channel: doctor,
             day: day,
             open_time: Time::Span.new(hours: open_hour, minutes: 0),
             close_time: Time::Span.new(hours: close_hour, minutes: 0)
@@ -287,22 +296,25 @@ module Antrikan
       end
     end
 
-    # Cardiology only runs Monday (11AM-3PM), and Wednesday/Friday (2PM-4:30PM).
-    private def seed_cardiology_hours!(channel : Channel)
+    # Every cardiologist shares the same schedule: Monday (11AM-3PM), and
+    # Wednesday/Friday (2PM-4:30PM). Cardiology itself has no dedicated hours.
+    private def seed_cardiologist_hours!(doctors : Array(Channel))
       schedule = {
         OperatingHour::Day::MONDAY.value    => {11, 0, 15, 0},
         OperatingHour::Day::WEDNESDAY.value => {14, 0, 16, 30},
         OperatingHour::Day::FRIDAY.value    => {14, 0, 16, 30},
       }
 
-      schedule.each do |day, (open_hour, open_minute, close_hour, close_minute)|
-        op_hour = OperatingHour.new(
-          channel: channel,
-          day: day,
-          open_time: Time::Span.new(hours: open_hour, minutes: open_minute),
-          close_time: Time::Span.new(hours: close_hour, minutes: close_minute)
-        )
-        op_hour.save!
+      doctors.each do |doctor|
+        schedule.each do |day, (open_hour, open_minute, close_hour, close_minute)|
+          op_hour = OperatingHour.new(
+            channel: doctor,
+            day: day,
+            open_time: Time::Span.new(hours: open_hour, minutes: open_minute),
+            close_time: Time::Span.new(hours: close_hour, minutes: close_minute)
+          )
+          op_hour.save!
+        end
       end
     end
 
