@@ -77,6 +77,49 @@ describe Antrikan::SpaceReviewCreateHandler do
       review = Antrikan::SpaceReview.last!
       review.item_id.should eq item.id
     end
+
+    it "attaches uploaded images" do
+      user = create_user
+      space = create_space
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:space:space_review:create", space_hashed_id: space.hashed_id),
+        data: {
+          rating: 7.0,
+          images: [
+            {base64_bytes: Base64.encode(PNG_1X1), mimetype: "image/png"},
+          ],
+        }.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 201
+
+      review = Antrikan::SpaceReview.last!
+      review.image_ids.not_nil!.ids.size.should eq 1
+
+      response.content.should eq Antrikan::SpaceReviewSerializer.serialize(review)
+    end
+  end
+
+  context "when more than 4 images are given" do
+    it "returns 422" do
+      user = create_user
+      space = create_space
+
+      response = Marten::Spec.client.post(
+        Marten.routes.reverse("antrikan:space:space_review:create", space_hashed_id: space.hashed_id),
+        data: {
+          rating: 7.0,
+          images: Array.new(5) { {base64_bytes: Base64.encode(PNG_1X1), mimetype: "image/png"} },
+        }.to_json,
+        headers: {authorization: "Bearer #{user.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+    end
   end
 
   context "when channel_id and item_id are both given" do

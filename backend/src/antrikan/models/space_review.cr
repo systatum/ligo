@@ -7,6 +7,7 @@ module Antrikan
     field :id, :big_int, primary_key: true, auto: true
     field :rating, :float, null: false
     field :review, :text, null: true, blank: true
+    field :image_ids, :json, null: true, blank: true, serializable: UploadedFileIds
     field :created_at, :date_time, null: false, auto_now_add: true
     field :updated_at, :date_time, null: false, auto_now: true
 

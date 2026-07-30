@@ -56,6 +56,88 @@ describe Antrikan::SpaceReviewUpdateHandler do
       review.channel_id.should eq channel.id
     end
 
+    it "attaches uploaded images" do
+      author = create_user
+      review = create_space_review(reviewer: author, rating: 5.0)
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:space_review:update", space_review_hashed_id: review.hashed_id),
+        data: {
+          images: [
+            {base64_bytes: Base64.encode(PNG_1X1), mimetype: "image/png"},
+          ],
+        }.to_json,
+        headers: {authorization: "Bearer #{author.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 200
+
+      review.reload
+      review.image_ids.not_nil!.ids.size.should eq 1
+    end
+
+    it "keeps an existing image via keep_id and adds a new one" do
+      author = create_user
+      existing_file = create_uploaded_file_metadata
+      review = create_space_review(reviewer: author, rating: 5.0)
+      review.image_ids = UploadedFileIds.new(ids: [existing_file.id.to_s])
+      review.save!
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:space_review:update", space_review_hashed_id: review.hashed_id),
+        data: {
+          images: [
+            {keep_id: existing_file.id.to_s},
+            {base64_bytes: Base64.encode(PNG_1X1), mimetype: "image/png"},
+          ],
+        }.to_json,
+        headers: {authorization: "Bearer #{author.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 200
+
+      review.reload
+      review.image_ids.not_nil!.ids.size.should eq 2
+      review.image_ids.not_nil!.ids.should contain existing_file.id.to_s
+    end
+
+    it "returns 422 for a keep_id that isn't currently on the review" do
+      author = create_user
+      other_file = create_uploaded_file_metadata
+      review = create_space_review(reviewer: author, rating: 5.0)
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:space_review:update", space_review_hashed_id: review.hashed_id),
+        data: {images: [{keep_id: other_file.id.to_s}]}.to_json,
+        headers: {authorization: "Bearer #{author.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 422
+    end
+
+    it "does not change images when the images field is not provided" do
+      author = create_user
+      existing_file = create_uploaded_file_metadata
+      review = create_space_review(reviewer: author, rating: 5.0)
+      review.image_ids = UploadedFileIds.new(ids: [existing_file.id.to_s])
+      review.save!
+
+      response = Marten::Spec.client.patch(
+        Marten.routes.reverse("antrikan:space_review:update", space_review_hashed_id: review.hashed_id),
+        data: {rating: 8.0}.to_json,
+        headers: {authorization: "Bearer #{author.jwt_token}"},
+        content_type: "application/json"
+      )
+
+      response.status.should eq 200
+
+      review.reload
+      review.image_ids.not_nil!.ids.should eq [existing_file.id.to_s]
+    end
+
     it "returns 422 when channel_id and item_id are both given" do
       author = create_user
       space = create_space

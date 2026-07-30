@@ -292,7 +292,15 @@ Content-Type: application/json
 ```
 
 ```json
-{ "rating": 8.5, "review": "Great service!", "channel_id": null, "item_id": null }
+{
+  "rating": 8.5,
+  "review": "Great service!",
+  "channel_id": null,
+  "item_id": null,
+  "images": [
+    { "base64_bytes": "iVBORw0KGgo...", "mimetype": "image/png" }
+  ]
+}
 ```
 
 | Field        | Required | Description                                                                                        |
@@ -301,6 +309,7 @@ Content-Type: application/json
 | `review`     | no       | Free-form text                                                                                        |
 | `channel_id` | no       | Hashed ID of a channel in the same space, scoping the review to that channel                          |
 | `item_id`    | no       | Slug of an item whose channel is in the same space, scoping the review to that item                   |
+| `images`     | no       | Up to 4 fresh-upload image payloads (`base64_bytes`/`mimetype` each); `keep_id` is rejected here since there's nothing to keep yet on create |
 
 > [!IMPORTANT]
 > `channel_id` and `item_id` are mutually exclusive - providing both returns `422`. Whichever one is given must belong to the same space as the review.

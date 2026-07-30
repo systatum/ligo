@@ -11,6 +11,7 @@ module Antrikan
         item_id:     record.item.try(&.slug),
         rating:      record.rating,
         review:      record.review,
+        images:      fetch_uploaded_files(record.image_ids.try(&.ids)),
       }
     end
   end

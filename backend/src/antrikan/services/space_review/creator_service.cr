@@ -10,6 +10,9 @@ module Antrikan
       end
 
       begin
+        image_result = CarouselImagesResolverService.new(schema.images || [] of (JSON::Any | JSON::Serializable | Nil)).run
+        return failure(image_result.errors) unless image_result.success?
+
         review = SpaceReview.new
         review.space = @space
         review.reviewer = @reviewer
@@ -17,6 +20,7 @@ module Antrikan
         review.review = schema.review if schema.review?
         review.channel = Channel.get_by_hashed_id!(schema.channel_id!) if schema.channel_id?
         review.item = Item.get_by_slug!(slug: schema.item_id!) if schema.item_id?
+        review.image_ids = UploadedFileIds.new(ids: image_result.data.not_nil!)
         review.save!
 
         success(review)
@@ -26,7 +30,7 @@ module Antrikan
     end
 
     private def schema
-      @schema ||= SpaceReviewSchema.new(@data)
+      @schema ||= SpaceReviewSchema.new(JsonArrayMapper.map(@data, "images"))
     end
   end
 end

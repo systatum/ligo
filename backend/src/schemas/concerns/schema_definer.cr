@@ -32,7 +32,13 @@ module SchemaDefiner
           {% for k, v in config %}
             # filter out :type AND any pre-existing :required from the base fields
             {% if k.id != "type".id && k.id != "required".id %}
-              {% kwargs << "#{k.id}: #{v.id}".id %}
+              {% if v.is_a?(SymbolLiteral) %}
+                # v.id would strip the leading colon (e.g. :json -> json), breaking
+                # kwargs whose value must stay a symbol, e.g. `of: :json`.
+                {% kwargs << "#{k.id}: #{v}".id %}
+              {% else %}
+                {% kwargs << "#{k.id}: #{v.id}".id %}
+              {% end %}
             {% end %}
           {% end %}
 
