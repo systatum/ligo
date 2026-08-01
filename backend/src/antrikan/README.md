@@ -196,7 +196,7 @@ Content-Type: application/json
 GET /antrikan/api/space/index
 ```
 
-**Response (200 OK):** `{ "spaces": [<Space object>, ...] }` - each entry same shape as the [Create Space](#create-space) response.
+**Response (200 OK):** `[<Space object>, ...]` - each entry same shape as the [Create Space](#create-space) response.
 
 #### Get Space
 
@@ -336,7 +336,7 @@ GET /antrikan/api/space/<space_hashed_id>/reviews/index
 
 Accepts optional query parameter `with_deleted=true` to include soft-deleted reviews.
 
-**Response (200 OK):** `{ "reviews": [<Space Review object>, ...] }`
+**Response (200 OK):** `[<Space Review object>, ...]`
 
 #### Get / Update / Delete Space Review
 
@@ -504,12 +504,10 @@ GET <base path>/index
 **Response (200 OK):**
 
 ```json
-{
-  "op_hours": [
-    { "id": "xyz789", "day": 0, "open_time": "09:00", "close_time": "17:00" },
-    { "id": "xyz790", "day": 1, "open_time": "10:00", "close_time": "18:00" }
-  ]
-}
+[
+  { "id": "xyz789", "day": 0, "open_time": "09:00", "close_time": "17:00" },
+  { "id": "xyz790", "day": 1, "open_time": "10:00", "close_time": "18:00" }
+]
 ```
 
 #### Update Operating Hour
@@ -611,7 +609,7 @@ GET /antrikan/api/space/<space_hashed_id>/channels/index
 
 Accepts optional query parameter `with_deleted=true` to include soft-deleted channels.
 
-**Response (200 OK):** `{ "channels": [<Channel object>, ...] }` - each entry same shape as the [Create Channel](#create-channel) response.
+**Response (200 OK):** `[<Channel object>, ...]` - each entry same shape as the [Create Channel](#create-channel) response.
 
 #### Get Channel
 
@@ -720,16 +718,14 @@ Accepts optional query parameter `with_deleted=true` to include soft-deleted que
 **Response (200 OK):**
 
 ```json
-{
-  "queuers": [
-    {
-      "id": "hashedQueuerId",
-      "space_id": "hashedSpaceId",
-      "user_id": null,
-      "name": "Table 1"
-    }
-  ]
-}
+[
+  {
+    "id": "hashedQueuerId",
+    "space_id": "hashedSpaceId",
+    "user_id": null,
+    "name": "Table 1"
+  }
+]
 ```
 
 #### Get Queuer
@@ -869,7 +865,7 @@ GET /antrikan/api/channel/<channel_hashed_id>/items/index
 
 Accepts optional query parameter `with_deleted=true` to include soft-deleted items.
 
-**Response (200 OK):** `{ "items": [<Item object>, ...] }` - each entry same shape as the [Create Item](#create-item) response, ordered by `order` ascending.
+**Response (200 OK):** `[<Item object>, ...]` - each entry same shape as the [Create Item](#create-item) response, ordered by `order` ascending.
 
 #### Get Item
 
@@ -1031,7 +1027,7 @@ GET /antrikan/api/space/<space_hashed_id>/voucher/index
 
 Accepts optional query parameter `with_deleted=true` to include soft-deleted vouchers.
 
-**Response (200 OK):** `{ "vouchers": [<Voucher object>, ...] }` - each entry same shape as the [Create Voucher](#create-voucher) response.
+**Response (200 OK):** `[<Voucher object>, ...]` - each entry same shape as the [Create Voucher](#create-voucher) response.
 
 #### Get Voucher
 
@@ -1192,28 +1188,26 @@ Canceled (soft-deleted) queues are excluded from results.
 **Response (200 OK):**
 
 ```json
-{
-  "queues": [
-    {
-      "id": "26xK9mQp",
-      "space_id": "hashedSpaceId",
-      "queuer_id": "hashedQueuerId",
-      "handler_id": null,
-      "note": null,
-      "status": 10,
-      "payment_status": 0,
-      "total_price": "0.0",
-      "fully_paid_at": null,
-      "attended_at": null,
-      "packed_at": null,
-      "ready_at": null,
-      "dispatched_at": null,
-      "delivered_at": null,
-      "created_at": "2026-05-31T12:00:00Z",
-      "updated_at": "2026-05-31T12:00:00Z"
-    }
-  ]
-}
+[
+  {
+    "id": "26xK9mQp",
+    "space_id": "hashedSpaceId",
+    "queuer_id": "hashedQueuerId",
+    "handler_id": null,
+    "note": null,
+    "status": 10,
+    "payment_status": 0,
+    "total_price": "0.0",
+    "fully_paid_at": null,
+    "attended_at": null,
+    "packed_at": null,
+    "ready_at": null,
+    "dispatched_at": null,
+    "delivered_at": null,
+    "created_at": "2026-05-31T12:00:00Z",
+    "updated_at": "2026-05-31T12:00:00Z"
+  }
+]
 ```
 
 #### Get Queue
@@ -1515,7 +1509,7 @@ There's no review step here - recording a payment is trusted the same way `payme
 GET /antrikan/api/queue/<queue_slug>/payment/list
 ```
 
-**Response (200 OK):** `{ "payments": [<Payment object>, ...] }` - each entry same shape as the [Record Payment](#record-payment) response. Soft-deleted payments are excluded.
+**Response (200 OK):** `[<Payment object>, ...]` - each entry same shape as the [Record Payment](#record-payment) response. Soft-deleted payments are excluded.
 
 ---
 
@@ -1578,7 +1572,7 @@ Content-Type: application/json
 GET /antrikan/api/payment/<payment_hashed_id>/refund/list
 ```
 
-**Response (200 OK):** `{ "refunds": [<Refund object>, ...] }` - each entry same shape as the [Request Refund](#request-refund) response. Soft-deleted refunds are excluded.
+**Response (200 OK):** `[<Refund object>, ...]` - each entry same shape as the [Request Refund](#request-refund) response. Soft-deleted refunds are excluded.
 
 #### List Refunds For A Space
 
@@ -1588,7 +1582,7 @@ A staff-wide dashboard view across every channel/queue/payment in the space, not
 GET /antrikan/api/space/<space_hashed_id>/refund/list
 ```
 
-**Response (200 OK):** `{ "refunds": [<Refund object>, ...] }`, same shape as above.
+**Response (200 OK):** `[<Refund object>, ...]`, same shape as above.
 
 #### Get Refund
 
