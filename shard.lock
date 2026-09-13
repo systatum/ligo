@@ -1,0 +1,30 @@
+version: 2.0
+shards:
+  db:
+    git: https://github.com/crystal-lang/crystal-db.git
+    version: 0.14.0
+
+  i18n:
+    git: https://github.com/crystal-i18n/i18n.git
+    version: 0.2.2
+
+  marten:
+    git: https://github.com/martenframework/marten.git
+    version: 0.7.0
+
+  msgpack:
+    git: https://github.com/crystal-community/msgpack-crystal.git
+    version: 1.3.5
+
+  mysql:
+    git: https://github.com/crystal-lang/crystal-mysql.git
+    version: 0.17.0
+
+  spectator:
+    git: https://gitlab.com/arctic-fox/spectator.git
+    version: 0.12.4
+
+  typed_env_config:
+    git: https://github.com/systatum/typed_env_config.git
+    version: 0.3.0
+

@@ -1,0 +1,17 @@
+name: ligo
+version: 0.1.0
+
+dependencies:
+  marten:
+    github: martenframework/marten
+  mysql:
+    github: crystal-lang/crystal-mysql
+    version: 0.17.0
+  typed_env_config:
+    github: systatum/typed_env_config
+    version: 0.3.0
+
+development_dependencies:
+  spectator:
+    gitlab: arctic-fox/spectator
+    version: ~> 0.12.0
