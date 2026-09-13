@@ -25,6 +25,9 @@ dependencies:
     github: WJWH/prorate-cr
   rbacr:
     github: systatum/rbacr
+  sidekiq:
+    github: mperham/sidekiq.cr
+    version: ~> 0.7.3
 
 development_dependencies:
   spectator:

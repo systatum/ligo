@@ -14,7 +14,9 @@ require "hashids"
 require "prorate"
 require "rbacr"
 require "redis"
+require "sidekiq"
 require "typed_env_config"
+require "xml"
 require "yaml"
 
 # Configuration requirements.

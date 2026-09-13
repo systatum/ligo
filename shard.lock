@@ -1,5 +1,13 @@
 version: 2.0
 shards:
+  backtracer:
+    git: https://github.com/sija/backtracer.cr.git
+    version: 1.2.4
+
+  baked_file_system:
+    git: https://github.com/schovi/baked_file_system.git
+    version: 0.14.1
+
   bindata:
     git: https://github.com/spider-gazelle/bindata.git
     version: 3.2.1
@@ -11,6 +19,10 @@ shards:
   ed25519:
     git: https://github.com/spider-gazelle/ed25519.git
     version: 1.1.0
+
+  exception_page:
+    git: https://github.com/crystal-loot/exception_page.git
+    version: 0.5.0
 
   hashids:
     git: https://github.com/splattael/hashids.cr.git
@@ -27,6 +39,18 @@ shards:
   jwt:
     git: https://github.com/crystal-community/jwt.git
     version: 1.7.2
+
+  kemal:
+    git: https://github.com/kemalcr/kemal.git
+    version: 1.13.0
+
+  kemal-csrf:
+    git: https://github.com/kemalcr/kemal-csrf.git
+    version: 1.1.0
+
+  kemal-session:
+    git: https://github.com/kemalcr/kemal-session.git
+    version: 1.0.0
 
   marten:
     git: https://github.com/martenframework/marten.git
@@ -60,6 +84,10 @@ shards:
     git: https://github.com/wjwh/prorate-cr.git
     version: 0.1.0+git.commit.1bd50585aa5dc65fd80be9d30248d5674e990cbf
 
+  radix:
+    git: https://github.com/luislavena/radix.git
+    version: 0.4.1
+
   rbacr:
     git: https://github.com/systatum/rbacr.git
     version: 0.1.0+git.commit.6e6d2ea58b5fc5876e79d72a6f2c020b2d249359
@@ -67,6 +95,10 @@ shards:
   redis:
     git: https://github.com/stefanwille/crystal-redis.git
     version: 2.9.1
+
+  sidekiq:
+    git: https://github.com/mperham/sidekiq.cr.git
+    version: 0.7.3
 
   spectator:
     git: https://gitlab.com/arctic-fox/spectator.git

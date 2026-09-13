@@ -12,6 +12,13 @@ class AppSettings
   field ligo_redis_password : String, default: ""
   field ligo_redis_database_number : Int32, default: 0
 
+  field ligo_sidekiq_redis_host : String, default: "127.0.0.1"
+  field ligo_sidekiq_redis_port : Int32, default: 6379
+  field ligo_sidekiq_redis_password : String, default: ""
+  field ligo_sidekiq_redis_database_number : Int32, default: 0
+  field ligo_sidekiq_dashboard_session_secret : String, default: "" # secures the Sidekiq dashboard session
+  field ligo_sidekiq_job_status_expiry : Int32, default: 86_400     # expiration in seconds for job status
+
   @@instance : AppSettings?
 
   def self.instance

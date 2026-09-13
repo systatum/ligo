@@ -10,6 +10,13 @@ default: &default
   ligo_redis_password: ""
   ligo_redis_database_number: 0
 
+  ligo_sidekiq_redis_host: "127.0.0.1"
+  ligo_sidekiq_redis_port: 6379
+  ligo_sidekiq_redis_password: ""
+  ligo_sidekiq_redis_database_number: 0
+  ligo_sidekiq_dashboard_session_secret: ""
+  ligo_sidekiq_job_status_expiry: 86400
+
 development:
   <<: *default
 

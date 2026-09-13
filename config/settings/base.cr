@@ -15,4 +15,6 @@ Marten.configure do |config|
   config.database do |db|
     db.backend = :mysql
   end
+
+  SidekiqConfig.configure
 end
