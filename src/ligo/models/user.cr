@@ -4,6 +4,7 @@ module Ligo
     include ChangeTracker
     include SoftDeleter
     include JwtPayloader
+    include IamIdentifiable
 
     ALLOWED_LOCALES = ["en-US", "id-ID", "ja-JP"]
 
@@ -17,6 +18,7 @@ module Ligo
     field :reset_password_token, :string, max_size: 255, null: true, blank: true
     field :reset_password_token_created_at, :date_time, null: true, blank: true
     field :uploaded_profile_picture_file_id, :uuid, null: true, blank: true
+    field :iam_identifier_primary, :string, max_size: 255, null: true, blank: true, index: true
     field :is_email_address_verified, :bool, null: false, blank: false, default: false
     field :email_verification_token, :string, max_size: 255, null: true, blank: true
     field :email_verification_token_created_at, :date_time, null: true, blank: true
