@@ -1,0 +1,42 @@
+services:
+  ligo_db:
+    container_name: ligo_core_db
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ligo_db_root_password
+    volumes:
+      - ligo_core_db_data:/var/lib/mysql
+      - ./dev_init.sql:/docker-entrypoint-initdb.d/setup.sql
+    ports:
+      - 3367:3306
+
+  ligo_redis:
+    container_name: ligo_core_redis
+    image: redis:7-alpine
+    command: ["redis-server", "--requirepass", "devredis"]
+    ports:
+      - 6381:6379
+    volumes:
+      - ligo_core_redis_data:/data
+
+  mailcatcher:
+    restart: on-failure
+    image: dockage/mailcatcher:0.9.0
+    ports:
+      - 1026:1025
+      - 1081:1080
+
+  localstack:
+    build:
+      context: ./containers/localstack
+    ports:
+      - "4567:4566"
+    volumes:
+      - ./containers/localstack/ready.sh:/etc/localstack/init/ready.d/ready.sh
+    environment:
+      - PERSIST_DEFAULT=0
+      - PERSIST_S3=1
+
+volumes:
+  ligo_core_db_data:
+  ligo_core_redis_data:
