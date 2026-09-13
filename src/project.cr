@@ -10,6 +10,7 @@ require "mysql"
 require "nanoid"
 require "hashids"
 require "typed_env_config"
+require "yaml"
 
 # Configuration requirements.
 require "../config/initializers/**"
