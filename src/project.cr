@@ -2,6 +2,7 @@
 require "base64"
 require "big"
 require "digest"
+require "http/web_socket"
 require "i18n"
 require "jbuilder"
 require "jwt"

@@ -7,6 +7,7 @@ require "./handlers/concerns/**"
 require "./handlers/request_handler"
 require "./handlers/**"
 require "./middlewares/**"
+require "./socky/**"
 require "./serializers/**"
 require "./schemas/**"
 
