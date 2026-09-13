@@ -6,4 +6,7 @@ Marten.configure :test do |config|
     db.user = "devroot"
     db.password = "devroot"
   end
+
+  # Collect sent emails to inspect in specs instead of hitting real SMTP.
+  config.emailing.backend = Marten::Emailing::Backend::Development.new(collect_emails: true, print_emails: false)
 end

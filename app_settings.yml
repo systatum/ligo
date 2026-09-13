@@ -17,11 +17,20 @@ default: &default
   ligo_sidekiq_dashboard_session_secret: ""
   ligo_sidekiq_job_status_expiry: 86400
 
-development:
+  ligo_mailer_from_email: "noreply@example.com"
+  ligo_mailer_from_name: "Ligo"
+  ligo_mailer_app_name: "Ligo"
+  ligo_mailer_app_description: "Ligo is the shared engine behind our apps."
+
+development: &development
   <<: *default
 
+  ligo_mailer_smtp_host: "localhost"
+  ligo_mailer_smtp_port: 1026
+  ligo_mailer_smtp_use_auth: false
+
 test:
-  <<: *default
+  <<: *development
 
 production:
   <<: *default

@@ -20,6 +20,10 @@ shards:
     git: https://github.com/spider-gazelle/ed25519.git
     version: 1.1.0
 
+  email:
+    git: https://github.com/arcage/crystal-email.git
+    version: 0.7.1
+
   exception_page:
     git: https://github.com/crystal-loot/exception_page.git
     version: 0.5.0
@@ -52,6 +56,10 @@ shards:
     git: https://github.com/kemalcr/kemal-session.git
     version: 1.0.0
 
+  markd:
+    git: https://github.com/icyleaf/markd.git
+    version: 0.6.0+git.commit.6163869970fbab48c081106543591deb6630bcde
+
   marten:
     git: https://github.com/martenframework/marten.git
     version: 0.7.0
@@ -59,6 +67,10 @@ shards:
   marten_auth:
     git: https://github.com/martenframework/marten-auth.git
     version: 0.2.1
+
+  marten_smtp_emailing:
+    git: https://github.com/martenframework/marten-smtp-emailing.git
+    version: 0.2.0
 
   msgpack:
     git: https://github.com/crystal-community/msgpack-crystal.git

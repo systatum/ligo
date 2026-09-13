@@ -6,6 +6,8 @@ dependencies:
     github: martenframework/marten
   marten_auth:
     github: martenframework/marten-auth
+  marten_smtp_emailing:
+    github: martenframework/marten-smtp-emailing
   mysql:
     github: crystal-lang/crystal-mysql
     version: 0.17.0
@@ -28,6 +30,9 @@ dependencies:
   sidekiq:
     github: mperham/sidekiq.cr
     version: ~> 0.7.3
+  markd:
+    github: icyleaf/markd
+    branch: release/0.6.0
 
 development_dependencies:
   spectator:
