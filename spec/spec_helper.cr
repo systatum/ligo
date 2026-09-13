@@ -35,6 +35,36 @@ def create_user(email : String = "test-#{Random::Secure.hex(4)}@example.com") : 
   user
 end
 
+def create_realm(
+  ack_semantic : AcknowledgeSemantic = AcknowledgeSemantic::NONE,
+  app_name : String = "TestApp",
+  app_id : String = "fb_test_id",
+  app_secret : String = "fb_test_secret",
+  registration_redirection_uri : String = "https://testapp.example.com/auth/callback",
+  registration_ack_uri : String = "https://testapp.example.com/webhooks/iam",
+  max_ack_retry_attempts : Int32? = nil,
+  default_role : Int32 = Role::OWNER,
+  api_secret_key : String = "sk_test_raw_#{Random.rand}",
+  api_client_key : String = "ck_test_raw_#{Random.rand}",
+) : Ligo::Realm
+  realm = Ligo::Realm.new
+  realm.id = "test#{Random.rand(10_000..99_999)}"
+  realm.app_name = app_name
+  realm.hashed_api_secret_key = Digest::SHA256.hexdigest(api_secret_key)
+  realm.hashed_api_client_key = Digest::SHA256.hexdigest(api_client_key)
+  realm.webhook_secret = Random::Secure.urlsafe_base64(11)
+  realm.ack_semantic = ack_semantic
+  realm.app_id = app_id
+  realm.app_secret = app_secret
+  realm.registration_redirection_uri = registration_redirection_uri
+  realm.registration_ack_uri = registration_ack_uri
+  realm.max_ack_retry_attempts = max_ack_retry_attempts
+  realm.default_role = default_role
+  realm.save!
+
+  realm
+end
+
 private def collect_redis_messages(channel : String, count : Int, timeout : Time::Span, &) : Array(String)
   received = Channel(Array(String)).new(1)
 

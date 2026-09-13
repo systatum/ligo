@@ -25,6 +25,12 @@ default: &default
 development: &development
   <<: *default
 
+  ligo_redis_port: 6381
+  ligo_redis_password: "devredis"
+
+  ligo_sidekiq_redis_port: 6381
+  ligo_sidekiq_redis_password: "devredis"
+
   ligo_mailer_smtp_host: "localhost"
   ligo_mailer_smtp_port: 1026
   ligo_mailer_smtp_use_auth: false
