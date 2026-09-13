@@ -1,4 +1,6 @@
 Marten.configure :test do |config|
+  config.allowed_hosts = [".localhost", "127.0.0.1", "[::1]"]
+
   config.database do |db|
     db.host = "127.0.0.1"
     db.port = 3367

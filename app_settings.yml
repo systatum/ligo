@@ -4,6 +4,7 @@ default: &default
   ligo_email_verification_token_expiry_minutes: 60
   ligo_app_cors_whitelist: "*"
   ligo_app_cors_ok_headers: "Content-Type, Authorization, Access-Control-Allow-Origin"
+  ligo_webhook_secret: "salted_webhook_secret_for_ligo_core"
 
   ligo_redis_host: "127.0.0.1"
   ligo_redis_port: 6379
