@@ -23,6 +23,8 @@ dependencies:
     github: shootingfly/jbuilder
   prorate:
     github: WJWH/prorate-cr
+  rbacr:
+    github: systatum/rbacr
 
 development_dependencies:
   spectator:

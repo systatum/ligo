@@ -60,6 +60,10 @@ shards:
     git: https://github.com/wjwh/prorate-cr.git
     version: 0.1.0+git.commit.1bd50585aa5dc65fd80be9d30248d5674e990cbf
 
+  rbacr:
+    git: https://github.com/systatum/rbacr.git
+    version: 0.1.0+git.commit.6e6d2ea58b5fc5876e79d72a6f2c020b2d249359
+
   redis:
     git: https://github.com/stefanwille/crystal-redis.git
     version: 2.9.1
