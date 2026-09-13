@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    name: Build & Test
+    runs-on: ubuntu-24.04
+
+    env:
+      # Overrides app_settings.yml's docker-compose-oriented redis settings -
+      # the redis service below runs on the plain default port, no password.
+      LIGO_REDIS_HOST: 127.0.0.1
+      LIGO_REDIS_PORT: 6379
+      LIGO_REDIS_PASSWORD: ""
+      LIGO_SIDEKIQ_REDIS_HOST: 127.0.0.1
+      LIGO_SIDEKIQ_REDIS_PORT: 6379
+      LIGO_SIDEKIQ_REDIS_PASSWORD: ""
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3367:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Download source
+        uses: actions/checkout@v7
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mysql-client
+
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: "1.20.2"
+
+      - name: Cache shards
+        uses: actions/cache@v6
+        with:
+          path: lib
+          key: ${{ runner.os }}-shards-${{ hashFiles('**/shard.lock') }}
+
+      - name: Cache Crystal build cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/crystal
+          key: ${{ runner.os }}-crystal-build-1.20.2-${{ hashFiles('**/shard.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-crystal-build-1.20.2-
+
+      - name: Install shards
+        run: shards install
+
+      - name: Lint
+        run: crystal tool format --check
+
+      - name: Build app binary
+        run: |
+          mkdir -p mybin
+          crystal build manage.cr -o mybin/manage
+
+      - name: Wait for MySQL
+        run: |
+          until mysqladmin ping -h127.0.0.1 -P3367 -uroot -proot --silent; do
+            echo 'Waiting for mysqld to be connectable...'
+            sleep 2
+          done
+
+      - name: Prepare test database
+        run: |
+          mysql -h127.0.0.1 -P3367 -uroot -proot -e "
+            CREATE DATABASE IF NOT EXISTS ligo_test;
+            CREATE USER IF NOT EXISTS 'devroot'@'%' IDENTIFIED WITH mysql_native_password BY 'devroot';
+            GRANT ALL PRIVILEGES ON ligo_test.* TO 'devroot'@'%';
+            FLUSH PRIVILEGES;
+          "
+
+      - name: Run migration
+        run: mybin/manage migrate
+
+      - name: Run specs
+        run: crystal spec
