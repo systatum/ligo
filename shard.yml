@@ -27,6 +27,10 @@ dependencies:
     github: WJWH/prorate-cr
   rbacr:
     github: systatum/rbacr
+  multi_auth:
+    github: msa7/multi_auth
+  halite:
+    github: icyleaf/halite
   sidekiq:
     github: mperham/sidekiq.cr
     version: ~> 0.7.3
