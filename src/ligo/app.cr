@@ -1,6 +1,7 @@
 require "./schemas/concerns/**"
 require "./schemas/base_schema"
 require "./lib/**"
+require "./structs/**"
 require "./errors"
 require "./models/concerns/**"
 require "./models/**"

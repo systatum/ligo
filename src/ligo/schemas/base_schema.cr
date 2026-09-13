@@ -1,5 +1,5 @@
 class BaseSchema < Marten::Schema
-  # include SchemaDefiner
+  include SchemaDefiner
 
   property :user
 
