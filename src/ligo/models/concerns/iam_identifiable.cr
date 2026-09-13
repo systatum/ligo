@@ -2,6 +2,12 @@
 # creating/updating users from IAM-provided profile data. Any deployment can
 # act as the federation source ("IAM") for others; there's nothing here tied
 # to a specific app.
+#
+# generate_iam_identifier! is deliberately never called on every save. A user
+# who never federated has a nil iam_identifier_primary, which keeps the first
+# webhook bind by email working; auto-assigning one on every save would make
+# every ordinary local signup look like an existing, conflicting federation
+# identity the first time a real IAM webhook tries to bind that email.
 module IamIdentifiable
   record UserInfo,
     given_name : String,
@@ -12,8 +18,6 @@ module IamIdentifiable
   end
 
   macro included
-    before_save :generate_iam_identifier!
-
     def self.find_or_create_by_iam_identifier(
       iam_identifier_primary : String,
       user_info : UserInfo,
