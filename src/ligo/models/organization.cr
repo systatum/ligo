@@ -1,6 +1,7 @@
 module Ligo
   class Organization < Marten::Model
     include IdConcealer
+    include ChangeTracker
     include SoftDeleter
 
     field :id, :big_int, primary_key: true, auto: true

@@ -1,6 +1,7 @@
 module Ligo
   class User < MartenAuth::User
     include IdConcealer
+    include ChangeTracker
     include SoftDeleter
     include JwtPayloader
 
