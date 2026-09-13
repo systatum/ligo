@@ -34,6 +34,20 @@ module JwtPayloader
 
       payload
     end
+
+    # Resolves the user a JWT was issued for, rejecting it if the user's
+    # password has changed since (puat mismatch means the token is stale).
+    def self.find_by_jwt_token(jwt_token) : self?
+      payload = decode_jwt_token(jwt_token)
+
+      user = self.get(id: payload["id"].as_i64)
+      return nil unless user
+      return nil unless user.password_updated_at!.to_unix_f == payload["puat"].as_f
+
+      user
+    rescue
+      nil
+    end
   end
 
   # generates a new JWT token every invocation

@@ -20,6 +20,10 @@ shards:
     git: https://github.com/crystal-i18n/i18n.git
     version: 0.2.2
 
+  jbuilder:
+    git: https://github.com/shootingfly/jbuilder.git
+    version: 1.0.0
+
   jwt:
     git: https://github.com/crystal-community/jwt.git
     version: 1.7.2
@@ -47,6 +51,18 @@ shards:
   openssl_ext:
     git: https://github.com/spider-gazelle/openssl_ext.git
     version: 2.8.5
+
+  pool:
+    git: https://github.com/ysbaddaden/pool.git
+    version: 0.2.4
+
+  prorate:
+    git: https://github.com/wjwh/prorate-cr.git
+    version: 0.1.0+git.commit.1bd50585aa5dc65fd80be9d30248d5674e990cbf
+
+  redis:
+    git: https://github.com/stefanwille/crystal-redis.git
+    version: 2.9.1
 
   spectator:
     git: https://gitlab.com/arctic-fox/spectator.git

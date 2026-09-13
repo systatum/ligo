@@ -5,6 +5,13 @@ Marten.configure do |config|
     Ligo::App,
   ] of Marten::Apps::Config.class
 
+  config.middleware = [
+    CrossRequestAuthorizer,
+    OptionsRequestResponder,
+    UserDetector,
+    Marten::Middleware::GZip,
+  ]
+
   config.database do |db|
     db.backend = :mysql
   end

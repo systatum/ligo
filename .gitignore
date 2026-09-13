@@ -13,3 +13,4 @@
 /log/*.log
 .spectator-failures
 /.spec_runner_*/
+/media/

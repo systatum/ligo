@@ -5,6 +5,7 @@ require "./models/**"
 require "./services/**"
 require "./handlers/concerns/**"
 require "./handlers/**"
+require "./middlewares/**"
 require "./serializers/**"
 require "./schemas/**"
 
