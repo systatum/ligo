@@ -24,4 +24,9 @@ Marten.routes.draw do
   path "/user/verify-email/form", Ligo::EmailVerificationFormHandler, name: "verify_email_form"
 
   path "/request_state", Ligo::RequestStateHandler, name: "request_state"
+
+  path "/fields/create", FieldCreateHandler, name: "field_create"
+  path "/fields/<field_hashed_id:str>/update", FieldUpdateHandler, name: "field_update"
+  path "/fields/<field_hashed_id:str>/delete", FieldDeleteHandler, name: "field_delete"
+  path "/fields/rt/<resource_type:int>/index", FieldIndexHandler, name: "field_index"
 end
