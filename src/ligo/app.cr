@@ -1,3 +1,5 @@
+require "./lib/**"
+require "./errors"
 require "./models/concerns/**"
 require "./models/**"
 require "./handlers/concerns/**"
