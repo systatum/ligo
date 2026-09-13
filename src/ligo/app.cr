@@ -1,5 +1,5 @@
+require "./models/concerns/**"
 require "./models/**"
-require "./migrations/**"
 require "./handlers/concerns/**"
 require "./handlers/**"
 require "./serializers/**"

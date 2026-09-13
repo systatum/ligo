@@ -4,11 +4,20 @@ version: 0.1.0
 dependencies:
   marten:
     github: martenframework/marten
+  marten_auth:
+    github: martenframework/marten-auth
   mysql:
     github: crystal-lang/crystal-mysql
     version: 0.17.0
   typed_env_config:
     github: systatum/typed_env_config
+    version: 0.3.0
+  jwt:
+    github: crystal-community/jwt
+  nanoid:
+    github: mamantoha/nanoid.cr
+  hashids:
+    github: splattael/hashids.cr
     version: 0.3.0
 
 development_dependencies:
