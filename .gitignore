@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.sample
+.vscode/
+.DS_Store
+*.db
+*.dwarf
+/.shards/
+/bin/
+/mybin/
+/lib/
+/tmp/
+/log/*.log
+.spectator-failures
+/.spec_runner_*/
