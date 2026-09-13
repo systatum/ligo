@@ -30,6 +30,10 @@ class ModelSerializer
     NamedTuple.new
   end
 
+  protected def serialize_time_span(value)
+    Converter.serialize_time_span(value)
+  end
+
   # Resolves an ordered list of UploadedFile id strings into their
   # serialized form, in order.
   protected def fetch_uploaded_files(ids : Array(String)?)
