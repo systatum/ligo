@@ -1,0 +1,137 @@
+id-ID:
+  i18n:
+    date:
+      abbr_day_names: [Sen, Sel, Rab, Kam, Jum, Sab, Min]
+      abbr_month_names: [Jan, Feb, Mar, Apr, Mei, Jun, Jul, Agu, Sep, Okt, Nov, Des]
+      day_names: [Senin, Selasa, Rabu, Kamis, Jumat, Sabtu, Minggu]
+      month_names: [Januari, Februari, Maret, April, Mei, Juni,
+                    Juli, Agustus, September, Oktober, November, Desember]
+      formats:
+        default: "%Y-%m-%d"
+        long: "%d %B %Y"
+        short: "%d %b"
+    time:
+      am: am
+      formats:
+        default: "%a, %d %b %Y %H:%M:%S %z"
+        long: "%d %B %Y %H:%M"
+        short: "%d %b %H:%M"
+      pm: pm
+  marten:
+    db:
+      field:
+        base:
+          errors:
+            blank: "Harus diisi."
+            nil: "Harus diisi."
+        email:
+          errors:
+            invalid: "Harus berupa alamat email yang valid."
+        image:
+          errors:
+            not_an_image: "Berikan gambar yang valid."
+        slug:
+          errors:
+            invalid: "Masukkan slug yang valid."
+        string:
+          errors:
+            too_short: "Harus setidaknya %{min_size} karakter."
+            too_long: "Harus paling banyak %{max_size} karakter."
+        text:
+          errors:
+            too_long: "Harus paling banyak %{max_size} karakter."
+        url:
+          errors:
+            invalid: "Harus berupa URL yang valid."
+        uuid:
+          errors:
+            invalid: "Harus berupa UUID yang valid."
+    schema:
+      field:
+        base:
+          errors:
+            invalid: "Nilai tidak valid."
+            required: "Harus diisi."
+        date:
+          errors:
+            invalid: "Tanggal tidak valid."
+          input_formats:
+            - "%Y-%m-%d"
+            - "%m/%d/%Y"
+            - "%b %d %Y"
+            - "%b %d, %Y"
+            - "%d %b %Y"
+            - "%d %b, %Y"
+            - "%B %d %Y"
+            - "%B %d, %Y"
+            - "%d %B %Y"
+            - "%d %B, %Y"
+        date_time:
+          errors:
+            invalid: "Tanggal dan waktu tidak valid."
+          input_formats:
+            - "%Y-%m-%d %H:%M:%S"
+            - "%Y-%m-%d %H:%M:%S.%f"
+            - "%Y-%m-%d %H:%M"
+            - "%m/%d/%Y %H:%M:%S"
+            - "%m/%d/%Y %H:%M:%S.%f"
+            - "%m/%d/%Y %H:%M"
+        duration:
+          errors:
+            invalid: "Durasi tidak valid."
+        email:
+          errors:
+            invalid: "Alamat email tidak valid."
+            taken: "Sudah digunakan."
+        enum:
+          errors:
+            invalid: "%{value} bukan salah satu nilai yang diterima."
+        slug:
+          errors:
+            invalid: "Masukkan slug yang valid."
+        file:
+          errors:
+            empty: "File kosong tidak diperbolehkan."
+            file_name_too_long: "Panjang nama file maksimal adalah %{max_name_size}."
+        float:
+          errors:
+            invalid: "Angka tidak valid."
+            too_small: "Harus lebih besar dari atau sama dengan %{min_value}."
+            too_big: "Harus kurang dari atau sama dengan %{max_value}."
+        image:
+          errors:
+            not_an_image: "Berikan gambar yang valid. File yang Anda berikan bukan gambar atau mungkin rusak."
+        int:
+          errors:
+            invalid: "Angka tidak valid."
+            too_small: "Harus lebih besar dari atau sama dengan %{min_value}."
+            too_big: "Harus kurang dari atau sama dengan %{max_value}."
+        json:
+          errors:
+            invalid: "JSON tidak valid."
+        string:
+          errors:
+            too_short: "Harus setidaknya %{min_size} karakter."
+            too_long: "Harus paling banyak %{max_size} karakter."
+        url:
+          errors:
+            invalid: "URL tidak valid."
+        uuid:
+          errors:
+            invalid: "UUID tidak valid."
+  emails:
+    password_reset:
+      subject: "Atur ulang password"
+      intro: "Lupa password? Tenang saja."
+      instructions: "Klik tombol di bawah untuk mengatur ulang password Anda:"
+      cta: "Ubah password"
+      or_visit: "Atau kunjungi tautan berikut:"
+      notice: "Tautan tersebut berlaku selama 5 menit. Jika Anda tidak meminta proses pengubahan password ini, cukup abaikan email ini."
+    email_verification:
+      subject: "Verifikasi alamat email Anda"
+      intro: "Terima kasih telah mendaftar!"
+      instructions: "Silakan verifikasi alamat email Anda dengan mengklik tombol di bawah:"
+      cta: "Verifikasi email"
+      code_intro: "Atau masukkan kode verifikasi berikut:"
+      alternative_link: "Atau kunjungi tautan berikut:"
+      notice: "Jika Anda tidak mendaftar untuk akun ini, abaikan email ini."

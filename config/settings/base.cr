@@ -3,6 +3,12 @@ Marten.configure do |config|
 
   config.secret_key = "__insecure_dev_secret_key_for_ligo_core__"
 
+  config.i18n.default_locale = "en-US"
+  config.i18n.available_locales = ["en-US", "id-ID", "ja-JP"]
+  config.i18n.fallbacks = ["en-US"]
+
+  config.auth.user_model = Ligo::User
+
   config.installed_apps = [
     Ligo::App,
   ] of Marten::Apps::Config.class

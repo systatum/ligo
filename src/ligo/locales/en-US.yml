@@ -1,0 +1,137 @@
+en-US:
+  i18n:
+    date:
+      abbr_day_names: [Mon, Tue, Wed, Thu, Fri, Sat, Sun]
+      abbr_month_names: [Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
+      day_names: [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]
+      month_names: [January, February, March, April, May, June,
+                    July, August, September, October, November, December]
+      formats:
+        default: "%Y-%m-%d"
+        long: "%B %d, %Y"
+        short: "%b %d"
+    time:
+      am: am
+      formats:
+        default: "%a, %d %b %Y %H:%M:%S %z"
+        long: "%B %d, %Y %H:%M"
+        short: "%d %b %H:%M"
+      pm: pm
+  marten:
+    db:
+      field:
+        base:
+          errors:
+            blank: "Must be filled."
+            nil: "Must be filled."
+        email:
+          errors:
+            invalid: "Must be a valid email address."
+        image:
+          errors:
+            not_an_image: "Provide a valid image."
+        slug:
+          errors:
+            invalid: "Enter a valid slug."
+        string:
+          errors:
+            too_short: "Must be at least %{min_size} characters long."
+            too_long: "Must be at most %{max_size} characters long."
+        text:
+          errors:
+            too_long: "Must be at most %{max_size} characters long."
+        url:
+          errors:
+            invalid: "Must be a valid URL."
+        uuid:
+          errors:
+            invalid: "Must be a valid UUID."
+    schema:
+      field:
+        base:
+          errors:
+            invalid: "Invalid value."
+            required: "Must be filled."
+        date:
+          errors:
+            invalid: "Invalid date."
+          input_formats:
+            - "%Y-%m-%d"
+            - "%m/%d/%Y"
+            - "%b %d %Y"
+            - "%b %d, %Y"
+            - "%d %b %Y"
+            - "%d %b, %Y"
+            - "%B %d %Y"
+            - "%B %d, %Y"
+            - "%d %B %Y"
+            - "%d %B, %Y"
+        date_time:
+          errors:
+            invalid: "Invalid date and time."
+          input_formats:
+            - "%Y-%m-%d %H:%M:%S"
+            - "%Y-%m-%d %H:%M:%S.%f"
+            - "%Y-%m-%d %H:%M"
+            - "%m/%d/%Y %H:%M:%S"
+            - "%m/%d/%Y %H:%M:%S.%f"
+            - "%m/%d/%Y %H:%M"
+        duration:
+          errors:
+            invalid: "Invalid duration."
+        email:
+          errors:
+            invalid: "Invalid email address."
+            taken: "Already taken."
+        enum:
+          errors:
+            invalid: "%{value} is not one of the accepted values."
+        slug:
+          errors:
+            invalid: "Enter a valid slug."
+        file:
+          errors:
+            empty: "Empty files are not allowed."
+            file_name_too_long: "The maximum allowed file name length is %{max_name_size}."
+        float:
+          errors:
+            invalid: "Invalid number."
+            too_small: "Must be greater than or equal to %{min_value}."
+            too_big: "Must be less than or equal to %{max_value}."
+        image:
+          errors:
+            not_an_image: "Provide a valid image. The file you provided was either not an image or was a corrupted image."
+        int:
+          errors:
+            invalid: "Invalid number."
+            too_small: "Must be greater than or equal to %{min_value}."
+            too_big: "Must be less than or equal to %{max_value}."
+        json:
+          errors:
+            invalid: "Invalid JSON."
+        string:
+          errors:
+            too_short: "Must be at least %{min_size} characters long."
+            too_long: "Must be at most %{max_size} characters long."
+        url:
+          errors:
+            invalid: "Invalid URL."
+        uuid:
+          errors:
+            invalid: "Invalid UUID."
+  emails:
+    password_reset:
+      subject: "Reset your password"
+      intro: "Forgot your password? No worries."
+      instructions: "Click the button below to reset your password:"
+      cta: "Reset password"
+      or_visit: "Or visit the following link:"
+      notice: "This link is valid for 5 minutes. If you didn't request this password change, simply ignore this email."
+    email_verification:
+      subject: "Verify your email address"
+      intro: "Thanks for signing up!"
+      instructions: "Please verify your email address by clicking the button below:"
+      cta: "Verify email"
+      code_intro: "Or enter the following verification code:"
+      alternative_link: "Or visit the following link:"
+      notice: "If you didn't sign up for this account, simply ignore this email."

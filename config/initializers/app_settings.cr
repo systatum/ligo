@@ -6,7 +6,8 @@ class AppSettings
   field ligo_email_verification_token_expiry_minutes : Int32, default: 60
   field ligo_app_cors_whitelist : String, default: ""
   field ligo_app_cors_ok_headers : String, default: ""
-  field ligo_webhook_secret : String, default: "" # secret for verifying incoming IAM webhook signatures
+  field ligo_webhook_secret : String, default: ""                    # secret for verifying incoming IAM webhook signatures
+  field ligo_app_base_url : String, default: "http://localhost:8000" # used to build absolute links in emails
 
   field ligo_redis_host : String, default: "127.0.0.1"
   field ligo_redis_port : Int32, default: 6379

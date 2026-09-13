@@ -1,0 +1,35 @@
+ja-JP:
+  i18n:
+    date:
+      abbr_day_names: [月, 火, 水, 木, 金, 土, 日]
+      abbr_month_names: [1月, 2月, 3月, 4月, 5月, 6月, 7月, 8月, 9月, 10月, 11月, 12月]
+      day_names: [月曜日, 火曜日, 水曜日, 木曜日, 金曜日, 土曜日, 日曜日]
+      month_names: [1月, 2月, 3月, 4月, 5月, 6月,
+                    7月, 8月, 9月, 10月, 11月, 12月]
+      formats:
+        default: "%Y-%m-%d"
+        long: "%Y年%B%d日"
+        short: "%b %d"
+    time:
+      am: 午前
+      formats:
+        default: "%a, %d %b %Y %H:%M:%S %z"
+        long: "%Y年%B%d日 %H:%M"
+        short: "%d %b %H:%M"
+      pm: 午後
+  emails:
+    password_reset:
+      subject: "パスワードのリセット"
+      intro: "パスワードをお忘れですか？ご安心ください。"
+      instructions: "以下のボタンをクリックして、パスワードを再設定してください："
+      cta: "パスワードを再設定"
+      or_visit: "または、以下のリンクにアクセスしてください："
+      notice: "このリンクは5分間有効です。このパスワード再設定をリクエストしていない場合は、このメールをそのまま無視してください。"
+    email_verification:
+      subject: "メールアドレスを確認してください"
+      intro: "ご登録ありがとうございます！"
+      instructions: "以下のボタンをクリックして、メールアドレスを確認してください："
+      cta: "メールを確認"
+      code_intro: "または、以下の確認コードを入力してください："
+      alternative_link: "または、以下のリンクにアクセスしてください："
+      notice: "このアカウントに登録していない場合は、このメールを無視してください。"
