@@ -1,8 +1,11 @@
 # Third party requirements.
+require "base64"
 require "big"
+require "digest"
 require "jwt"
 require "marten"
 require "marten_auth"
+require "mime"
 require "mysql"
 require "nanoid"
 require "hashids"

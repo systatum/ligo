@@ -2,10 +2,10 @@ require "./lib/**"
 require "./errors"
 require "./models/concerns/**"
 require "./models/**"
+require "./services/**"
 require "./handlers/concerns/**"
 require "./handlers/**"
 require "./serializers/**"
-require "./services/**"
 require "./schemas/**"
 
 module Ligo
