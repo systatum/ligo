@@ -16,23 +16,52 @@ end
 Spectator.configure do |config|
   config.after_each do
     flush_db_for_specs!
+    Sidekiq.redis { |conn| conn.flushdb }
   end
 end
 
 Spec.after_each do
   # No need to flush db here as it's already done automatically by Marten
+  Sidekiq.redis { |conn| conn.flushdb }
 end
 
-def create_user(email : String = "test-#{Random::Secure.hex(4)}@example.com") : Ligo::User
+def create_user(
+  email : String = "test-#{Random::Secure.hex(4)}@example.com",
+  password : String = "secret123",
+) : Ligo::User
   user = Ligo::User.new(
     email: email,
     first_name: "Test",
     last_name: "User",
     password_updated_at: Time.utc
   )
-  user.set_password("secret123")
+  user.set_password(password)
   user.save!
   user
+end
+
+def create_organization(name : String = "Test Organization #{Random.rand(100_000)}") : Ligo::Organization
+  Ligo::Organization.create!(name: name)
+end
+
+def date_time_format
+  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/
+end
+
+PNG_1X1 = Base64.decode_string("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==")
+
+def build_http_uploaded_file(
+  filename : String = "thumbnail.png",
+  content : String = PNG_1X1,
+) : Marten::HTTP::UploadedFile
+  part = HTTP::FormData::Part.new(
+    HTTP::Headers{
+      "Content-Disposition" => %(form-data; name="profile_picture"; filename="#{filename}"),
+    },
+    IO::Memory.new(content)
+  )
+
+  Marten::HTTP::UploadedFile.new(part)
 end
 
 def create_realm(
@@ -63,6 +92,25 @@ def create_realm(
   realm.save!
 
   realm
+end
+
+def expect_jobs(job_class, count = 1, queue = "default", &)
+  q = Sidekiq::Queue.new(queue)
+  initial_size = q.size
+  yield
+  final_size = q.size
+  (final_size - initial_size).should eq(count)
+
+  jobs = q.to_a.last(count)
+  jobs.each do |job|
+    job.klass.should eq(job_class.to_s)
+  end
+end
+
+def expect_no_jobs(job_class, queue = "default", &)
+  expect_jobs(job_class, 0, queue: queue) do
+    yield
+  end
 end
 
 private def collect_redis_messages(channel : String, count : Int, timeout : Time::Span, &) : Array(String)
