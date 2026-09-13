@@ -1,0 +1,13 @@
+default: &default
+  ligo_salt_for_id_concealer: "salted_id_for_ligo_core"
+  ligo_password_reset_token_expiry_minutes: 5
+  ligo_email_verification_token_expiry_minutes: 60
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default
