@@ -1,4 +1,5 @@
 # Third party requirements.
+require "aasm"
 require "base64"
 require "big"
 require "digest"

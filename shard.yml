@@ -37,6 +37,8 @@ dependencies:
   markd:
     github: icyleaf/markd
     branch: release/0.6.0
+  aasm:
+    github: veelenga/aasm.cr
 
 development_dependencies:
   spectator:
