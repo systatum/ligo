@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     env:
+      MARTEN_ENV: test
       # Overrides app_settings.yml's docker-compose-oriented redis settings -
       # the redis service below runs on the plain default port, no password.
       LIGO_REDIS_HOST: 127.0.0.1
