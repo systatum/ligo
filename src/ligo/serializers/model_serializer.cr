@@ -12,6 +12,11 @@ class ModelSerializer
     serializer.soft_serialize
   end
 
+  # dumps a whole collection straight to a JSON array, skipping the per-record soft_serialize/to_json dance
+  def self.serialize_many(records) : String
+    records.map { |record| new(record).soft_serialize }.to_json
+  end
+
   # -------------------
 
   def initialize(record)
