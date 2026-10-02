@@ -1,5 +1,8 @@
 Marten.routes.draw do
   path "/uploaded_file/<id:uuid>", UploadedFileShowHandler, name: "uploaded_file_show"
+  path "/uploaded_file/presign", UploadedFilePresignHandler, name: "uploaded_file_presign"
+  path "/uploaded_file/<id:uuid>/download_url", UploadedFileDownloadUrlHandler, name: "uploaded_file_download_url"
+  path "/uploaded_file/<id:uuid>/delete", UploadedFileDeleteHandler, name: "uploaded_file_delete"
   path "/job/<id:str>", JobStatusHandler, name: "job_status"
 
   path "/realm/create", Ligo::RealmCreateHandler, name: "realm_create"

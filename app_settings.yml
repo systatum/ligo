@@ -24,6 +24,13 @@ default: &default
   ligo_mailer_app_name: "Ligo"
   ligo_mailer_app_description: "Ligo is the shared engine behind our apps."
 
+  ligo_s3_region: "us-east-1"
+  ligo_s3_access_key: "test"
+  ligo_s3_secret_key: "test"
+  ligo_s3_endpoint: "http://localhost:4567"
+  ligo_allow_presigned_upload: false
+  ligo_uploaded_file_bucket: "ligo-uploaded-files"
+
 development: &development
   <<: *default
 
@@ -37,8 +44,12 @@ development: &development
   ligo_mailer_smtp_port: 1026
   ligo_mailer_smtp_use_auth: false
 
+  ligo_allow_presigned_upload: true
+
 test:
   <<: *development
+
+  ligo_uploaded_file_bucket: "ligo-uploaded-files-test"
 
 production:
   <<: *default

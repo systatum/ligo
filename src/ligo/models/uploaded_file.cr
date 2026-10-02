@@ -10,9 +10,29 @@ module Ligo
     field :updated_at, :date_time, null: false, auto_now: true
 
     field :uploaded_by, :many_to_one, to: Ligo::User, related: :uploaded_files, null: true, blank: true
+    # Opt-in; nil for a permanent upload (ie profile picture). Set only by the presigned-upload path.
+    field :expires_at, :date_time, null: true, blank: true
 
     def owned_by?(user : Ligo::User) : Bool
       uploaded_by == user
+    end
+
+    # Creates a row for a blob whose bytes Ligo never inspects (e.g. presign-uploaded ciphertext),
+    # so original_name/content_type are the generic placeholders this flow always uses.
+    def self.create_opaque!(
+      byte_size : Int64,
+      uploaded_by : Ligo::User? = nil,
+      expires_at : Time? = nil,
+      id : UUID = UUID.random,
+    ) : self
+      create!(
+        id: id,
+        original_name: "upload",
+        content_type: "application/octet-stream",
+        byte_size: byte_size,
+        uploaded_by: uploaded_by,
+        expires_at: expires_at,
+      )
     end
   end
 end

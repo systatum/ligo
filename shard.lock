@@ -4,6 +4,14 @@ shards:
     git: https://github.com/veelenga/aasm.cr.git
     version: 0.1.1
 
+  awscr-s3:
+    git: https://github.com/taylorfinnell/awscr-s3.git
+    version: 0.10.0
+
+  awscr-signer:
+    git: https://github.com/taylorfinnell/awscr-signer.git
+    version: 0.9.0
+
   backtracer:
     git: https://github.com/sija/backtracer.cr.git
     version: 1.2.4
@@ -31,6 +39,10 @@ shards:
   exception_page:
     git: https://github.com/crystal-loot/exception_page.git
     version: 0.5.0
+
+  future:
+    git: https://github.com/crystal-community/future.cr.git
+    version: 1.1.0
 
   halite:
     git: https://github.com/icyleaf/halite.git
@@ -119,6 +131,10 @@ shards:
   redis:
     git: https://github.com/stefanwille/crystal-redis.git
     version: 2.9.1
+
+  schedule:
+    git: https://github.com/hugoabonizio/schedule.cr.git
+    version: 0.2.2
 
   sidekiq:
     git: https://github.com/mperham/sidekiq.cr.git

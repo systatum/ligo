@@ -12,14 +12,13 @@ class FileCommitterService < BaseService(Ligo::UploadedFile)
     begin
       @storage.write(key, @tmpFile.io)
 
-      uploaded = Ligo::UploadedFile.new
-      uploaded.id = file_id
-      uploaded.original_name = detect_original_name(key)
-      uploaded.content_type = detect_content_type
-      uploaded.byte_size = @tmpFile.size.to_i64
-      uploaded.uploaded_by = @uploaded_by || Current.user
-
-      uploaded.save!
+      uploaded = Ligo::UploadedFile.create!(
+        id: file_id,
+        original_name: detect_original_name(key),
+        content_type: detect_content_type,
+        byte_size: @tmpFile.size.to_i64,
+        uploaded_by: @uploaded_by || Current.user,
+      )
 
       success(uploaded)
     rescue e

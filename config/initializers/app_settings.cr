@@ -34,6 +34,13 @@ class AppSettings
   field ligo_mailer_app_name : String, default: "Ligo"
   field ligo_mailer_app_description : String, default: ""
 
+  field ligo_s3_access_key : String, default: ""
+  field ligo_s3_secret_key : String, default: ""
+  field ligo_s3_region : String, default: "us-east-1"
+  field ligo_s3_endpoint : String, default: "" # blank means real AWS; set for a local S3-compatible service
+  field ligo_allow_presigned_upload : Bool, default: false
+  field ligo_uploaded_file_bucket : String, default: "" # each consuming app sets its own bucket name
+
   @@instance : AppSettings?
 
   def self.instance
