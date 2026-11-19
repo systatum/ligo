@@ -46,6 +46,18 @@ jobs:
         image: dockage/mailcatcher:0.9.0
         ports:
           - 1026:1025
+      localstack:
+        image: localstack/localstack:3.3
+        env:
+          SERVICES: s3
+        ports:
+          # app_settings.yml points test S3 at localhost:4567
+          - 4567:4566
+        options: >-
+          --health-cmd="curl -sf http://localhost:4566/_localstack/health || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
 
     steps:
       - name: Download source
@@ -104,6 +116,13 @@ jobs:
 
       - name: Run migration
         run: mybin/manage migrate
+
+      - name: Prepare test S3 buckets
+        run: |
+          docker exec ${{ job.services.localstack.id }} \
+            awslocal s3 mb s3://ligo-uploaded-files
+          docker exec ${{ job.services.localstack.id }} \
+            awslocal s3 mb s3://ligo-uploaded-files-test
 
       - name: Run specs
         run: crystal spec
